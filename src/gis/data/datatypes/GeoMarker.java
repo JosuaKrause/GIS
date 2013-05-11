@@ -1,7 +1,5 @@
 package gis.data.datatypes;
 
-import java.awt.Graphics;
-import java.awt.Point;
 import java.util.Comparator;
 
 public abstract class GeoMarker {
@@ -41,8 +39,6 @@ public abstract class GeoMarker {
 	public static Comparator<GeoMarker> getComparator() {
 		return comparator;
 	}
-	
-	public abstract void paint(Graphics g, Point p);
 	
 	@Override
 	public String toString() {
