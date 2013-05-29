@@ -7,14 +7,15 @@ import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
-public class GeoMarkerPolygon extends GeoMarker {
-	public Coordinate[] polygon;
+public class GeoMarkerMultiPolygon extends GeoMarker {
+	
+	public List<Coordinate[]> polygons;
 	public Color color = new Color(1, 0, 1, 0.5f);//rgba
 	
 	
-	public GeoMarkerPolygon(ElementId id, Coordinate[] polygon) {
+	public GeoMarkerMultiPolygon(ElementId id, List<Coordinate[]> polygons) {
 		super(id);
-		this.polygon = polygon;
+		this.polygons = polygons;
 	}
 
 	
@@ -24,4 +25,5 @@ public class GeoMarkerPolygon extends GeoMarker {
 		g.setColor(Color.BLACK);
 		g.drawPolygon(polygon);
 	}
+	
 }

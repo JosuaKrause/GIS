@@ -7,6 +7,7 @@ import java.util.List;
 import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.GeoMarkerPoint;
+import gis.data.datatypes.GeoMarkerMultiPolygon;
 import gis.data.datatypes.GeoMarkerPolygon;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
@@ -26,6 +27,18 @@ public class GeometryConverter {
 			case Geometry.POINT:
 				Point p = (Point)geom.getGeometry();
 				return new GeoMarkerPoint(id, new Coordinate(p.y, p.x));
+			case Geometry.POLYGON:
+				Polygon poly = (Polygon)geom.getGeometry();
+				if (poly.numRings() > 1) {
+					System.err.println("numRings = " + poly.numRings());
+				}
+				LinearRing polyRing = poly.getRing(0);
+				Point[] polyPoints = polyRing.getPoints();
+				Coordinate[] polyCoordinates = new Coordinate[polyPoints.length];
+				for (int k = 0; k < polyPoints.length; ++k) {
+					polyCoordinates[k] = new Coordinate(polyPoints[k].y, polyPoints[k].x);
+				}
+				return new GeoMarkerPolygon(id, polyCoordinates);
 			case Geometry.MULTIPOLYGON:
 				Polygon[] polys = ((MultiPolygon)geom.getGeometry()).getPolygons();
 				List<Coordinate[]> polygons = new ArrayList<Coordinate[]>(polys.length);
@@ -41,7 +54,7 @@ public class GeometryConverter {
 						polygons.add(coordinates);
 					}
 				}
-				return new GeoMarkerPolygon(id, polygons);
+				return new GeoMarkerMultiPolygon(id, polygons);
 			default:
 				System.err.println("unsupported geometry type " + geom.getGeoType()
 						+ " " + geom.getType());

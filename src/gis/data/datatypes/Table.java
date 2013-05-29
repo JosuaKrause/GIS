@@ -34,7 +34,6 @@ public enum Table {
 			
 			@Override
 			public int compare(Table t1, Table t2) {
-				//return t1.name.compareTo(t2.name);
 				int i1 = indexOf(t1);
 				int i2 = indexOf(t2);
 				if (i1 < i2) {
