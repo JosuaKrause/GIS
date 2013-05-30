@@ -1,7 +1,12 @@
 package gis;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+
 import gis.gui.GisFrame;
 
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.JFrame;
 
 
