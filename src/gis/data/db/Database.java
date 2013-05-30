@@ -28,6 +28,15 @@ public class Database {
   // name, semi-major axis (equatorial radius), inverse flattening
   private static String WSG84 = "SPHEROID[\"WSG84\",6378137.0,298.257223563]";
 
+  static {
+    // create postgresql driver
+    try {
+      Class.forName("org.postgresql.Driver");
+    } catch(final ClassNotFoundException e) {
+      throw new AssertionError("missing library", e);
+    }
+  }
+
   private GISConfiguration config;
 
   public Database() {
@@ -40,15 +49,9 @@ public class Database {
   }
 
   public List<GeoMarker> getGeometry(final Table table) {
-    // create postgresql driver
-    try {
-      Class.forName("org.postgresql.Driver");
-    } catch(final ClassNotFoundException e) {
-      throw new AssertionError("missing library", e);
-    }
     final List<GeoMarker> markers = new ArrayList<GeoMarker>();
-    try (Connection conn = DriverManager.getConnection(config.getUrl(), config.getUser(),
-        config.getPassword())) {
+    try (Connection conn = DriverManager.getConnection(
+        config.getUrl(), config.getUser(), config.getPassword())) {
       // add support for Geometry types
       ((PGConnection) conn).addDataType("geometry", org.postgis.PGgeometry.class);
       // create query statement

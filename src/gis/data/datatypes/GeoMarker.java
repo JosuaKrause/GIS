@@ -8,7 +8,7 @@ import java.util.Comparator;
  * @author Joschi <josua.krause@gmail.com>
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
  */
-public abstract class GeoMarker {
+public class GeoMarker {
   /** The element id. */
   public final ElementId id;
   /** Whether the geo marker is currently selected. */
