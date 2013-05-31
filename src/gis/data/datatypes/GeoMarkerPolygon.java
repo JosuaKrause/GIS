@@ -1,27 +1,39 @@
 package gis.data.datatypes;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Polygon;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
-public class GeoMarkerPolygon extends GeoMarker {
-	public Coordinate[] polygon;
-	public Color color = new Color(1, 0, 1, 0.5f);//rgba
-	
-	
-	public GeoMarkerPolygon(ElementId id, Coordinate[] polygon) {
-		super(id);
-		this.polygon = polygon;
-	}
+/**
+ * A polygon marker.
+ * 
+ * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+ * @author Joschi <josua.krause@googlemail.com>
+ */
+public class GeoMarkerPolygon extends GeoMarkerMultiPolygon {
 
-	
-	public void paint(Graphics g, Polygon polygon) {
-		g.setColor(color);
-		g.fillPolygon(polygon);
-		g.setColor(Color.BLACK);
-		g.drawPolygon(polygon);
-	}
+  /**
+   * Converts the polygon into a list of polygons.
+   * 
+   * @param p The polygon.
+   * @return A list of one polygon.
+   */
+  private static List<Coordinate[]> toList(final Coordinate[] p) {
+    // Arrays.asList(...) does not work :(
+    final List<Coordinate[]> list = new ArrayList<>(1);
+    list.add(p);
+    return list;
+  }
+
+  /**
+   * Creates a polygon geo marker.
+   * 
+   * @param id The id.
+   * @param polygon The polygon.
+   */
+  public GeoMarkerPolygon(final ElementId id, final Coordinate[] polygon) {
+    super(id, toList(polygon));
+  }
+
 }

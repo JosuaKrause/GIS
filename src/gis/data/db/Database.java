@@ -20,13 +20,24 @@ import org.postgis.PGgeometry;
 import org.postgresql.PGConnection;
 
 /**
- * @author Joschi <josua.krause@gmail.com>
+ * Handles database access.
+ * 
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+ * @author Joschi <josua.krause@gmail.com>
  */
 public class Database {
 
   // name, semi-major axis (equatorial radius), inverse flattening
   private static String WSG84 = "SPHEROID[\"WSG84\",6378137.0,298.257223563]";
+
+  static {
+    // create postgresql driver
+    try {
+      Class.forName("org.postgresql.Driver");
+    } catch(final ClassNotFoundException e) {
+      throw new AssertionError("missing library", e);
+    }
+  }
 
   private GISConfiguration config;
 
@@ -40,15 +51,9 @@ public class Database {
   }
 
   public List<GeoMarker> getGeometry(final Table table) {
-    // create postgresql driver
-    try {
-      Class.forName("org.postgresql.Driver");
-    } catch(final ClassNotFoundException e) {
-      throw new AssertionError("missing library", e);
-    }
-    final List<GeoMarker> markers = new ArrayList<GeoMarker>();
-    try (Connection conn = DriverManager.getConnection(config.getUrl(), config.getUser(),
-        config.getPassword())) {
+    final List<GeoMarker> markers = new ArrayList<>();
+    try (Connection conn = DriverManager.getConnection(
+        config.getUrl(), config.getUser(), config.getPassword())) {
       // add support for Geometry types
       ((PGConnection) conn).addDataType("geometry", org.postgis.PGgeometry.class);
       // create query statement
@@ -57,14 +62,17 @@ public class Database {
       final ResultSet r = s.executeQuery(
           "SELECT gid, geom FROM " + table.name + " LIMIT 10000");
       // iterate while there are polygons to retrieve
+      final List<PGgeometry> geom = new ArrayList<>();
+      final List<ElementId> ids = new ArrayList<>();
       while(r.next()) {
-        final int gid = r.getInt(1);
-        final PGgeometry geom = (PGgeometry) r.getObject(2); // retrieve the
-                                                             // object by index
-        final ElementId id = new ElementId(table, gid);
-        markers.add(GeometryConverter.convert(id, geom));
+        ids.add(new ElementId(table, r.getInt(1)));
+        geom.add((PGgeometry) r.getObject(2));
       }
       s.close();// close statement when finished
+      for(int i = 0; i < geom.size(); ++i) {
+        markers.add(GeometryConverter.convert(ids.get(i), geom.get(i)));
+        System.out.println("loading: " + ((i + 1.0) / geom.size() * 100.0) + "%");
+      }
     } catch(final Exception ex) {
       System.err.println(ex);
       ex.printStackTrace();
