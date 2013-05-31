@@ -2,6 +2,7 @@ package gis.data.datatypes;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
@@ -28,6 +29,8 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
 
   /** The polygons. */
   private final MapPolygon[] polygons;
+  /** The world coordinate bounding box. */
+  private final Rectangle2D latLonBBox;
 
   /**
    * Creates a geo marker for the list of polygons.
@@ -39,11 +42,36 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
     super(id);
     int pos = 0;
     polygons = new MapPolygon[poly.size()];
+    double minLat = Double.NaN;
+    double maxLat = Double.NaN;
+    double minLon = Double.NaN;
+    double maxLon = Double.NaN;
     for(final Coordinate[] coords : poly) {
+      for(final Coordinate c : coords) {
+        if(Double.isNaN(minLat) || minLat > c.getLat()) {
+          minLat = c.getLat();
+        }
+        if(Double.isNaN(maxLat) || maxLat < c.getLat()) {
+          maxLat = c.getLat();
+        }
+        if(Double.isNaN(minLon) || minLon > c.getLon()) {
+          minLon = c.getLon();
+        }
+        if(Double.isNaN(maxLon) || maxLon < c.getLon()) {
+          maxLon = c.getLon();
+        }
+      }
       final MapPolygonImpl p = new MapPolygonImpl(coords);
       p.setStyle(STYLE);
       polygons[pos++] = p;
     }
+    latLonBBox = new Rectangle2D.Double(
+        minLon, minLat, maxLon - minLon, maxLat - minLat);
+  }
+
+  @Override
+  protected Rectangle2D getLatLonBBox() {
+    return latLonBBox;
   }
 
   @Override

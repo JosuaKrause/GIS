@@ -1,5 +1,6 @@
 package gis.data.datatypes;
 
+import java.awt.geom.Rectangle2D;
 import java.util.Comparator;
 
 import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
@@ -70,6 +71,28 @@ public class GeoMarker {
    */
   public MapPolygon[] getPolygons() {
     throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return The world coordinate bounding box.
+   */
+  protected Rectangle2D getLatLonBBox() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Checks whether the polygon is in the current viewport. Note that this
+   * method may return weird results when applied near the International Date
+   * Line. But since our data points lie nowhere near the International Date
+   * Line this is no problem.
+   * 
+   * @param latLonViewport The viewport of the map viewer.
+   * @return Whether the marker must be drawn.
+   */
+  public boolean inViewport(final Rectangle2D latLonViewport) {
+    return latLonViewport.intersects(getLatLonBBox());
   }
 
   @Override

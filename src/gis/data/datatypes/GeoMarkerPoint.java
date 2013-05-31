@@ -2,6 +2,7 @@ package gis.data.datatypes;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.geom.Rectangle2D;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.MapMarkerCircle;
@@ -27,18 +28,28 @@ public class GeoMarkerPoint extends GeoMarker {
 
   /** The point marker. */
   private final MapMarker[] marker;
+  /** The world coordinate bounding box. */
+  private final Rectangle2D latLonBBox;
 
   /**
    * Creates a point based geo marker.
    * 
    * @param id The id.
-   * @param coordinate The position.
+   * @param coord The position.
    */
-  public GeoMarkerPoint(final ElementId id, final Coordinate coordinate) {
+  public GeoMarkerPoint(final ElementId id, final Coordinate coord) {
     super(id);
-    final MapMarkerCircle m = new MapMarkerCircle(coordinate, 3);
+    final double radius = 3;
+    final MapMarkerCircle m = new MapMarkerCircle(coord, radius);
     m.setStyle(STYLE);
     marker = new MapMarker[] { m};
+    latLonBBox = new Rectangle2D.Double(
+        coord.getLon() - radius, coord.getLat() - radius, radius * 2, radius * 2);
+  }
+
+  @Override
+  protected Rectangle2D getLatLonBBox() {
+    return latLonBBox;
   }
 
   @Override
