@@ -78,7 +78,7 @@ public class GeoMarker {
    * 
    * @return The world coordinate bounding box.
    */
-  protected Rectangle2D getLatLonBBox() {
+  public Rectangle2D getLatLonBBox() {
     throw new UnsupportedOperationException();
   }
 

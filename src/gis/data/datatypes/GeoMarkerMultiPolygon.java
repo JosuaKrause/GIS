@@ -70,7 +70,7 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
   }
 
   @Override
-  protected Rectangle2D getLatLonBBox() {
+  public Rectangle2D getLatLonBBox() {
     return latLonBBox;
   }
 
