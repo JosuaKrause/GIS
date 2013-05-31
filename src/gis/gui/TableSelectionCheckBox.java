@@ -27,7 +27,8 @@ public class TableSelectionCheckBox extends JCheckBox {
         if(isSelected()) {
           gisPanel.addGeoMarkerList(db.getGeometry(table));
         } else {
-          gisPanel.removeGeoMarkers(table);
+          // FIXME find all objects for the given query/table
+          gisPanel.removeGeoMarkers(db.getGeometry(table));
         }
         gisPanel.repaint();
       }

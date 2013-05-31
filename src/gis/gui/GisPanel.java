@@ -1,29 +1,22 @@
 package gis.gui;
 
 import gis.data.datatypes.GeoMarker;
-import gis.data.datatypes.GeoMarkerMultiPolygon;
-import gis.data.datatypes.GeoMarkerPoint;
-import gis.data.datatypes.GeoMarkerPolygon;
-import gis.data.datatypes.Table;
-import gis.util.GeoMarkerList;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
+import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
+import org.openstreetmap.gui.jmapviewer.interfaces.MapPolygon;
 
 public class GisPanel extends JMapViewer {
-
-  private final GeoMarkerList markers = new GeoMarkerList();
 
   boolean drawImage = false;
   private BufferedImage image;
@@ -42,59 +35,51 @@ public class GisPanel extends JMapViewer {
   }
 
   public void addGeoMarkerList(final List<GeoMarker> markers) {
-    this.markers.addAll(markers);
+    for(final GeoMarker m : markers) {
+      if(m.hasPolygon()) {
+        for(final MapPolygon p : m.getPolygons()) {
+          addMapPolygon(p);
+        }
+      } else {
+        for(final MapMarker p : m.getMarker()) {
+          addMapMarker(p);
+        }
+      }
+    }
   }
 
-  public void removeGeoMarkers(final Table table) {
-    markers.removeAll(table);
+  public void removeGeoMarkers(final List<GeoMarker> markers) {
+    for(final GeoMarker m : markers) {
+      if(m.hasPolygon()) {
+        for(final MapPolygon p : m.getPolygons()) {
+          removeMapPolygon(p);
+        }
+      } else {
+        for(final MapMarker p : m.getMarker()) {
+          removeMapMarker(p);
+        }
+      }
+    }
   }
 
   @Override
   protected void paintComponent(final Graphics gfx) {
-    super.paintComponent(gfx);
-    final Graphics2D g = (Graphics2D) gfx.create();
-    // paint markers
-    for(final GeoMarker m : markers) {
-      if(m instanceof GeoMarkerPoint) {
-        final GeoMarkerPoint point = (GeoMarkerPoint) m;
-        final Point2D p = getMapPosition(point.coordinate, true);
-        if(p != null) {
-          point.paint(g, p);
-        }
-      } else if(m instanceof GeoMarkerPolygon) {
-        final GeoMarkerPolygon poly = (GeoMarkerPolygon) m;
-        final Path2D path = new Path2D.Double();
-        for(int i = 0; i < poly.polygon.length; ++i) {
-          final Point2D p = getMapPosition(poly.polygon[i], false);
-          if(i == 0) {
-            path.moveTo(p.getX(), p.getY());
-          } else {
-            path.lineTo(p.getX(), p.getY());
-          }
-        }
-        path.closePath();
-        poly.paint(g, path);
-      } else if(m instanceof GeoMarkerMultiPolygon) {
-        final GeoMarkerMultiPolygon poly = (GeoMarkerMultiPolygon) m;
-        for(final Coordinate[] polygon : poly.polygons) {
-          final Path2D path = new Path2D.Double();
-          for(int i = 0; i < polygon.length; ++i) {
-            final Point2D p = getMapPosition(polygon[i], false);
-            if(i == 0) {
-              path.moveTo(p.getX(), p.getY());
-            } else {
-              path.lineTo(p.getX(), p.getY());
-            }
-          }
-          path.closePath();
-          poly.paint(g, path);
-        }
+    final Graphics2D g2 = (Graphics2D) gfx;
+    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON);
+    {
+      final Graphics2D g = (Graphics2D) g2.create();
+      super.paintComponent(g);
+      g.dispose();
+    }
+    {
+      final Graphics2D g = (Graphics2D) g2.create();
+      if(drawImage) {
+        paintImage(g);
       }
+      g.dispose();
     }
-    if(drawImage) {
-      paintImage(g);
-    }
-    g.dispose();
+    g2.dispose();
   }
 
   private void paintImage(final Graphics2D gfx) {
@@ -105,7 +90,7 @@ public class GisPanel extends JMapViewer {
     g.dispose();
   }
 
-  private void updateImage() {
+  void updateImage() {
     final Insets insets = getInsets();
     final Dimension dim = getSize();
     final int width = Math.max(dim.width - insets.left - insets.right, 1);

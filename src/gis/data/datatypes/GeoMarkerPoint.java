@@ -1,45 +1,54 @@
 package gis.data.datatypes;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Point2D;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
+import org.openstreetmap.gui.jmapviewer.MapMarkerCircle;
+import org.openstreetmap.gui.jmapviewer.Style;
+import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
 
+/**
+ * A point based geo marker.
+ * 
+ * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+ * @author Joschi <josua.krause@googlemail.com>
+ */
 public class GeoMarkerPoint extends GeoMarker {
 
-  public Coordinate coordinate;
-  public Color color;
-  public double radius;
+  /** The stlye of point geo markers. */
+  private static final Style STYLE = new Style();
 
+  static {
+    STYLE.setColor(new Color(0, 0, 0, 255 * 2 / 5));
+    STYLE.setBackColor(new Color(5, 113, 176, 255 / 3));
+    STYLE.setStroke(new BasicStroke(3f));
+  }
+
+  /** The point marker. */
+  private final MapMarker[] marker;
+
+  /**
+   * Creates a point based geo marker.
+   * 
+   * @param id The id.
+   * @param coordinate The position.
+   */
   public GeoMarkerPoint(final ElementId id, final Coordinate coordinate) {
     super(id);
-    this.coordinate = coordinate;
-    color = new Color(1, 0, 0, 0.5f);// rgba
-    radius = 3;
+    final MapMarkerCircle m = new MapMarkerCircle(coordinate, 3);
+    m.setStyle(STYLE);
+    marker = new MapMarker[] { m};
   }
 
-  public GeoMarkerPoint(final ElementId id, final Coordinate coordinate,
-      final Color color, final int radius) {
-    super(id);
-    this.coordinate = coordinate;
-    this.color = color;
-    this.radius = radius;
+  @Override
+  public boolean hasPolygon() {
+    return false;
   }
 
-  private Shape toShape(final Point2D p) {
-    final double dia = 2 * radius;
-    return new Ellipse2D.Double(p.getX() - radius, p.getY() - radius, dia, dia);
-  }
-
-  public void paint(final Graphics2D g, final Point2D p) {
-    g.setColor(color);
-    final Shape s = toShape(p);
-    g.fill(s);
-    g.setColor(Color.BLACK);
-    g.draw(s);
+  @Override
+  public MapMarker[] getMarker() {
+    return marker;
   }
 
 }

@@ -2,11 +2,14 @@ package gis.data.datatypes;
 
 import java.util.Comparator;
 
+import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
+import org.openstreetmap.gui.jmapviewer.interfaces.MapPolygon;
+
 /**
  * A geo marker holds an element reference.
  * 
- * @author Joschi <josua.krause@gmail.com>
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+ * @author Joschi <josua.krause@gmail.com>
  */
 public class GeoMarker {
   /** The element id. */
@@ -40,6 +43,33 @@ public class GeoMarker {
    */
   public boolean isSelected() {
     return selected;
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return Whether the marker consists of a polygon.
+   */
+  public boolean hasPolygon() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return All markers from this marker.
+   */
+  public MapMarker[] getMarker() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return All polygons from this marker.
+   */
+  public MapPolygon[] getPolygons() {
+    throw new UnsupportedOperationException();
   }
 
   @Override

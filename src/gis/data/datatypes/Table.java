@@ -7,8 +7,8 @@ import java.util.Map;
 /**
  * Enumerates all tables in the database.
  * 
- * @author Joschi <josua.krause@gmail.com>
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+ * @author Joschi <josua.krause@gmail.com>
  */
 public enum Table {
   BERLIN_ADMINISTRATIVE("berlin_administrative"),
