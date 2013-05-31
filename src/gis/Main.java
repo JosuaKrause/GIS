@@ -7,8 +7,8 @@ import javax.swing.JFrame;
 /**
  * Starts the main application.
  * 
- * @author Joschi <josua.krause@gmail.com>
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+ * @author Joschi <josua.krause@gmail.com>
  */
 public class Main {
 

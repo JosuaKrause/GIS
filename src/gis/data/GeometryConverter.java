@@ -20,8 +20,8 @@ import org.postgis.Polygon;
 /**
  * Converts geometries into geo markers.
  * 
- * @author Joschi <josua.krause@gmail.com>
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+ * @author Joschi <josua.krause@gmail.com>
  */
 public final class GeometryConverter {
 
@@ -37,7 +37,7 @@ public final class GeometryConverter {
    * @param geom The geometry of the element.
    * @return The converted geo marker.
    */
-  public static final GeoMarker convert(final ElementId id, final PGgeometry geom) {
+  public static GeoMarker convert(final ElementId id, final PGgeometry geom) {
     switch(geom.getGeoType()) {
       case Geometry.POINT:
         final Point p = (Point) geom.getGeometry();

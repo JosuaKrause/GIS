@@ -8,8 +8,8 @@ import java.util.Properties;
 /**
  * Loads the configuration located in an input stream.
  * 
- * @author Joschi <josua.krause@gmail.com>
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+ * @author Joschi <josua.krause@gmail.com>
  */
 public class FileConfiguration implements GISConfiguration {
   /** The internal properties. */
@@ -51,8 +51,8 @@ public class FileConfiguration implements GISConfiguration {
   @Override
   public String toString() {
     return getClass().getSimpleName()
-        + "[url=" + getUrl() + "; user=" + getUser() + "; password=" + getPassword()
-        + "]";
+        + "[url=" + getUrl() + "; user="
+        + getUser() + "; password=" + getPassword() + "]";
   }
 
   /**

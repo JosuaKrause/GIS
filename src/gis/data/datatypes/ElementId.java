@@ -6,8 +6,8 @@ import java.util.Comparator;
  * The element id holds a reference of an element to its table and its id in the
  * table.
  * 
- * @author Joschi <josua.krause@gmail.com>
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+ * @author Joschi <josua.krause@gmail.com>
  */
 public final class ElementId {
   /** The table of the element. */

@@ -1,11 +1,10 @@
 package gis.data.db.config;
 
-
 /**
  * Provides the configuration for the GIS application.
  * 
- * @author Joschi <josua.krause@gmail.com>
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+ * @author Joschi <josua.krause@gmail.com>
  */
 public interface GISConfiguration {
 

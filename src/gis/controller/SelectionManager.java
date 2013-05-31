@@ -7,8 +7,8 @@ import java.util.Arrays;
 /**
  * Handles selections.
  * 
- * @author Joschi <josua.krause@gmail.com>
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+ * @author Joschi <josua.krause@gmail.com>
  */
 public class SelectionManager {
   /** An array holding two selected geo markers. */
