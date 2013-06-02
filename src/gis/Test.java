@@ -1,5 +1,6 @@
 package gis;
 
+import gis.data.datatypes.Table;
 import gis.data.db.Database;
 import gis.data.db.config.ConfigurationException;
 import gis.data.db.config.FileConfiguration;
@@ -19,6 +20,8 @@ public class Test {
 	public static void main(String[] args) {
 		
 		Database db = new Database();
+		
+		
 		
 		
 //		IConfiguration config = null;

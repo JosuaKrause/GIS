@@ -3,7 +3,6 @@ package gis.data.datatypes;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Polygon;
-import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
@@ -19,7 +18,11 @@ public class GeoMarkerPolygon extends GeoMarker {
 
 	
 	public void paint(Graphics g, Polygon polygon) {
-		g.setColor(color);
+		if (selected) {
+			g.setColor(Color.WHITE);
+		} else {
+			g.setColor(color);
+		}
 		g.fillPolygon(polygon);
 		g.setColor(Color.BLACK);
 		g.drawPolygon(polygon);

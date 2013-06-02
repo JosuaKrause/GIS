@@ -6,10 +6,16 @@ public abstract class GeoMarker {
 	
 	public final ElementId id;
 	public boolean selected;
+	public String info;
 	
 	public GeoMarker(ElementId id) {
+		this(id, null);
+	}
+	
+	public GeoMarker(ElementId id, String info) {
 		this.id = id;
 		selected = false;
+		this.info = null;
 	}
 	
 	@Override

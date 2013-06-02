@@ -27,10 +27,13 @@ public class GeoMarkerPoint extends GeoMarker {
 	}
 	
 	public void paint(Graphics g, Point p) {
-		g.setColor(color);
+		if (selected) {
+			g.setColor(Color.CYAN);
+		} else {
+			g.setColor(color);
+		}
 		int diameter = 2 * radius;
 		g.fillOval(p.x - radius, p.y - radius, diameter, diameter);
-		
 		g.setColor(Color.BLACK);
 		g.drawOval(p.x - radius, p.y - radius, diameter, diameter);
 	}

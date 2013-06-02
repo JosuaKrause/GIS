@@ -14,8 +14,9 @@ public class GeoMarkerList extends SortedList<GeoMarker> {
 	public GeoMarker get(ElementId id) {
 		GeoMarker m = new GeoMarker(id) { };
 		int index = insertionIndexOf(m);
-		if (index < size) {
-			return (GeoMarker)elements[index];
+		m = (GeoMarker)elements[index];
+		if (index < size && id.equals(m.id)) {
+			return m;
 		}
 		return null;
 	}

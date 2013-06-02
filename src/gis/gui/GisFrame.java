@@ -1,16 +1,10 @@
 package gis.gui;
 
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 
 import javax.swing.JFrame;
-import javax.swing.SpringLayout;
 
 public class GisFrame extends JFrame {
 	

@@ -35,4 +35,7 @@ public class TableSelectionCheckBox extends JCheckBox {
 		});
 	}
 	
+	Table getTable() {
+		return table;
+	}
 }

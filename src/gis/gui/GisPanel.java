@@ -10,17 +10,17 @@ import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
+import gis.data.datatypes.GeoMarkerLineString;
 import gis.data.datatypes.GeoMarkerPoint;
 import gis.data.datatypes.GeoMarkerMultiPolygon;
 import gis.data.datatypes.GeoMarkerPolygon;
 import gis.data.datatypes.Table;
-import gis.data.db.Database;
 import gis.util.GeoMarkerList;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
-import org.openstreetmap.gui.jmapviewer.OsmMercator;
 
 
 public class GisPanel extends JMapViewer {
@@ -34,23 +34,20 @@ public class GisPanel extends JMapViewer {
 		super();
 		this.grabFocus();
 		updateImage();
-		
-		addComponentListener(new ComponentAdapter() {
-			
-			@Override
-			public void componentResized(ComponentEvent e) {
-				updateImage();
-			}
-			
-		});
+		addListeners();
 	}
 	
 	public void addGeoMarkerList(List<GeoMarker> markers) {
 		this.markers.addAll(markers);
+		repaint();
 	}
 	
 	public void removeGeoMarkers(Table table) {
 		markers.removeAll(table);
+	}
+	
+	GeoMarker getGeoMarker(ElementId id) {
+		return markers.get(id);
 	}
 	
 	@Override
@@ -94,6 +91,24 @@ public class GisPanel extends JMapViewer {
 					poly.paint(g, new Polygon(x, y, x.length));
 				}
 				
+			} else if (m instanceof GeoMarkerLineString) {
+				GeoMarkerLineString ls = (GeoMarkerLineString)m;
+				//draw (partially) visible linestrings, one at a time
+				//has potential for errors if line, but not its points should be visible
+				for (int i = 0; i < ls.points.length - 1; ++i) {
+					Coordinate ca = ls.points[i];
+					Coordinate cb = ls.points[i + 1];
+					Point pa = getMapPosition(ca, true);
+					Point pb = getMapPosition(cb, true);
+					if (!(pa == null && pb == null)) {
+						if (pa == null) {
+							pa = getMapPosition(ca, false);
+						} else if (pb == null) {
+							pb = getMapPosition(cb, false);
+						}
+						ls.paintLineSegment(g, pb, pa);
+					}
+				}
 			}
 			
 		}
@@ -132,6 +147,8 @@ public class GisPanel extends JMapViewer {
 			}
 		}
 		
+		
+		
 //		//draw distance transformation
 //		for (int y = 0; y < image.getHeight(); ++y) {
 //			for (int x = 0; x < image.getWidth(); ++x) {
@@ -143,13 +160,17 @@ public class GisPanel extends JMapViewer {
 //		}
 	}
 	
-	//SELECT * FROM berlin_poi WHERE name LIKE 'Museum%';
-	
-	//TODO code reference
-//	public Coordinate getPosition() {
-//        double lon = OsmMercator.XToLon(center.x, zoom);
-//        double lat = OsmMercator.YToLat(center.y, zoom);
-//        return new Coordinate(lat, lon);
-//    }
+	private void addListeners() {
+		
+		addComponentListener(new ComponentAdapter() {
+			
+			@Override
+			public void componentResized(ComponentEvent e) {
+				updateImage();
+			}
+			
+		});
+		
+	}
 	
 }
