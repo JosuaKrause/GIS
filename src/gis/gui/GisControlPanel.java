@@ -1,20 +1,32 @@
 package gis.gui;
 
+import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
+import gis.data.db.Query;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 public class GisControlPanel extends JPanel {
 
-  private final List<JCheckBox> tableSelectionCheckBoxes = new ArrayList<JCheckBox>();
-  private final GisPanel gisPanel;
-
   public GisControlPanel(final GisPanel gisPanel) {
-    this.gisPanel = gisPanel;
+    add(new QueryCheckBox("brandenburg", gisPanel,
+        new Query<Double>("SELECT gid, geom, 1 as distance FROM " + Table.BERLIN_POI
+            + " LIMIT 100;", Table.BERLIN_POI) {
+
+          @Override
+          protected Double getFlavour(final ResultSet r) throws SQLException {
+            return r.getDouble("distance");
+          }
+
+          @Override
+          protected void addFlavour(final GeoMarker m, final Double f) {
+            m.setRadius(f);
+          }
+
+        }));
     for(final Table t : Table.values()) {
       addTableSelectionCheckBox(gisPanel, t);
     }
@@ -22,8 +34,7 @@ public class GisControlPanel extends JPanel {
   }
 
   private void addTableSelectionCheckBox(final GisPanel gisPanel, final Table table) {
-    final TableSelectionCheckBox box = new TableSelectionCheckBox(gisPanel, table);
-    tableSelectionCheckBoxes.add(box);
+    final QueryCheckBox box = QueryCheckBox.createTableQuery(gisPanel, table);
     add(box);
   }
 

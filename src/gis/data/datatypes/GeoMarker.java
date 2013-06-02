@@ -1,5 +1,6 @@
 package gis.data.datatypes;
 
+import java.awt.Color;
 import java.awt.geom.Rectangle2D;
 import java.util.Objects;
 
@@ -93,6 +94,14 @@ public class GeoMarker {
    */
   public boolean inViewport(final Rectangle2D latLonViewport) {
     return latLonViewport.intersects(getLatLonBBox());
+  }
+
+  public void setRadius(final double radius) {
+    throw new UnsupportedOperationException();
+  }
+
+  public void setColor(final Color color) {
+    throw new UnsupportedOperationException();
   }
 
 }

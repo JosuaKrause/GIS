@@ -19,8 +19,9 @@ import org.postgis.PGgeometry;
  * A query holds the results of an SQL query.
  * 
  * @author Joschi <josua.krause@gmail.com>
+ * @param <T> The type of flavour.
  */
-public class Query {
+public class Query<T> {
   /** The actual SQL query. */
   private final String query;
   /** The table. */
@@ -29,9 +30,9 @@ public class Query {
   /**
    * Creates a query.
    * 
-   * @param query The SQL query. The first column of the result must be the id
-   *          of the element in the table given here. The second column must be
-   *          the geometric reference.
+   * @param query The SQL query. The column named 'gid' of the result must be
+   *          the id of the element in the table given here. The column 'geom'
+   *          must be the geometric reference.
    * @param table The table whose elements are returned. (At least for which the
    *          ids count)
    */
@@ -56,15 +57,19 @@ public class Query {
     try (Connection conn = Database.getInstance().getConnection()) {
       final List<PGgeometry> geom = new ArrayList<>();
       final List<Integer> ids = new ArrayList<>();
+      final List<T> flavour = new ArrayList<>();
       try (Statement s = conn.createStatement(); ResultSet r = s.executeQuery(query)) {
         while(r.next()) {
-          ids.add(r.getInt(1));
-          geom.add((PGgeometry) r.getObject(2));
+          ids.add(r.getInt("gid"));
+          geom.add((PGgeometry) r.getObject("geom"));
+          flavour.add(getFlavour(r));
         }
       }
       for(int i = 0; i < geom.size(); ++i) {
-        markers.add(GeometryConverter.convert(new ElementId(table, ids.get(i)),
-            geom.get(i)));
+        final GeoMarker m = GeometryConverter.convert(
+            new ElementId(table, ids.get(i)), geom.get(i));
+        addFlavour(m, flavour.get(i));
+        markers.add(m);
         if(i % 50 == 0) {
           System.out.println("fetching: " + ((i + 1.0) / geom.size() * 100.0) + "%");
         }
@@ -74,6 +79,14 @@ public class Query {
       throw new IllegalStateException(e);
     }
     return markers;
+  }
+
+  protected T getFlavour(final ResultSet r) throws SQLException {
+    return null;
+  }
+
+  protected void addFlavour(final GeoMarker m, final T f) {
+    // nothing here
   }
 
   /** Clears the query cache. */

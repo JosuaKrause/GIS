@@ -44,13 +44,13 @@ public class GisPanel extends JMapViewer {
     });
   }
 
-  private final Set<Query> queries = new HashSet<>();
+  private final Set<Query<?>> queries = new HashSet<>();
 
-  public void addQuery(final Query q) {
+  public void addQuery(final Query<?> q) {
     queries.add(q);
   }
 
-  public void removeQuery(final Query q) {
+  public void removeQuery(final Query<?> q) {
     queries.remove(q);
     q.clearCache();
   }
@@ -133,7 +133,7 @@ public class GisPanel extends JMapViewer {
     } else {
       latLonVP = null;
     }
-    for(final Query q : queries) {
+    for(final Query<?> q : queries) {
       for(final GeoMarker m : q.getResult()) {
         if(latLonVP == null) {
           // we're too small anyway and nowhere near the border of the map
