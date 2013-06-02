@@ -1,7 +1,9 @@
 package gis.data.db;
 
 import gis.data.GeometryConverter;
+import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
+import gis.data.datatypes.Table;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -19,16 +21,22 @@ import org.postgis.PGgeometry;
  * @author Joschi <josua.krause@gmail.com>
  */
 public class Query {
-
   /** The actual SQL query. */
   private final String query;
+  /** The table. */
+  private final Table table;
 
   /**
    * Creates a query.
    * 
-   * @param query The SQL query.
+   * @param query The SQL query. The first column of the result must be the id
+   *          of the element in the table given here. The second column must be
+   *          the geometric reference.
+   * @param table The table whose elements are returned. (At least for which the
+   *          ids count)
    */
-  public Query(final String query) {
+  public Query(final String query, final Table table) {
+    this.table = Objects.requireNonNull(table);
     this.query = Objects.requireNonNull(query);
   }
 
@@ -47,13 +55,16 @@ public class Query {
     System.out.println("executing: " + query);
     try (Connection conn = Database.getInstance().getConnection()) {
       final List<PGgeometry> geom = new ArrayList<>();
+      final List<Integer> ids = new ArrayList<>();
       try (Statement s = conn.createStatement(); ResultSet r = s.executeQuery(query)) {
         while(r.next()) {
+          ids.add(r.getInt(1));
           geom.add((PGgeometry) r.getObject(2));
         }
       }
       for(int i = 0; i < geom.size(); ++i) {
-        markers.add(GeometryConverter.convert(geom.get(i)));
+        markers.add(GeometryConverter.convert(new ElementId(table, ids.get(i)),
+            geom.get(i)));
         if(i % 50 == 0) {
           System.out.println("fetching: " + ((i + 1.0) / geom.size() * 100.0) + "%");
         }

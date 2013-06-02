@@ -1,5 +1,6 @@
 package gis.data;
 
+import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.GeoMarkerMultiPolygon;
 import gis.data.datatypes.GeoMarkerPoint;
@@ -32,14 +33,15 @@ public final class GeometryConverter {
   /**
    * Converts geometry into geo markers.
    * 
+   * @param id The reference id.
    * @param geom The geometry of the element.
    * @return The converted geo marker.
    */
-  public static GeoMarker convert(final PGgeometry geom) {
+  public static GeoMarker convert(final ElementId id, final PGgeometry geom) {
     switch(geom.getGeoType()) {
       case Geometry.POINT:
         final Point p = (Point) geom.getGeometry();
-        return new GeoMarkerPoint(new Coordinate(p.y, p.x));
+        return new GeoMarkerPoint(id, new Coordinate(p.getY(), p.getX()));
       case Geometry.POLYGON:
         final Polygon poly = (Polygon) geom.getGeometry();
         if(poly.numRings() > 1) {
@@ -49,9 +51,9 @@ public final class GeometryConverter {
         final Point[] polyPoints = polyRing.getPoints();
         final Coordinate[] polyCoordinates = new Coordinate[polyPoints.length];
         for(int k = 0; k < polyPoints.length; ++k) {
-          polyCoordinates[k] = new Coordinate(polyPoints[k].y, polyPoints[k].x);
+          polyCoordinates[k] = new Coordinate(polyPoints[k].getY(), polyPoints[k].getX());
         }
-        return new GeoMarkerPolygon(polyCoordinates);
+        return new GeoMarkerPolygon(id, polyCoordinates);
       case Geometry.MULTIPOLYGON:
         final Polygon[] polys = ((MultiPolygon) geom.getGeometry()).getPolygons();
         final List<Coordinate[]> polygons = new ArrayList<>(polys.length);
@@ -62,12 +64,12 @@ public final class GeometryConverter {
             final Point[] points = ring.getPoints();
             final Coordinate[] coordinates = new Coordinate[points.length];
             for(int k = 0; k < points.length; ++k) {
-              coordinates[k] = new Coordinate(points[k].y, points[k].x);
+              coordinates[k] = new Coordinate(points[k].getY(), points[k].getX());
             }
             polygons.add(coordinates);
           }
         }
-        return new GeoMarkerMultiPolygon(polygons);
+        return new GeoMarkerMultiPolygon(id, polygons);
       default:
         throw new UnsupportedOperationException(
             "unsupported geometry type " + geom.getGeoType() + " " + geom.getType());

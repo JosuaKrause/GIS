@@ -1,6 +1,7 @@
 package gis.data.datatypes;
 
 import java.awt.geom.Rectangle2D;
+import java.util.Objects;
 
 import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
 import org.openstreetmap.gui.jmapviewer.interfaces.MapPolygon;
@@ -12,14 +13,28 @@ import org.openstreetmap.gui.jmapviewer.interfaces.MapPolygon;
  * @author Joschi <josua.krause@gmail.com>
  */
 public class GeoMarker {
+  /** The reference. */
+  private final ElementId id;
   /** Whether the geo marker is currently selected. */
   public boolean selected;
 
   /**
    * Creates a geo marker.
+   * 
+   * @param id The reference id.
    */
-  public GeoMarker() {
+  public GeoMarker(final ElementId id) {
+    this.id = Objects.requireNonNull(id);
     selected = false;
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return The reference id to reference the element in an SQL query.
+   */
+  public ElementId getId() {
+    return id;
   }
 
   /**

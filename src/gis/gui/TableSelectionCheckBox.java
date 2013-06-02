@@ -15,7 +15,7 @@ public class TableSelectionCheckBox extends JCheckBox {
     addActionListener(new ActionListener() {
 
       private final Query q = new Query("SELECT gid, geom FROM " + table.name
-          + " LIMIT 10000");
+          + " LIMIT 20000", table);
 
       @Override
       public void actionPerformed(final ActionEvent e) {

@@ -35,9 +35,11 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
   /**
    * Creates a geo marker for the list of polygons.
    * 
+   * @param id The reference id.
    * @param poly The list of polygons.
    */
-  public GeoMarkerMultiPolygon(final List<Coordinate[]> poly) {
+  public GeoMarkerMultiPolygon(final ElementId id, final List<Coordinate[]> poly) {
+    super(id);
     int pos = 0;
     polygons = new MapPolygon[poly.size()];
     double minLat = Double.NaN;
