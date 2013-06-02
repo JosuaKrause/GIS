@@ -1,7 +1,5 @@
 package gis.gui;
 
-import gis.data.db.Database;
-
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -11,9 +9,8 @@ import javax.swing.WindowConstants;
 
 public class GisFrame extends JFrame {
 
-  private final Database db = new Database();
   private final GisPanel gisPanel = new GisPanel();
-  private final GisControlPanel gisControlPanel = new GisControlPanel(db, gisPanel);
+  private final GisControlPanel gisControlPanel = new GisControlPanel(gisPanel);
 
   public GisFrame() {
     // initialize

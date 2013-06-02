@@ -1,8 +1,7 @@
 package gis.gui;
 
 import gis.data.datatypes.GeoMarker;
-import gis.data.datatypes.Table;
-import gis.util.GeoMarkerList;
+import gis.data.db.Query;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -17,7 +16,9 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
@@ -43,14 +44,15 @@ public class GisPanel extends JMapViewer {
     });
   }
 
-  private final GeoMarkerList marker = new GeoMarkerList();
+  private final Set<Query> queries = new HashSet<>();
 
-  public void addGeoMarkerList(final List<GeoMarker> markers) {
-    marker.addAll(markers);
+  public void addQuery(final Query q) {
+    queries.add(q);
   }
 
-  public void removeGeoMarkers(final Table table) {
-    marker.removeAll(table);
+  public void removeQuery(final Query q) {
+    queries.remove(q);
+    q.clearCache();
   }
 
   /**
@@ -131,35 +133,37 @@ public class GisPanel extends JMapViewer {
     } else {
       latLonVP = null;
     }
-    for(final GeoMarker m : marker) {
-      if(latLonVP == null) {
-        // we're too small anyway and nowhere near the border of the map
-        continue;
-      }
-      // visibility check
-      if(!m.inViewport(latLonVP)) {
-        continue;
-      }
-      // smallness check
-      final Rectangle2D box = m.getLatLonBBox();
-      final double hor = box.getWidth() / latLonVP.getWidth() * getWidth();
-      final double ver = box.getHeight() / latLonVP.getHeight() * getHeight();
-      final boolean addAsRect = (hor < 3 || ver < 3) || (hor < 6 && ver < 6);
-      // adding the marker
-      if(m.hasPolygon()) {
-        if(addAsRect) {
-          standIns.add(StandInRect.getStandIn(m.getPolygons()[0], box, this));
-        } else {
-          for(final MapPolygon p : m.getPolygons()) {
-            mapPolygonList.add(p);
-          }
+    for(final Query q : queries) {
+      for(final GeoMarker m : q.getResult()) {
+        if(latLonVP == null) {
+          // we're too small anyway and nowhere near the border of the map
+          continue;
         }
-      } else {
-        if(addAsRect) {
-          standIns.add(StandInRect.getStandIn(m.getMarker()[0], box, this));
+        // visibility check
+        if(!m.inViewport(latLonVP)) {
+          continue;
+        }
+        // smallness check
+        final Rectangle2D box = m.getLatLonBBox();
+        final double hor = box.getWidth() / latLonVP.getWidth() * getWidth();
+        final double ver = box.getHeight() / latLonVP.getHeight() * getHeight();
+        final boolean addAsRect = (hor < 3 || ver < 3) || (hor < 6 && ver < 6);
+        // adding the marker
+        if(m.hasPolygon()) {
+          if(addAsRect) {
+            standIns.add(StandInRect.getStandIn(m.getPolygons()[0], box, this));
+          } else {
+            for(final MapPolygon p : m.getPolygons()) {
+              mapPolygonList.add(p);
+            }
+          }
         } else {
-          for(final MapMarker p : m.getMarker()) {
-            mapMarkerList.add(p);
+          if(addAsRect) {
+            standIns.add(StandInRect.getStandIn(m.getMarker()[0], box, this));
+          } else {
+            for(final MapMarker p : m.getMarker()) {
+              mapMarkerList.add(p);
+            }
           }
         }
       }

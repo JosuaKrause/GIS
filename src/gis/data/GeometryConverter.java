@@ -1,6 +1,5 @@
 package gis.data;
 
-import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.GeoMarkerMultiPolygon;
 import gis.data.datatypes.GeoMarkerPoint;
@@ -33,15 +32,14 @@ public final class GeometryConverter {
   /**
    * Converts geometry into geo markers.
    * 
-   * @param id The element id.
    * @param geom The geometry of the element.
    * @return The converted geo marker.
    */
-  public static GeoMarker convert(final ElementId id, final PGgeometry geom) {
+  public static GeoMarker convert(final PGgeometry geom) {
     switch(geom.getGeoType()) {
       case Geometry.POINT:
         final Point p = (Point) geom.getGeometry();
-        return new GeoMarkerPoint(id, new Coordinate(p.y, p.x));
+        return new GeoMarkerPoint(new Coordinate(p.y, p.x));
       case Geometry.POLYGON:
         final Polygon poly = (Polygon) geom.getGeometry();
         if(poly.numRings() > 1) {
@@ -53,7 +51,7 @@ public final class GeometryConverter {
         for(int k = 0; k < polyPoints.length; ++k) {
           polyCoordinates[k] = new Coordinate(polyPoints[k].y, polyPoints[k].x);
         }
-        return new GeoMarkerPolygon(id, polyCoordinates);
+        return new GeoMarkerPolygon(polyCoordinates);
       case Geometry.MULTIPOLYGON:
         final Polygon[] polys = ((MultiPolygon) geom.getGeometry()).getPolygons();
         final List<Coordinate[]> polygons = new ArrayList<>(polys.length);
@@ -69,7 +67,7 @@ public final class GeometryConverter {
             polygons.add(coordinates);
           }
         }
-        return new GeoMarkerMultiPolygon(id, polygons);
+        return new GeoMarkerMultiPolygon(polygons);
       default:
         throw new UnsupportedOperationException(
             "unsupported geometry type " + geom.getGeoType() + " " + geom.getType());

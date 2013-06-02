@@ -34,11 +34,9 @@ public class GeoMarkerPoint extends GeoMarker {
   /**
    * Creates a point based geo marker.
    * 
-   * @param id The id.
    * @param coord The position.
    */
-  public GeoMarkerPoint(final ElementId id, final Coordinate coord) {
-    super(id);
+  public GeoMarkerPoint(final Coordinate coord) {
     final double radius = 3;
     final MapMarkerCircle m = new MapMarkerCircle(coord, radius);
     m.setStyle(STYLE);

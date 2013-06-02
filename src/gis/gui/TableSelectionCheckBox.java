@@ -1,7 +1,7 @@
 package gis.gui;
 
 import gis.data.datatypes.Table;
-import gis.data.db.Database;
+import gis.data.db.Query;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,25 +10,19 @@ import javax.swing.JCheckBox;
 
 public class TableSelectionCheckBox extends JCheckBox {
 
-  private final GisPanel gisPanel;
-  private final Database db;
-  private final Table table;
-
-  public TableSelectionCheckBox(
-      final GisPanel gisPanel, final Database db, final Table table) {
+  public TableSelectionCheckBox(final GisPanel gisPanel, final Table table) {
     super(table.name);
-    this.gisPanel = gisPanel;
-    this.db = db;
-    this.table = table;
     addActionListener(new ActionListener() {
+
+      private final Query q = new Query("SELECT gid, geom FROM " + table.name
+          + " LIMIT 10000");
 
       @Override
       public void actionPerformed(final ActionEvent e) {
         if(isSelected()) {
-          gisPanel.addGeoMarkerList(db.getGeometry(table));
+          gisPanel.addQuery(q);
         } else {
-          // FIXME find all objects for the given query
-          gisPanel.removeGeoMarkers(table);
+          gisPanel.removeQuery(q);
         }
         gisPanel.repaint();
       }

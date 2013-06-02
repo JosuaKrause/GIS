@@ -29,11 +29,10 @@ public class GeoMarkerPolygon extends GeoMarkerMultiPolygon {
   /**
    * Creates a polygon geo marker.
    * 
-   * @param id The id.
    * @param polygon The polygon.
    */
-  public GeoMarkerPolygon(final ElementId id, final Coordinate[] polygon) {
-    super(id, toList(polygon));
+  public GeoMarkerPolygon(final Coordinate[] polygon) {
+    super(toList(polygon));
   }
 
 }
