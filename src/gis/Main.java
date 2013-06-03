@@ -12,6 +12,13 @@ import javax.swing.JFrame;
  */
 public class Main {
 
+  /* Default config.txt */
+  // hostname=134.34.225.25
+  // port=5432
+  // dbname=joschi_gis_db
+  // user=postgres
+  // password=admin
+
   /**
    * Starts the main application.
    * 
