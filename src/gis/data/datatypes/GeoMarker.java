@@ -155,7 +155,7 @@ public abstract class GeoMarker {
    * @return The current color.
    */
   public Color getColor() {
-    return color;
+    return isSelected() ? color.brighter() : color;
   }
 
 }

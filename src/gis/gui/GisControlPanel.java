@@ -17,6 +17,8 @@ import java.util.Objects;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
@@ -78,23 +80,41 @@ public class GisControlPanel extends JPanel {
 
   public boolean processSelectionClick(final Point p, final Coordinate c) {
     final List<Table> tables = getSelectedTables();
-
+    final GisPanel panel = gisPanel;
     if(tables.size() > 0) {
       final List<ElementId> ids = Database.getInstance().getByCoordinate(
-          c, getSelectedTables(), gisPanel.getMeterPerPixel() * 5);
+          c, getSelectedTables(), panel.getMeterPerPixel() * 5);
       final List<GeoMarker> markers = new ArrayList<>();
       for(final ElementId id : ids) {
-        final GeoMarker m = gisPanel.getGeoMarker(id);
+        final GeoMarker m = panel.getGeoMarker(id);
         if(m != null) {
           markers.add(m);
         }
       }
       if(markers.size() == 1) return selectionManager.clickedOn(markers.get(0));
-      final JPopupMenu menu = new TableSelectionPopUpMenu(gisPanel);
+      final JPopupMenu menu = new JPopupMenu();
+      menu.addPopupMenuListener(new PopupMenuListener() {
+
+        @Override
+        public void popupMenuWillBecomeVisible(final PopupMenuEvent e) {
+          // do nothing
+        }
+
+        @Override
+        public void popupMenuWillBecomeInvisible(final PopupMenuEvent e) {
+          panel.repaint();
+        }
+
+        @Override
+        public void popupMenuCanceled(final PopupMenuEvent e) {
+          // do nothing
+        }
+
+      });
       for(final GeoMarker m : markers) {
-        menu.add(new TableSelectionMenuItem(m, selectionManager));
+        menu.add(new TableSelectionMenuItem(m, selectionManager, panel));
       }
-      menu.show(gisPanel, p.x, p.y);
+      menu.show(panel, p.x, p.y);
     }
     return false;
   }

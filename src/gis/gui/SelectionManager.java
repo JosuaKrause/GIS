@@ -11,7 +11,7 @@ public class SelectionManager {
   public synchronized boolean clickedOn(final GeoMarker marker) {
     switch(numSelected) {
       case 2:
-        final int index = isSelected(marker);
+        final int index = indexOf(marker);
         if(index >= 0) {
           deselect(index);
           return true;
@@ -31,11 +31,15 @@ public class SelectionManager {
     return false;
   }
 
+  public boolean isSelected(final GeoMarker m) {
+    return indexOf(m) >= 0;
+  }
+
   /**
    * @param m
    * @return the marker's index in {@link selection} or -1.
    */
-  private int isSelected(final GeoMarker m) {
+  private int indexOf(final GeoMarker m) {
     for(int i = 0; i < numSelected; ++i) {
       if(selection[i].equals(m)) return i;
     }

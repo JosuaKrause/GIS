@@ -4,28 +4,44 @@ import gis.data.datatypes.GeoMarker;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JMenuItem;
 
-@SuppressWarnings("unused")
 public class TableSelectionMenuItem extends JMenuItem {
 
-  private final GeoMarker marker;
-  private final SelectionManager selectionManager;
-
   public TableSelectionMenuItem(final GeoMarker marker,
-      final SelectionManager selectionManager) {
-    this.marker = marker;
-    this.selectionManager = selectionManager;
-    setText(marker.getInfo());
+      final SelectionManager selectionManager, final GisPanel panel) {
+    final boolean selected = selectionManager.isSelected(marker);
+    final String txt = marker.getInfo();
+    if(selected) {
+      setText("<html><b>" + txt + "</b>");
+    } else {
+      setText(txt);
+    }
     addActionListener(new ActionListener() {
 
       @Override
-      public void actionPerformed(final ActionEvent arg0) {
+      public void actionPerformed(final ActionEvent e) {
         selectionManager.clickedOn(marker);
       }
 
     });
-  }
+    addMouseListener(new MouseAdapter() {
 
+      @Override
+      public void mouseEntered(final MouseEvent e) {
+        marker.setSelected(!selected);
+        panel.repaint();
+      }
+
+      @Override
+      public void mouseExited(final MouseEvent e) {
+        marker.setSelected(selected);
+        panel.repaint();
+      }
+
+    });
+  }
 }
