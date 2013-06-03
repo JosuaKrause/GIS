@@ -1,14 +1,14 @@
 package gis.data.datatypes;
 
-import java.awt.BasicStroke;
+import gis.gui.GisPanel;
+
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
-import org.openstreetmap.gui.jmapviewer.MapMarkerCircle;
-import org.openstreetmap.gui.jmapviewer.Style;
-import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
-import org.openstreetmap.gui.jmapviewer.interfaces.MapPolygon;
 
 /**
  * A point based geo marker.
@@ -18,35 +18,32 @@ import org.openstreetmap.gui.jmapviewer.interfaces.MapPolygon;
  */
 public class GeoMarkerPoint extends GeoMarker {
 
-  /** The stlye of point geo markers. */
-  private static final Style STYLE = new Style();
-
-  static {
-    STYLE.setColor(new Color(0, 0, 0, 255 * 2 / 5));
-    STYLE.setBackColor(new Color(5, 113, 176, 255 / 3));
-    STYLE.setStroke(new BasicStroke(3f));
-  }
-
+  /** The radius. */
+  private double radius = 0.05;
   /** The point marker. */
-  private final MapMarker[] marker;
+  private final Coordinate coord;
   /** The world coordinate bounding box. */
-  private final Rectangle2D latLonBBox;
+  private Rectangle2D latLonBBox;
 
   /**
    * Creates a point based geo marker.
    * 
+   * @param info The element info.
    * @param id The reference id.
    * @param coord The position.
    */
   public GeoMarkerPoint(final String info, final ElementId id, final Coordinate coord) {
     super(info, id);
-    final double radius = 3;
-    final MapMarkerCircle m = new MapMarkerCircle(coord, radius);
-    m.setStyle(STYLE);
-    marker = new MapMarker[] { m};
+    setColor(new Color(5, 113, 176, 255 / 3));
+    this.coord = coord;
+    computeLatLonBBox();
+  }
+
+  /** Computes the bounding box if the radius has changed. */
+  private void computeLatLonBBox() {
     latLonBBox = new Rectangle2D.Double(
-        coord.getLon() - radius, coord.getLat() - radius, radius * 2,
-        radius * 2);
+        coord.getLon() - radius, coord.getLat() - radius,
+        radius * 2, radius * 2);
   }
 
   @Override
@@ -55,28 +52,21 @@ public class GeoMarkerPoint extends GeoMarker {
   }
 
   @Override
-  public boolean hasPolygon() {
-    return false;
-  }
-
-  @Override
-  public MapMarker[] getMarker() {
-    return marker;
-  }
-
-  @Override
-  public MapPolygon[] getPolygons() {
-    throw new UnsupportedOperationException(); // no polygons
-  }
-
-  @Override
-  public void setColor(final Color color) {
-    // TODO set color
+  public void paint(final Graphics2D g, final GisPanel panel, final boolean simple) {
+    g.setColor(getColor());
+    if(simple) {
+      paintSimple(g, panel);
+      return;
+    }
+    final Rectangle2D r = transformRect(panel, getLatLonBBox());
+    final Shape e = new Ellipse2D.Double(r.getX(), r.getY(), r.getWidth(), r.getHeight());
+    g.fill(e);
   }
 
   @Override
   public void setRadius(final double radius) {
-    // TODO set radius
+    this.radius = radius;
+    computeLatLonBBox();
   }
 
 }

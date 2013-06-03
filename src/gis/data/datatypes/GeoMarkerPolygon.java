@@ -29,6 +29,7 @@ public class GeoMarkerPolygon extends GeoMarkerMultiPolygon {
   /**
    * Creates a polygon geo marker.
    * 
+   * @param info The element info.
    * @param id The reference id.
    * @param polygon The polygon.
    */

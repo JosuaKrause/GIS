@@ -1,7 +1,9 @@
 package gis.data.datatypes;
 
 public enum GeometryType {
-	LINESTRING,
-	POINT,
-	POLYGON
+  LINESTRING,
+  POINT,
+  POLYGON,
+
+  ; // EOD
 }

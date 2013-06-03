@@ -1,16 +1,17 @@
 package gis.data.datatypes;
 
+import gis.gui.GisPanel;
+
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
-import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
-import org.openstreetmap.gui.jmapviewer.interfaces.MapPolygon;
 
 public class GeoMarkerLineString extends GeoMarker {
 
-  public Coordinate[] points;
-  public Color color = Color.BLUE;
+  private final Coordinate[] points;
+  private Color color = Color.BLUE;
 
   public GeoMarkerLineString(final String info, final ElementId id,
       final Coordinate[] points) {
@@ -19,18 +20,18 @@ public class GeoMarkerLineString extends GeoMarker {
   }
 
   @Override
-  public boolean hasPolygon() {
-    return true;
-  }
-
-  @Override
-  public MapMarker[] getMarker() {
-    throw new UnsupportedOperationException(); // no markers
-  }
-
-  @Override
-  public MapPolygon[] getPolygons() {
-    throw new UnsupportedOperationException();
+  public void paint(final Graphics2D g, final GisPanel panel, final boolean simple) {
+    // TODO
+    /*
+     * GeoMarkerLineString ls = (GeoMarkerLineString)m; //draw (partially)
+     * visible linestrings, one at a time //has potential for errors if line,
+     * but not its points should be visible for (int i = 0; i < ls.points.length
+     * - 1; ++i) { Coordinate ca = ls.points[i]; Coordinate cb = ls.points[i +
+     * 1]; Point pa = getMapPosition(ca, true); Point pb = getMapPosition(cb,
+     * true); if (!(pa == null && pb == null)) { if (pa == null) { pa =
+     * getMapPosition(ca, false); } else if (pb == null) { pb =
+     * getMapPosition(cb, false); } ls.paintLineSegment(g, pb, pa); } }
+     */
   }
 
   @Override
@@ -39,12 +40,12 @@ public class GeoMarkerLineString extends GeoMarker {
   }
 
   @Override
-  public void setRadius(final double radius) {
-    throw new UnsupportedOperationException();
+  public void setColor(final Color color) {
+    this.color = color;
   }
 
   @Override
-  public void setColor(final Color color) {
+  public void setRadius(final double radius) {
     throw new UnsupportedOperationException();
   }
 

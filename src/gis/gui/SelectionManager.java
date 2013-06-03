@@ -43,7 +43,7 @@ public class SelectionManager {
   }
 
   private void deselect(final int index) {
-    selection[index].selected = false;
+    selection[index].setSelected(false);
     final GeoMarker m = selection[index];
     if(index == 0 && numSelected == 2) {
       selection[0] = selection[1];
@@ -53,7 +53,7 @@ public class SelectionManager {
   }
 
   private void select(final GeoMarker m) {
-    m.selected = true;
+    m.setSelected(true);
     selection[numSelected] = m;
     ++numSelected;
     System.out.println("select " + m.getId());

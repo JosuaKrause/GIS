@@ -1,15 +1,14 @@
 package gis.data.datatypes;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
+import gis.gui.GisPanel;
+
+import java.awt.Graphics2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
-import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
-import org.openstreetmap.gui.jmapviewer.Style;
-import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
-import org.openstreetmap.gui.jmapviewer.interfaces.MapPolygon;
 
 /**
  * A marker for multi polygons.
@@ -19,23 +18,15 @@ import org.openstreetmap.gui.jmapviewer.interfaces.MapPolygon;
  */
 public class GeoMarkerMultiPolygon extends GeoMarker {
 
-  /** The style of the polygons. */
-  private static final Style STYLE = new Style();
-
-  static {
-    STYLE.setColor(new Color(0, 0, 0, 255 * 2 / 5));
-    STYLE.setBackColor(new Color(239, 138, 98, 255 / 3));
-    STYLE.setStroke(new BasicStroke(3f));
-  }
-
   /** The polygons. */
-  private final MapPolygon[] polygons;
+  private final Coordinate[][] polygons;
   /** The world coordinate bounding box. */
   private final Rectangle2D latLonBBox;
 
   /**
    * Creates a geo marker for the list of polygons.
    * 
+   * @param info The element info.
    * @param id The reference id.
    * @param poly The list of polygons.
    */
@@ -43,7 +34,7 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
       final List<Coordinate[]> poly) {
     super(info, id);
     int pos = 0;
-    polygons = new MapPolygon[poly.size()];
+    polygons = new Coordinate[poly.size()][];
     double minLat = Double.NaN;
     double maxLat = Double.NaN;
     double minLon = Double.NaN;
@@ -63,12 +54,34 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
           maxLon = c.getLon();
         }
       }
-      final MapPolygonImpl p = new MapPolygonImpl(coords);
-      p.setStyle(STYLE);
-      polygons[pos++] = p;
+      polygons[pos++] = coords;
     }
     latLonBBox = new Rectangle2D.Double(
         minLon, minLat, maxLon - minLon, maxLat - minLat);
+  }
+
+  @Override
+  public void paint(final Graphics2D g, final GisPanel panel, final boolean simple) {
+    g.setColor(getColor());
+    if(simple) {
+      paintSimple(g, panel);
+      return;
+    }
+    final Path2D path = new Path2D.Double();
+    for(final Coordinate[] coords : polygons) {
+      boolean first = true;
+      for(final Coordinate coord : coords) {
+        final Point2D pos = panel.getMapPosition(coord, false);
+        if(first) {
+          path.moveTo(pos.getX(), pos.getY());
+          first = false;
+        } else {
+          path.lineTo(pos.getX(), pos.getY());
+        }
+      }
+      path.closePath();
+    }
+    g.fill(path);
   }
 
   @Override
@@ -77,28 +90,8 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
   }
 
   @Override
-  public boolean hasPolygon() {
-    return true;
-  }
-
-  @Override
-  public MapPolygon[] getPolygons() {
-    return polygons;
-  }
-
-  @Override
-  public MapMarker[] getMarker() {
-    throw new UnsupportedOperationException(); // no marker
-  }
-
-  @Override
   public void setRadius(final double radius) {
     throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setColor(final Color color) {
-    // TODO set color
   }
 
 }
