@@ -37,10 +37,11 @@ public final class GeometryConverter {
    * 
    * @param id The reference id.
    * @param geom The geometry of the element.
+   * @param info The element information.
    * @return The converted geo marker.
    */
-  public static GeoMarker convert(final ElementId id, final PGgeometry geom,
-      final String info) {
+  public static GeoMarker convert(
+      final ElementId id, final PGgeometry geom, final String info) {
     switch(geom.getGeoType()) {
       case Geometry.POINT:
         final Point p = (Point) geom.getGeometry();

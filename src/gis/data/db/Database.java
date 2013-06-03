@@ -74,20 +74,19 @@ public class Database {
     return connection;
   }
 
-  public List<ElementId> getByCoordinate(final Coordinate c, final List<Table> tables,
-      final double maxDistMeters) {
+  public List<ElementId> getByCoordinate(
+      final Coordinate c, final List<Table> tables, final double maxDistMeters) {
     final List<ElementId> ids = new ArrayList<>();
     for(final Table t : tables) {
       switch(t.geometryType) {
-        case LINESTRING:
-          // TODO
-          break;
         case POINT:
           getPointsByCoordinate(c, t, maxDistMeters, ids);
           break;
         case POLYGON:
           getPolygonsByCoordinate(c, t, ids);
           break;
+        default:
+          throw new IllegalStateException();
       }
     }
     return ids;
@@ -99,8 +98,8 @@ public class Database {
         " WHERE ST_DWithin(geom, ST_SetSRID(ST_Point(" +
         c.getLon() + "," + c.getLat() + "), 4326), " + maxDistMeters + ", true)";
     try (Connection connection = getConnection();
-        Statement stmt = connection.createStatement()) {
-      final ResultSet rs = stmt.executeQuery(query);
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(query)) {
       while(rs.next()) {
         final int gid = rs.getInt(1);
         final ElementId id = new ElementId(table, gid);
@@ -111,14 +110,14 @@ public class Database {
     }
   }
 
-  private void getPolygonsByCoordinate(final Coordinate c, final Table table,
-      final List<ElementId> ids) {
+  private void getPolygonsByCoordinate(
+      final Coordinate c, final Table table, final List<ElementId> ids) {
     final String query = "SELECT gid FROM " + table.name +
         " WHERE ST_Contains(geom, ST_SetSRID(ST_Point(" +
         c.getLon() + ", " + c.getLat() + "), 4326))";
     try (Connection connection = getConnection();
-        Statement stmt = connection.createStatement()) {
-      final ResultSet rs = stmt.executeQuery(query);
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(query)) {
       while(rs.next()) {
         final int gid = rs.getInt(1);
         final ElementId id = new ElementId(table, gid);
