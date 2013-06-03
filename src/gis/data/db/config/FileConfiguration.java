@@ -1,88 +1,99 @@
 package gis.data.db.config;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Objects;
+import java.util.Properties;
 
-public class FileConfiguration implements IConfiguration {
-	
-	private final String url;
-	private final String user;
-	private final String password; 
-	
-	private FileConfiguration(String url, String user, String password) {
-		this.url = url;
-		this.user = user;
-		this.password = password;
-	}
-	
-	public static FileConfiguration read(String filePath) throws ConfigurationException {
-		//read file
-		String content = FileReader.read(filePath);
-		if (content == null) {
-			throw new ConfigurationException("unable to read from configuration file at " + filePath);
-		}
-		//extract and store key-value pairs
-		Map<String, String> map = new HashMap<String, String>();
-		String[] pairs = content.split(System.getProperty("line.separator"));
-		//System.out.println(java.util.Arrays.toString(pairs));//TODO
-		for (String pair : pairs) {
-			String[] kv = pair.split("=");
-			if (kv.length != 2) {
-				throw new ConfigurationException("malformed line");
-			}
-			map.put(kv[0], kv[1]);
-		}
-		//make sure that all required keys are present
-		ConfigKey[] keys = ConfigKey.values();
-		for (ConfigKey key : keys) {
-			String value = map.get(key.getKey());
-			if (value == null) {
-				throw new ConfigurationException("key " + key.getKey() + " missing in configuration file");
-			}
-		}
-		//use values to create and return FileConfiguration object
-		String url = "jdbc:postgresql://" + map.get(ConfigKey.HOSTNAME.getKey()) + ":" +
-				map.get(ConfigKey.PORT.getKey()) + "/" + map.get(ConfigKey.DBNAME.getKey());
-		String user = map.get(ConfigKey.USER.getKey());
-		String password = map.get(ConfigKey.PASSWORD.getKey());
-		return new FileConfiguration(url, user, password);
-	}
-	
-	@Override
-	public String getUrl() {
-		return url;
-	}
+/**
+ * Loads the configuration located in an input stream.
+ * 
+ * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+ * @author Joschi <josua.krause@gmail.com>
+ */
+public class FileConfiguration implements GISConfiguration {
+  /** The internal properties. */
+  private final Properties props;
 
-	@Override
-	public String getUser() {
-		return user;
-	}
+  /**
+   * Loads the configuration from the given input stream.
+   * 
+   * @param in The input stream.
+   * @throws IOException I/O Exception.
+   */
+  public FileConfiguration(final InputStream in) throws IOException {
+    props = new Properties();
+    props.load(in);
+    // make sure that all required keys are present
+    final ConfigKey[] keys = ConfigKey.values();
+    for(final ConfigKey key : keys) {
+      Objects.requireNonNull(props.get(key.getKey()),
+          "key " + key.getKey() + " missing in configuration file");
+    }
+  }
 
-	@Override
-	public String getPassword() {
-		return password;
-	}
-	
-	@Override
-	public String toString() {
-		return "url=" + url + "\nuser=" + user + "\npassword=" + password + "\n"; 
-	}
-	
-	private enum ConfigKey {
-		HOSTNAME("hostname"),
-		PORT("port"),
-		DBNAME("dbname"),
-		USER("user"),
-		PASSWORD("password");
-		
-		private final String key;
-		
-		private ConfigKey(String key) {
-			this.key = key;
-		}
-		
-		String getKey() {
-			return key;
-		}
-	}
+  @Override
+  public String getUrl() {
+    return "jdbc:postgresql://" + props.get(ConfigKey.HOSTNAME.getKey()) + ":" +
+        props.get(ConfigKey.PORT.getKey()) + "/" + props.get(ConfigKey.DBNAME.getKey());
+  }
+
+  @Override
+  public String getUser() {
+    return "" + props.get(ConfigKey.USER.getKey());
+  }
+
+  @Override
+  public String getPassword() {
+    return "" + props.get(ConfigKey.PASSWORD.getKey());
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName()
+        + "[url=" + getUrl() + "; user="
+        + getUser() + "; password=" + getPassword() + "]";
+  }
+
+  /**
+   * All valid config fields.
+   * 
+   * @author Joschi <josua.krause@gmail.com>
+   * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+   */
+  private static enum ConfigKey {
+    /** The hostname field. */
+    HOSTNAME("hostname"),
+    /** The port field. */
+    PORT("port"),
+    /** The database name field. */
+    DBNAME("dbname"),
+    /** The user field. */
+    USER("user"),
+    /** The password field. */
+    PASSWORD("password"), ; // EOD
+
+    /** The key for the field. */
+    private final String key;
+
+    /**
+     * Creates a key for a field.
+     * 
+     * @param key The key.
+     */
+    private ConfigKey(final String key) {
+      this.key = key;
+    }
+
+    /**
+     * Getter.
+     * 
+     * @return The key for this field.
+     */
+    String getKey() {
+      return key;
+    }
+
+  } // ConfigKey
+
 }
