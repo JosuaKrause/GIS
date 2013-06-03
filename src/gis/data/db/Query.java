@@ -10,7 +10,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.postgis.PGgeometry;
@@ -32,13 +34,20 @@ public class Query<T> {
    * 
    * @param query The SQL query. The column named 'gid' of the result must be
    *          the id of the element in the table given here. The column 'geom'
-   *          must be the geometric reference.
+   *          must be the geometric reference. The column 'info' gets the row
+   *          information.
    * @param table The table whose elements are returned. (At least for which the
    *          ids count)
    */
   public Query(final String query, final Table table) {
     this.table = Objects.requireNonNull(table);
     this.query = Objects.requireNonNull(query);
+  }
+
+  private final Map<ElementId, GeoMarker> map = new HashMap<>();
+
+  public Table getTable() {
+    return table;
   }
 
   /** Whether the content has been already fetched. */
@@ -57,19 +66,26 @@ public class Query<T> {
     try (Connection conn = Database.getInstance().getConnection()) {
       final List<PGgeometry> geom = new ArrayList<>();
       final List<Integer> ids = new ArrayList<>();
+      final List<String> infos = new ArrayList<>();
       final List<T> flavour = new ArrayList<>();
+      final long start = System.currentTimeMillis();
       try (Statement s = conn.createStatement(); ResultSet r = s.executeQuery(query)) {
         while(r.next()) {
           ids.add(r.getInt("gid"));
           geom.add((PGgeometry) r.getObject("geom"));
+          infos.add(r.getString("info"));
           flavour.add(getFlavour(r));
         }
       }
+      System.out.println("query took: " + (System.currentTimeMillis() - start) + "ms");
       for(int i = 0; i < geom.size(); ++i) {
+        final String info = infos.get(i);
         final GeoMarker m = GeometryConverter.convert(
-            new ElementId(table, ids.get(i)), geom.get(i));
+            new ElementId(table, ids.get(i)), geom.get(i),
+            info == null ? "" + ids.get(i) : info);
         addFlavour(m, flavour.get(i));
         markers.add(m);
+        map.put(m.getId(), m);
         if(i % 50 == 0) {
           System.out.println("fetching: " + ((i + 1.0) / geom.size() * 100.0) + "%");
         }
@@ -93,6 +109,11 @@ public class Query<T> {
   public void clearCache() {
     hasContent = false;
     markers.clear();
+    map.clear();
+  }
+
+  public GeoMarker get(final ElementId id) {
+    return map.get(id);
   }
 
 }

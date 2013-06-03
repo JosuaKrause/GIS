@@ -32,8 +32,9 @@ public class GeoMarkerPolygon extends GeoMarkerMultiPolygon {
    * @param id The reference id.
    * @param polygon The polygon.
    */
-  public GeoMarkerPolygon(final ElementId id, final Coordinate[] polygon) {
-    super(id, toList(polygon));
+  public GeoMarkerPolygon(final String info, final ElementId id,
+      final Coordinate[] polygon) {
+    super(info, id, toList(polygon));
   }
 
 }

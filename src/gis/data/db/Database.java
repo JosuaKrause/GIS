@@ -1,5 +1,7 @@
 package gis.data.db;
 
+import gis.data.datatypes.ElementId;
+import gis.data.datatypes.Table;
 import gis.data.db.config.FileConfiguration;
 import gis.data.db.config.GISConfiguration;
 
@@ -7,7 +9,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openstreetmap.gui.jmapviewer.Coordinate;
+import org.postgresql.PGConnection;
 
 /**
  * Handles database access.
@@ -58,8 +67,65 @@ public class Database {
    * @throws SQLException SQL Exception.
    */
   public Connection getConnection() throws SQLException {
-    return DriverManager.getConnection(
+    final Connection connection = DriverManager.getConnection(
         config.getUrl(), config.getUser(), config.getPassword());
+    // add support for Geometry types
+    ((PGConnection) connection).addDataType("geometry", org.postgis.PGgeometry.class);
+    return connection;
   }
 
+  public List<ElementId> getByCoordinate(final Coordinate c, final List<Table> tables,
+      final double maxDistMeters) {
+    final List<ElementId> ids = new ArrayList<>();
+    for(final Table t : tables) {
+      switch(t.geometryType) {
+        case LINESTRING:
+          // TODO
+          break;
+        case POINT:
+          getPointsByCoordinate(c, t, maxDistMeters, ids);
+          break;
+        case POLYGON:
+          getPolygonsByCoordinate(c, t, ids);
+          break;
+      }
+    }
+    return ids;
+  }
+
+  private void getPointsByCoordinate(final Coordinate c, final Table table,
+      final double maxDistMeters, final List<ElementId> ids) {
+    final String query = "SELECT gid FROM " + table.name +
+        " WHERE ST_DWithin(geom, ST_SetSRID(ST_Point(" +
+        c.getLon() + "," + c.getLat() + "), 4326), " + maxDistMeters + ", true)";
+    try (Connection connection = getConnection();
+        Statement stmt = connection.createStatement()) {
+      final ResultSet rs = stmt.executeQuery(query);
+      while(rs.next()) {
+        final int gid = rs.getInt(1);
+        final ElementId id = new ElementId(table, gid);
+        ids.add(id);
+      }
+    } catch(final SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void getPolygonsByCoordinate(final Coordinate c, final Table table,
+      final List<ElementId> ids) {
+    final String query = "SELECT gid FROM " + table.name +
+        " WHERE ST_Contains(geom, ST_SetSRID(ST_Point(" +
+        c.getLon() + ", " + c.getLat() + "), 4326))";
+    try (Connection connection = getConnection();
+        Statement stmt = connection.createStatement()) {
+      final ResultSet rs = stmt.executeQuery(query);
+      while(rs.next()) {
+        final int gid = rs.getInt(1);
+        final ElementId id = new ElementId(table, gid);
+        ids.add(id);
+      }
+    } catch(final SQLException e) {
+      e.printStackTrace();
+    }
+  }
 }

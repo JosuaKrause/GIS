@@ -10,29 +10,37 @@ import javax.swing.JCheckBox;
 
 public class QueryCheckBox extends JCheckBox {
 
-    public static final QueryCheckBox createTableQuery(
-            final GisPanel panel, final Table table) {
-        final Query<?> q = new Query<>(
-                "SELECT gid, geom FROM " + table.name, table);
-        return new QueryCheckBox(table.name, panel, q);
-    }
+  private final Query<?> q;
 
-    public QueryCheckBox(final String name, final GisPanel gisPanel,
-            final Query<?> q) {
-        super(name);
-        addActionListener(new ActionListener() {
+  public static final QueryCheckBox createTableQuery(
+      final GisPanel panel, final Table table) {
+    final Query<?> q = new Query<>(
+        "SELECT gid, geom, " + table.infoColumnName + " as info FROM " + table.name,
+        table);
+    return new QueryCheckBox(table.name, panel, q);
+  }
 
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (isSelected()) {
-                    gisPanel.addQuery(q);
-                } else {
-                    gisPanel.removeQuery(q);
-                }
-                gisPanel.repaint();
-            }
+  public QueryCheckBox(
+      final String name, final GisPanel gisPanel, final Query<?> q) {
+    super(name);
+    this.q = q;
+    addActionListener(new ActionListener() {
 
-        });
-    }
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        if(isSelected()) {
+          gisPanel.addQuery(q);
+        } else {
+          gisPanel.removeQuery(q);
+        }
+        gisPanel.repaint();
+      }
+
+    });
+  }
+
+  public Table getTable() {
+    return q.getTable();
+  }
 
 }

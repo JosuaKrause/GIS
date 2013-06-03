@@ -2,6 +2,7 @@ package gis.data;
 
 import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
+import gis.data.datatypes.GeoMarkerLineString;
 import gis.data.datatypes.GeoMarkerMultiPolygon;
 import gis.data.datatypes.GeoMarkerPoint;
 import gis.data.datatypes.GeoMarkerPolygon;
@@ -11,6 +12,7 @@ import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.postgis.Geometry;
+import org.postgis.LineString;
 import org.postgis.LinearRing;
 import org.postgis.MultiPolygon;
 import org.postgis.PGgeometry;
@@ -37,11 +39,12 @@ public final class GeometryConverter {
    * @param geom The geometry of the element.
    * @return The converted geo marker.
    */
-  public static GeoMarker convert(final ElementId id, final PGgeometry geom) {
+  public static GeoMarker convert(final ElementId id, final PGgeometry geom,
+      final String info) {
     switch(geom.getGeoType()) {
       case Geometry.POINT:
         final Point p = (Point) geom.getGeometry();
-        return new GeoMarkerPoint(id, new Coordinate(p.getY(), p.getX()));
+        return new GeoMarkerPoint(info, id, new Coordinate(p.getY(), p.getX()));
       case Geometry.POLYGON:
         final Polygon poly = (Polygon) geom.getGeometry();
         if(poly.numRings() > 1) {
@@ -53,7 +56,7 @@ public final class GeometryConverter {
         for(int k = 0; k < polyPoints.length; ++k) {
           polyCoordinates[k] = new Coordinate(polyPoints[k].getY(), polyPoints[k].getX());
         }
-        return new GeoMarkerPolygon(id, polyCoordinates);
+        return new GeoMarkerPolygon(info, id, polyCoordinates);
       case Geometry.MULTIPOLYGON:
         final Polygon[] polys = ((MultiPolygon) geom.getGeometry()).getPolygons();
         final List<Coordinate[]> polygons = new ArrayList<>(polys.length);
@@ -69,7 +72,15 @@ public final class GeometryConverter {
             polygons.add(coordinates);
           }
         }
-        return new GeoMarkerMultiPolygon(id, polygons);
+        return new GeoMarkerMultiPolygon(info, id, polygons);
+      case Geometry.LINESTRING:
+        final LineString ls = (LineString) geom.getGeometry();
+        final Point[] points = ls.getPoints();
+        final Coordinate[] coordinates = new Coordinate[points.length];
+        for(int i = 0; i < points.length; ++i) {
+          coordinates[i] = new Coordinate(points[i].y, points[i].x);
+        }
+        return new GeoMarkerLineString(info, id, coordinates);
       default:
         throw new UnsupportedOperationException(
             "unsupported geometry type " + geom.getGeoType() + " " + geom.getType());

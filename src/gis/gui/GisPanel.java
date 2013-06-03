@@ -1,5 +1,6 @@
 package gis.gui;
 
+import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
 import gis.data.db.Query;
 
@@ -48,11 +49,13 @@ public class GisPanel extends JMapViewer {
 
   public void addQuery(final Query<?> q) {
     queries.add(q);
+    repaint();
   }
 
   public void removeQuery(final Query<?> q) {
     queries.remove(q);
     q.clearCache();
+    repaint();
   }
 
   /**
@@ -188,6 +191,18 @@ public class GisPanel extends JMapViewer {
       }
       g.dispose();
     }
+
+    /*
+     * GeoMarkerLineString ls = (GeoMarkerLineString)m; //draw (partially)
+     * visible linestrings, one at a time //has potential for errors if line,
+     * but not its points should be visible for (int i = 0; i < ls.points.length
+     * - 1; ++i) { Coordinate ca = ls.points[i]; Coordinate cb = ls.points[i +
+     * 1]; Point pa = getMapPosition(ca, true); Point pb = getMapPosition(cb,
+     * true); if (!(pa == null && pb == null)) { if (pa == null) { pa =
+     * getMapPosition(ca, false); } else if (pb == null) { pb =
+     * getMapPosition(cb, false); } ls.paintLineSegment(g, pb, pa); } }
+     */
+
     { // draw overlay image
       final Graphics2D g = (Graphics2D) g2.create();
       if(drawImage) {
@@ -256,13 +271,23 @@ public class GisPanel extends JMapViewer {
     // }
   }
 
-  // SELECT * FROM berlin_poi WHERE name LIKE 'Museum%';
+  private void addListeners() {
+    addComponentListener(new ComponentAdapter() {
 
-  // TODO code reference
-  // public Coordinate getPosition() {
-  // double lon = OsmMercator.XToLon(center.x, zoom);
-  // double lat = OsmMercator.YToLat(center.y, zoom);
-  // return new Coordinate(lat, lon);
-  // }
+      @Override
+      public void componentResized(final ComponentEvent e) {
+        updateImage();
+      }
+
+    });
+  }
+
+  public GeoMarker getGeoMarker(final ElementId id) {
+    for(final Query<?> q : queries) {
+      final GeoMarker m = q.get(id);
+      if(m != null) return m;
+    }
+    throw new IllegalStateException();
+  }
 
 }
