@@ -65,13 +65,13 @@ public class Query<T> {
     System.out.println("executing: " + query);
     try (Connection conn = Database.getInstance().getConnection()) {
       final List<PGgeometry> geom = new ArrayList<>();
-      final List<Integer> ids = new ArrayList<>();
+      final List<String> ids = new ArrayList<>();
       final List<String> infos = new ArrayList<>();
       final List<T> flavour = new ArrayList<>();
       final long start = System.currentTimeMillis();
       try (Statement s = conn.createStatement(); ResultSet r = s.executeQuery(query)) {
         while(r.next()) {
-          ids.add(r.getInt("gid"));
+          ids.add(r.getString("gid"));
           geom.add((PGgeometry) r.getObject("geom"));
           infos.add(r.getString("info"));
           flavour.add(getFlavour(r));

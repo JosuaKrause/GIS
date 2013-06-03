@@ -101,7 +101,7 @@ public class Database {
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(query)) {
       while(rs.next()) {
-        final int gid = rs.getInt(1);
+        final String gid = rs.getString("gid");
         final ElementId id = new ElementId(table, gid);
         ids.add(id);
       }
@@ -119,7 +119,7 @@ public class Database {
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(query)) {
       while(rs.next()) {
-        final int gid = rs.getInt(1);
+        final String gid = rs.getString("gid");
         final ElementId id = new ElementId(table, gid);
         ids.add(id);
       }

@@ -13,7 +13,7 @@ public class ElementId {
   /** The table. */
   private final Table table;
   /** The id in the table. */
-  private final int id;
+  private final String id;
 
   /**
    * Creates an element id.
@@ -21,9 +21,9 @@ public class ElementId {
    * @param table The table.
    * @param id The id.
    */
-  public ElementId(final Table table, final int id) {
+  public ElementId(final Table table, final String id) {
     this.table = Objects.requireNonNull(table);
-    this.id = id;
+    this.id = Objects.requireNonNull(id);
   }
 
   /**
@@ -40,7 +40,7 @@ public class ElementId {
    * 
    * @return The id.
    */
-  public int getId() {
+  public String getId() {
     return id;
   }
 
@@ -48,8 +48,8 @@ public class ElementId {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + id;
-    result = prime * result + ((table == null) ? 0 : table.hashCode());
+    result = prime * result + id.hashCode();
+    result = prime * result + table.hashCode();
     return result;
   }
 
@@ -58,8 +58,8 @@ public class ElementId {
     if(this == obj) return true;
     if(!(obj instanceof ElementId)) return false;
     final ElementId other = (ElementId) obj;
-    if(id != other.id) return false;
-    if(table != other.table) return false;
+    if(!id.equals(other.id)) return false;
+    if(!table.equals(other.table)) return false;
     return true;
   }
 

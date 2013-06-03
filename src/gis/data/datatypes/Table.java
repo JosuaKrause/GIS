@@ -20,12 +20,16 @@ public enum Table {
   BERLIN_WATER("berlin_water", GeometryType.POLYGON, "name", convert(Color.BLUE)),
   BUILDINGS("buildings", GeometryType.POLYGON, "name", convert(Color.ORANGE)),
   LANDUSE("landuse", GeometryType.POLYGON, "name", convert(Color.YELLOW)),
+  FLICKR("flickr", GeometryType.POINT, "phototitle", convert(Color.ORANGE)),
 
   ; // EOD
-
+  /** The table name. */
   public final String name;
+  /** The geometry type. */
   public final GeometryType geometryType;
+  /** The column for the info. */
   public final String infoColumnName;
+  /** The default color. */
   public final Color color;
 
   private Table(final String name, final GeometryType geometryType,

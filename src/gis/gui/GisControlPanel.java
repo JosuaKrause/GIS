@@ -3,13 +3,11 @@ package gis.gui;
 import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
+import gis.data.db.BrandenburgQuery;
 import gis.data.db.Database;
-import gis.data.db.Query;
 
 import java.awt.Component;
 import java.awt.Point;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,22 +29,7 @@ public class GisControlPanel extends JPanel {
   public GisControlPanel(final GisPanel gisPanel) {
     selectionManager = new SelectionManager();
     this.gisPanel = Objects.requireNonNull(gisPanel);
-    add(new QueryCheckBox("brandenburg", gisPanel,
-        new Query<Double>("SELECT gid, geom, 1 as distance, "
-            + Table.BERLIN_POI.infoColumnName + " as info FROM " + Table.BERLIN_POI
-            + " LIMIT 100;", Table.BERLIN_POI) {
-
-          @Override
-          protected Double getFlavour(final ResultSet r) throws SQLException {
-            return r.getDouble("distance");
-          }
-
-          @Override
-          protected void addFlavour(final GeoMarker m, final Double f) {
-            m.setRadius(f);
-          }
-
-        }));
+    add(new QueryCheckBox("brandenburg", gisPanel, new BrandenburgQuery()));
     for(final Table t : Table.values()) {
       addTableSelectionCheckBox(gisPanel, t);
     }
