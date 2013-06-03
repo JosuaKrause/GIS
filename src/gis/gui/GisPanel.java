@@ -154,16 +154,6 @@ public class GisPanel extends JMapViewer {
         }
       }
     }
-
-    // //draw distance transformation
-    // for (int y = 0; y < image.getHeight(); ++y) {
-    // for (int x = 0; x < image.getWidth(); ++x) {
-    // double lon = OsmMercator.XToLon(x, zoom);
-    // double lat = OsmMercator.YToLat(y, zoom);
-    // Coordinate c = new Coordinate(lat, lon);
-    //
-    // }
-    // }
   }
 
   private void addListeners() {

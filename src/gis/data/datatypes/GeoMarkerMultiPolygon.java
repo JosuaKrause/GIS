@@ -62,6 +62,7 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
 
   @Override
   public void paint(final Graphics2D g, final GisPanel panel, final boolean simple) {
+    g.setComposite(getComposite());
     g.setColor(getColor());
     if(simple) {
       paintSimple(g, panel);

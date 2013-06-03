@@ -115,6 +115,7 @@ public class GisControlPanel extends JPanel {
         menu.add(new TableSelectionMenuItem(m, selectionManager, panel));
       }
       menu.show(panel, p.x, p.y);
+      panel.repaint();
     }
     return false;
   }

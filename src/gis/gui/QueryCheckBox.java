@@ -1,5 +1,6 @@
 package gis.gui;
 
+import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 import gis.data.db.Query;
 
@@ -14,9 +15,16 @@ public class QueryCheckBox extends JCheckBox {
 
   public static final QueryCheckBox createTableQuery(
       final GisPanel panel, final Table table) {
-    final Query<?> q = new Query<>(
+    final Query<?> q = new Query<Object>(
         "SELECT gid, geom, " + table.infoColumnName + " as info FROM " + table.name,
-        table);
+        table) {
+
+      @Override
+      protected void addFlavour(final GeoMarker m, final Object f) {
+        m.setColor(table.color);
+      }
+
+    };
     return new QueryCheckBox(table.name, panel, q);
   }
 

@@ -2,7 +2,6 @@ package gis.data.datatypes;
 
 import gis.gui.GisPanel;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
@@ -34,7 +33,6 @@ public class GeoMarkerPoint extends GeoMarker {
    */
   public GeoMarkerPoint(final String info, final ElementId id, final Coordinate coord) {
     super(info, id);
-    setColor(new Color(5, 113, 176, 255 / 3));
     this.coord = coord;
     computeLatLonBBox();
   }
@@ -53,6 +51,7 @@ public class GeoMarkerPoint extends GeoMarker {
 
   @Override
   public void paint(final Graphics2D g, final GisPanel panel, final boolean simple) {
+    g.setComposite(getComposite());
     g.setColor(getColor());
     if(simple) {
       paintSimple(g, panel);

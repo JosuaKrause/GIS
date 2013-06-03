@@ -2,7 +2,9 @@ package gis.data.datatypes;
 
 import gis.gui.GisPanel;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -21,7 +23,7 @@ public abstract class GeoMarker {
   /** The element info. */
   private final String info;
   /** The color. */
-  private Color color = new Color(239, 138, 98, 255 / 3);
+  private Color color = new Color(239, 138, 98);
   /** Whether the geo marker is currently selected. */
   private boolean selected;
 
@@ -155,7 +157,11 @@ public abstract class GeoMarker {
    * @return The current color.
    */
   public Color getColor() {
-    return isSelected() ? color.brighter() : color;
+    return isSelected() ? color.brighter().brighter() : color;
+  }
+
+  protected Composite getComposite() {
+    return AlphaComposite.getInstance(AlphaComposite.SRC_OVER, isSelected() ? .7f : .3f);
   }
 
 }
