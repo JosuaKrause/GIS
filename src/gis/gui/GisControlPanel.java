@@ -6,6 +6,7 @@ import gis.data.datatypes.Table;
 import gis.data.db.Database;
 import gis.data.db.Query;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.sql.ResultSet;
@@ -45,9 +46,66 @@ public class GisControlPanel extends JPanel {
           }
 
         }));
+
     for(final Table t : Table.values()) {
       addTableSelectionCheckBox(gisPanel, t);
     }
+
+    add(new QueryCheckBox(
+        "border buildings",
+        gisPanel,
+        new Query<Double>(
+            "select distinct b.gid as gid,  b.geom as geom, b.name as info "
+                +
+                "from berlin_administrative as a, buildings as b "
+                +
+                "where b.type = 'commercial' and st_intersects(a.geom, b.geom) and "
+                +
+                "st_area(st_intersection(a.geom, b.geom), true) < 0.99 * st_area(b.geom, true)",
+            Table.BUILDINGS) {
+
+          @Override
+          protected Double getFlavour(final ResultSet r) throws SQLException {
+            return (double) r.getInt("gid");
+          }
+
+          @Override
+          protected void addFlavour(final GeoMarker m, final Double f) {
+            m.setColor(Color.RED);
+          }
+
+        }));
+
+    add(new QueryCheckBox(
+        "commercial ratio",
+        gisPanel,
+        new Query<Double>(
+            "select a.gid as gid, lor as info, (select b_area / a_area) as ratio, geom "
+                +
+                "from berlin_administrative as a left outer join "
+                +
+                "( select a.gid, st_area(a.geom, true) as a_area, sum(st_area(st_intersection("
+                +
+                "a.geom, b.geom), true)) as b_area " +
+                "from berlin_administrative as a, buildings as b " +
+                "where b.type = 'commercial' and st_intersects(a.geom, b.geom) " +
+                "group by a.gid ) as b " +
+                "on a.gid = b.gid " +
+                "order by gid;",
+            Table.BERLIN_ADMINISTRATIVE) {
+
+          @Override
+          protected Double getFlavour(final ResultSet r) throws SQLException {
+            return (double) r.getDouble("ratio");
+          }
+
+          @Override
+          protected void addFlavour(final GeoMarker m, final Double f) {
+            m.setColor(Color.RED);
+          }
+
+        }));
+
     setSize(getMinimumSize());
     addGisPanelListeners(gisPanel);
   }
