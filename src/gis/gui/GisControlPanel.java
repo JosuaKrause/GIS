@@ -64,43 +64,41 @@ public class GisControlPanel extends JPanel {
   public boolean processSelectionClick(final Point p, final Coordinate c) {
     final List<Table> tables = getSelectedTables();
     final GisPanel panel = gisPanel;
-    if(tables.size() > 0) {
-      final List<ElementId> ids = Database.getInstance().getByCoordinate(
-          c, getSelectedTables(), panel.getMeterPerPixel() * 5);
-      final List<GeoMarker> markers = new ArrayList<>();
-      for(final ElementId id : ids) {
-        final GeoMarker m = panel.getGeoMarker(id);
-        if(m != null) {
-          markers.add(m);
-        }
+    if(tables.isEmpty()) return false;
+    final List<ElementId> ids = Database.getInstance().getByCoordinate(
+        c, getSelectedTables(), panel.getMeterPerPixel() * 5);
+    final List<GeoMarker> markers = new ArrayList<>();
+    for(final ElementId id : ids) {
+      final GeoMarker m = panel.getGeoMarker(id);
+      if(m != null) {
+        markers.add(m);
       }
-      if(markers.size() == 1) return selectionManager.clickedOn(markers.get(0));
-      final JPopupMenu menu = new JPopupMenu();
-      menu.addPopupMenuListener(new PopupMenuListener() {
-
-        @Override
-        public void popupMenuWillBecomeVisible(final PopupMenuEvent e) {
-          // do nothing
-        }
-
-        @Override
-        public void popupMenuWillBecomeInvisible(final PopupMenuEvent e) {
-          panel.repaint();
-        }
-
-        @Override
-        public void popupMenuCanceled(final PopupMenuEvent e) {
-          // do nothing
-        }
-
-      });
-      for(final GeoMarker m : markers) {
-        menu.add(new TableSelectionMenuItem(m, selectionManager, panel));
-      }
-      menu.show(panel, p.x, p.y);
-      panel.repaint();
     }
-    return false;
+    if(markers.size() == 1) return selectionManager.clickedOn(markers.get(0));
+    final JPopupMenu menu = new JPopupMenu();
+    menu.addPopupMenuListener(new PopupMenuListener() {
+
+      @Override
+      public void popupMenuWillBecomeVisible(final PopupMenuEvent e) {
+        // do nothing
+      }
+
+      @Override
+      public void popupMenuWillBecomeInvisible(final PopupMenuEvent e) {
+        panel.repaint();
+      }
+
+      @Override
+      public void popupMenuCanceled(final PopupMenuEvent e) {
+        // do nothing
+      }
+
+    });
+    for(final GeoMarker m : markers) {
+      menu.add(new TableSelectionMenuItem(m, selectionManager, panel));
+    }
+    menu.show(panel, p.x, p.y);
+    return true;
   }
 
 }
