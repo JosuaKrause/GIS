@@ -128,4 +128,30 @@ public class Database {
     }
   }
 
+  public double getDistance(final ElementId from, final ElementId to) {
+    double distance = Double.NaN;
+    final String fromId = from.getId();
+    final String fromIdCol = from.getTable().idColumnName;
+    final String fromTable = from.getTable().name;
+    final String fromGeom = from.getTable().geomColumnName;
+    final String toId = to.getId();
+    final String toIdCol = to.getTable().idColumnName;
+    final String toTable = to.getTable().name;
+    final String toGeom = to.getTable().geomColumnName;
+    final String query = "SELECT ST_DISTANCE( " +
+        "f." + fromGeom + ", t." + toGeom + " , true) as distance " +
+        "FROM " + fromTable + " as f, " + toTable + " as t " +
+        "WHERE f." + fromIdCol + " = " + fromId + " AND t." + toIdCol + " = " + toId;
+    try (Connection connection = getConnection();
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(query)) {
+      if(!rs.next()) throw new IllegalStateException("expected more results");
+      distance = rs.getDouble("distance");
+      if(rs.next()) throw new IllegalStateException("too many result rows");
+    } catch(final SQLException | IllegalStateException e) {
+      e.printStackTrace();
+    }
+    return distance;
+  }
+
 }
