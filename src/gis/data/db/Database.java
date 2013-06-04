@@ -94,8 +94,8 @@ public class Database {
 
   private void getPointsByCoordinate(final Coordinate c, final Table table,
       final double maxDistMeters, final List<ElementId> ids) {
-    final String query = "SELECT gid FROM " + table.name +
-        " WHERE ST_DWithin(geom, ST_SetSRID(ST_Point(" +
+    final String query = "SELECT " + table.idColumnName + " as gid FROM " + table.name +
+        " WHERE ST_DWithin(" + table.geomColumnName + ", ST_SetSRID(ST_Point(" +
         c.getLon() + "," + c.getLat() + "), 4326), " + maxDistMeters + ", true)";
     try (Connection connection = getConnection();
         Statement stmt = connection.createStatement();
@@ -112,8 +112,8 @@ public class Database {
 
   private void getPolygonsByCoordinate(
       final Coordinate c, final Table table, final List<ElementId> ids) {
-    final String query = "SELECT gid FROM " + table.name +
-        " WHERE ST_Contains(geom, ST_SetSRID(ST_Point(" +
+    final String query = "SELECT " + table.idColumnName + " as gid FROM " + table.name +
+        " WHERE ST_Contains(" + table.geomColumnName + ", ST_SetSRID(ST_Point(" +
         c.getLon() + ", " + c.getLat() + "), 4326))";
     try (Connection connection = getConnection();
         Statement stmt = connection.createStatement();
@@ -127,4 +127,5 @@ public class Database {
       e.printStackTrace();
     }
   }
+
 }

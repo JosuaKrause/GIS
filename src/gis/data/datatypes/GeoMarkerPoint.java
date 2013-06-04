@@ -5,6 +5,7 @@ import gis.gui.GisPanel;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
@@ -18,7 +19,7 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
 public class GeoMarkerPoint extends GeoMarker {
 
   /** The radius. */
-  private double radius = 0.05;
+  private double radius = 0.001;
   /** The point marker. */
   private final Coordinate coord;
   /** The world coordinate bounding box. */
@@ -39,9 +40,9 @@ public class GeoMarkerPoint extends GeoMarker {
 
   /** Computes the bounding box if the radius has changed. */
   private void computeLatLonBBox() {
+    final double a = radius;
     latLonBBox = new Rectangle2D.Double(
-        coord.getLon() - radius, coord.getLat() - radius,
-        radius * 2, radius * 2);
+        coord.getLon() - a, coord.getLat() - a, a * 2, a * 2);
   }
 
   @Override
@@ -57,8 +58,11 @@ public class GeoMarkerPoint extends GeoMarker {
       paintSimple(g, panel);
       return;
     }
-    final Rectangle2D r = transformRect(panel, getLatLonBBox());
-    final Shape e = new Ellipse2D.Double(r.getX(), r.getY(), r.getWidth(), r.getHeight());
+    final Point2D pos = panel.getMapPosition(coord, false);
+    final Point2D other = panel.getMapPosition(
+        new Coordinate(coord.getLat(), coord.getLon() + radius), false);
+    final double r = other.getX() - pos.getX();
+    final Shape e = new Ellipse2D.Double(pos.getX() - r, pos.getY() - r, 2 * r, 2 * r);
     g.fill(e);
   }
 

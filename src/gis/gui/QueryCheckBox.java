@@ -16,7 +16,8 @@ public class QueryCheckBox extends JCheckBox {
   public static final QueryCheckBox createTableQuery(
       final GisPanel panel, final Table table) {
     final Query<?> q = new Query<Object>(
-        "SELECT gid, geom, " + table.infoColumnName + " as info FROM " + table.name,
+        "SELECT " + table.idColumnName + ", " + table.geomColumnName + ", "
+            + table.infoColumnName + " FROM " + table.name,
         table) {
 
       @Override

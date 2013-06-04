@@ -29,7 +29,7 @@ public class GisControlPanel extends JPanel {
   public GisControlPanel(final GisPanel gisPanel) {
     selectionManager = new SelectionManager();
     this.gisPanel = Objects.requireNonNull(gisPanel);
-    add(new QueryCheckBox("brandenburg", gisPanel, new BrandenburgQuery()));
+    add(new QueryCheckBox("brandenburg", gisPanel, new BrandenburgQuery(2000)));
     for(final Table t : Table.values()) {
       addTableSelectionCheckBox(gisPanel, t);
     }

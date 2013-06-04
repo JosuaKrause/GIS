@@ -9,12 +9,11 @@ import javax.swing.WindowConstants;
 
 public class GisFrame extends JFrame {
 
-  private final GisPanel gisPanel = new GisPanel();
-  private final GisControlPanel gisControlPanel = new GisControlPanel(gisPanel);
-
   public GisFrame() {
     // initialize
     super("GIS Viewer");
+    final GisPanel gisPanel = new GisPanel();
+    final GisControlPanel gisControlPanel = new GisControlPanel(gisPanel);
 
     // set layout
     setLayout(new GridBagLayout());
@@ -38,9 +37,8 @@ public class GisFrame extends JFrame {
     pack();
     // setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
     setLocationRelativeTo(null);
-
     // other stuff
     setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+    gisPanel.setDisplayPositionByLatLon(52.5, 13.4, 10);
   }
-
 }

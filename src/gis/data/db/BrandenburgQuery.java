@@ -8,17 +8,26 @@ import java.sql.SQLException;
 
 public class BrandenburgQuery extends Query<Double> {
 
+  private final double maxMeter;
+
   private static String query(final double maxDistance) {
-    return "SELECT a.photoid as gid, a." + Table.FLICKR.infoColumnName + " as info," +
-        " a.poly_geom as geom, ST_DISTANCE(b.geom, a.poly_geom) as distance " +
-        "FROM " + Table.FLICKR.name + " as a, " +
-        " (SELECT geom FROM " + Table.BERLIN_POI +
-        " WHERE name = 'Attraction:Brandenburger Tor') as b" +
-        " WHERE ST_DISTANCE(b.geom, a.poly_geom) <= " + maxDistance;
+    final String id = Table.FLICKR.idColumnName;
+    final String info = Table.FLICKR.infoColumnName;
+    final String ageom = Table.FLICKR.geomColumnName;
+    final String bgeom = Table.BERLIN_POI.geomColumnName;
+    final String aname = Table.FLICKR.name;
+    final String bname = Table.BERLIN_POI.name;
+    return "SELECT a." + id + " as " + id + ", a." + info + " as " + info + "," +
+        " a." + ageom + " as " + ageom + ", ST_DISTANCE(b.geom, a." + ageom
+        + ", true) as distance FROM " + aname + " as a, " +
+        " (SELECT " + bgeom + " FROM " + bname +
+        " WHERE name = 'Attraction:Brandenburger Tor') as b";// +
+    // " WHERE ST_DISTANCE(b."+bgeom+", a."+ageom+", true) <= " + maxDistance;
   }
 
-  public BrandenburgQuery() {
-    super(query(50), Table.FLICKR);
+  public BrandenburgQuery(final double maxMeter) {
+    super(query(maxMeter), Table.FLICKR);
+    this.maxMeter = maxMeter;
   }
 
   @Override
@@ -29,7 +38,7 @@ public class BrandenburgQuery extends Query<Double> {
 
   @Override
   protected void addFlavour(final GeoMarker m, final Double f) {
-    m.setRadius(f);
+    m.setRadius(f / maxMeter * 50);
     m.setColor(getTable().color);
   }
 

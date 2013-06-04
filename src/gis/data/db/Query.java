@@ -71,9 +71,9 @@ public class Query<T> {
       final long start = System.currentTimeMillis();
       try (Statement s = conn.createStatement(); ResultSet r = s.executeQuery(query)) {
         while(r.next()) {
-          ids.add(r.getString("gid"));
-          geom.add((PGgeometry) r.getObject("geom"));
-          infos.add(r.getString("info"));
+          ids.add(r.getString(table.idColumnName));
+          geom.add((PGgeometry) r.getObject(table.geomColumnName));
+          infos.add(r.getString(table.infoColumnName));
           flavour.add(getFlavour(r));
         }
       }
