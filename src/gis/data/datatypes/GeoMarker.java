@@ -110,15 +110,18 @@ public abstract class GeoMarker {
   public abstract void paint(Graphics2D g, GisPanel panel, boolean simple);
 
   /**
-   * Paints a simple representation of the geo marker. Note that graphics object
-   * must be set accordingly first.
+   * Paints a simple representation of the geo marker.
    * 
    * @param g The graphics context.
    * @param panel The panel for coordinate transformation.
    */
   protected void paintSimple(final Graphics2D g, final GisPanel panel) {
     final Rectangle2D r = transformRect(panel, getLatLonBBox());
-    g.fill(r);
+    final Graphics2D g2 = (Graphics2D) g.create();
+    g2.setColor(getColor());
+    g2.fill(r);
+    g2.dispose();
+    g.setColor(Color.BLACK);
     g.draw(r);
   }
 

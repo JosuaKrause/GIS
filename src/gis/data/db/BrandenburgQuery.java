@@ -1,6 +1,5 @@
 package gis.data.db;
 
-import gis.data.GeometryConverter;
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 
@@ -38,7 +37,7 @@ public class BrandenburgQuery extends Query<Double> {
 
   @Override
   protected void addFlavour(final GeoMarker m, final Double f) {
-    final double r = GeometryConverter.meterToAngle(f / maxMeter) * 0.01 + 0.005;
+    final double r = f / maxMeter * 0.0005 + 0.00005;
     System.out.println(r);
     m.setRadius(r);
     m.setColor(getTable().color);

@@ -2,6 +2,7 @@ package gis.data.datatypes;
 
 import gis.gui.GisPanel;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
@@ -62,12 +63,13 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
 
   @Override
   public void paint(final Graphics2D g, final GisPanel panel, final boolean simple) {
-    g.setComposite(getComposite());
-    g.setColor(getColor());
     if(simple) {
       paintSimple(g, panel);
       return;
     }
+    final Graphics2D g2 = (Graphics2D) g.create();
+    g2.setComposite(getComposite());
+    g2.setColor(getColor());
     final Path2D path = new Path2D.Double();
     for(final Coordinate[] coords : polygons) {
       boolean first = true;
@@ -82,7 +84,10 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
       }
       path.closePath();
     }
-    g.fill(path);
+    g2.fill(path);
+    g2.dispose();
+    g.setColor(Color.BLACK);
+    g.draw(path);
   }
 
   @Override
