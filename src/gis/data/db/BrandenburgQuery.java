@@ -1,5 +1,6 @@
 package gis.data.db;
 
+import gis.data.GeometryConverter;
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 
@@ -14,15 +15,15 @@ public class BrandenburgQuery extends Query<Double> {
     final String id = Table.FLICKR.idColumnName;
     final String info = Table.FLICKR.infoColumnName;
     final String ageom = Table.FLICKR.geomColumnName;
-    final String bgeom = Table.BERLIN_POI.geomColumnName;
+    final String bgeom = Table.BUILDINGS.geomColumnName;
     final String aname = Table.FLICKR.name;
-    final String bname = Table.BERLIN_POI.name;
+    final String bname = Table.BUILDINGS.name;
     return "SELECT a." + id + " as " + id + ", a." + info + " as " + info + "," +
-        " a." + ageom + " as " + ageom + ", ST_DISTANCE(b.geom, a." + ageom
-        + ", true) as distance FROM " + aname + " as a, " +
+        " a." + ageom + " as " + ageom + ", ST_DISTANCE(b.geom, a." + ageom +
+        ", true) as distance FROM " + aname + " as a, " +
         " (SELECT " + bgeom + " FROM " + bname +
-        " WHERE name = 'Attraction:Brandenburger Tor') as b";// +
-    // " WHERE ST_DISTANCE(b."+bgeom+", a."+ageom+", true) <= " + maxDistance;
+        " WHERE name = 'Brandenburger Tor') as b" +
+        " WHERE ST_DISTANCE(b." + bgeom + ", a." + ageom + ", true) <= " + maxDistance;
   }
 
   public BrandenburgQuery(final double maxMeter) {
@@ -32,13 +33,14 @@ public class BrandenburgQuery extends Query<Double> {
 
   @Override
   protected Double getFlavour(final ResultSet r) throws SQLException {
-    System.out.println(r.getDouble("distance"));
     return r.getDouble("distance");
   }
 
   @Override
   protected void addFlavour(final GeoMarker m, final Double f) {
-    m.setRadius(f / maxMeter * 50);
+    final double r = GeometryConverter.meterToAngle(f / maxMeter) * 0.01 + 0.005;
+    System.out.println(r);
+    m.setRadius(r);
     m.setColor(getTable().color);
   }
 

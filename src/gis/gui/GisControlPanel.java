@@ -4,6 +4,7 @@ import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 import gis.data.db.BrandenburgQuery;
+import gis.data.db.BrandenburgTorQuery;
 import gis.data.db.Database;
 
 import java.awt.Component;
@@ -29,7 +30,8 @@ public class GisControlPanel extends JPanel {
   public GisControlPanel(final GisPanel gisPanel) {
     selectionManager = new SelectionManager();
     this.gisPanel = Objects.requireNonNull(gisPanel);
-    add(new QueryCheckBox("brandenburg", gisPanel, new BrandenburgQuery(2000)));
+    add(new QueryCheckBox("brandenburg", gisPanel, new BrandenburgQuery(1000)));
+    add(new QueryCheckBox("tor", gisPanel, new BrandenburgTorQuery()));
     for(final Table t : Table.values()) {
       addTableSelectionCheckBox(gisPanel, t);
     }
