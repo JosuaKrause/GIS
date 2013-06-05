@@ -38,9 +38,9 @@ public class ParksNearWaterQueryCheckBox extends QueryCheckBox {
           @Override
           protected void addFlavour(final GeoMarker m, final Double waterDist) {
             if(waterDist < 50) {
-              m.setColor(Table.PARK.color.brighter());
+              m.setColor(new Color(90, 180, 172));
             } else {
-              m.setColor(Table.PARK.color);
+              m.setColor(new Color(216, 179, 101));
             }
             m.setFixedSize(true);
             m.setRadius(8);

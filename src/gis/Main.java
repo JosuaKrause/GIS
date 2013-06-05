@@ -10,6 +10,8 @@ import gis.gui.GisFrame;
  */
 public class Main {
 
+  // http://daten.berlin.de/datensaetze/wlan-standorte-berlin
+
   /* Default config.txt */
   // hostname=134.34.225.25
   // port=5432
