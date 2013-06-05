@@ -32,7 +32,7 @@ public class InfoFrame extends JFrame {
   /** Creates the info frame. */
   private InfoFrame() {
     super("Info");
-    text = new JTextArea(25, 80);
+    text = new JTextArea(25, 40);
     text.setEditable(false);
     scroll = new JScrollPane(text);
     scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);

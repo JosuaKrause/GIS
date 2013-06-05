@@ -37,6 +37,8 @@ public enum Table {
   /** Flickr data. */
   FLICKR("flickr", GeometryType.POINT,
       "phototitle", convert(Color.ORANGE), "photoid", "poly_geom"),
+  PARK("park", GeometryType.POLYGON, "name", convert(new Color(12, 203, 2)), "gid",
+      "geom"),
 
   ; // EOD
   /** The table name. */

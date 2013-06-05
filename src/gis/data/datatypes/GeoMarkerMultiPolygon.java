@@ -73,7 +73,7 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
     final Path2D path = computeGeometry(panel);
     g2.fill(path);
     g2.dispose();
-    g.setColor(Color.BLACK);
+    g.setColor(outlineColor == null ? Color.BLACK : outlineColor);
     g.draw(path);
   }
 

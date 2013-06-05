@@ -26,6 +26,15 @@ public abstract class GeoMarker {
   private Color color = new Color(239, 138, 98);
   /** Whether the geo marker is currently selected. */
   private boolean selected;
+  /** alpha value used for drawing if the geo marker is selected */
+  private float alphaSelected = 0.7f;
+  /** alpha value used for drawing if the geo marker is not selected */
+  private float alphaNotSelected = 0.3f;
+  /**
+   * The color of the used for drawing the geo markers outline. If this variable
+   * is <code>null</code>, then no outline will be drawn.
+   */
+  protected Color outlineColor = null;
 
   /**
    * Creates a geo marker.
@@ -171,7 +180,20 @@ public abstract class GeoMarker {
   }
 
   protected Composite getComposite() {
-    return AlphaComposite.getInstance(AlphaComposite.SRC_OVER, isSelected() ? .7f : .3f);
+    return AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+        isSelected() ? alphaSelected : alphaNotSelected);
   }
 
+  public void setAlphaSelected(final float alpha) {
+    alphaSelected = alpha;
+  }
+
+  public void setAlphaNotSelected(final float alpha) {
+    alphaNotSelected = alpha;
+  }
+
+  public void setOutlineColor(final Color outlineColor) {
+    this.outlineColor = outlineColor;
+    ;
+  }
 }

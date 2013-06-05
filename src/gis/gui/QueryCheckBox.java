@@ -26,12 +26,11 @@ public class QueryCheckBox extends JCheckBox {
       }
 
     };
-    return new QueryCheckBox(table.name, panel, q);
+    return new QueryCheckBox(panel, q);
   }
 
-  public QueryCheckBox(
-      final String name, final GisPanel gisPanel, final Query<?> q) {
-    super(name);
+  public QueryCheckBox(final GisPanel gisPanel, final Query<?> q) {
+    super(q.getName());
     this.q = q;
     addActionListener(new ActionListener() {
 

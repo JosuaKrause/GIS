@@ -6,7 +6,6 @@ import gis.data.db.BrandenburgQuery;
 import gis.data.db.BrandenburgTorQuery;
 import gis.data.db.FlickrChloroplethQuery;
 import gis.data.db.Query;
-import gis.gui.color_map.HeatMap;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -67,54 +66,17 @@ public class GisControlPanel extends JPanel {
       }
 
     });
-    addQuery(new Query<Double>(
-        "select a.gid as gid, lor as lor," +
-            "(select b_area / a_area) as ratio, geom " +
-            "from berlin_administrative as a left outer join " +
-            "( select a.gid, st_area(a.geom, true) as a_area, " +
-            "sum(st_area(st_intersection(a.geom, b.geom), true)) as b_area " +
-            "from berlin_administrative as a, buildings as b " +
-            "where b.type = 'commercial' and st_intersects(a.geom, b.geom) " +
-            "group by a.gid ) as b " +
-            "on a.gid = b.gid " +
-            "order by gid;",
-        Table.BERLIN_ADMINISTRATIVE, "commercial ratio") {
-
-      private double maxRatio = Double.NEGATIVE_INFINITY;
-
-      private HeatMap heatMap;
-
-      @Override
-      protected Double getFlavour(final ResultSet r) throws SQLException {
-        Double ratio = r.getDouble("ratio");
-        if(ratio == null) {
-          ratio = 0.0;
-        }
-        if(ratio > maxRatio) {
-          maxRatio = ratio;
-        }
-        return ratio;
-      }
-
-      @Override
-      protected void addFlavour(final GeoMarker m, final Double f) {
-        if(maxRatio > 0) {
-          heatMap = HeatMap.getHeatMap(0, maxRatio);
-          maxRatio = Double.NEGATIVE_INFINITY;
-        }
-        m.setColor(heatMap.getColor(f));
-      }
-
-    });
-    for(final Table t : Table.values()) {
-      addTableSelectionCheckBox(gisPanel, t);
-    }
+    add(new CommercialRatioQueryCheckbox(gisPanel));
+    add(new ParksNearWaterQueryCheckBox(gisPanel));
+    // for(final Table t : Table.values()) {
+    // addTableSelectionCheckBox(gisPanel, t);
+    // }
     setSize(getMinimumSize());
     addGisPanelListeners(gisPanel);
   }
 
   private void addQuery(final Query<?> query) {
-    add(new QueryCheckBox(query.getName(), gisPanel, query));
+    add(new QueryCheckBox(gisPanel, query));
   }
 
   private void addTableSelectionCheckBox(final GisPanel gisPanel, final Table table) {

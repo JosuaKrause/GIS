@@ -2,6 +2,8 @@ package gis.gui;
 
 import gis.data.datatypes.GeoMarker;
 import gis.data.db.Query;
+import gis.gui.overlay.AbstractOverlayComponent;
+import gis.gui.overlay.IOverlayComponent;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -16,6 +18,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +30,8 @@ public class GisPanel extends JMapViewer {
 
   boolean drawImage = false;
   private BufferedImage image;
+
+  private final List<IOverlayComponent> overlayComponents = new ArrayList<IOverlayComponent>();
 
   public GisPanel() {
     grabFocus();
@@ -186,6 +191,13 @@ public class GisPanel extends JMapViewer {
     }
     // note -- after this method returns the zoom
     // slider is drawn with the same graphics object
+
+    // draw overlayComponents
+    for(final IOverlayComponent c : overlayComponents) {
+      if(c.isVisible()) {
+        c.paint(g2);
+      }
+    }
   }
 
   public void setHoverImage(final Image img, final Point2D pos) {
@@ -238,6 +250,34 @@ public class GisPanel extends JMapViewer {
       }
 
     });
+  }
+
+  public void registerOverlayComponent(final IOverlayComponent overlayComponent) {
+    overlayComponents.add(overlayComponent);
+    if(overlayComponent.isVisible()) {
+      alignOverlayComponents();
+    }
+  }
+
+  /** Call when visibility of an overlay component has changed */
+  public void alignOverlayComponents() {
+    final int width = getWidth();
+    final int height = getHeight();
+    final Insets insets = getInsets();
+    // TODO
+    // supports only one left and one right component, for now
+    for(final IOverlayComponent c : overlayComponents) {
+      final Dimension dim = c.getDimension();
+      int x;
+      final int y = height - insets.bottom - dim.height
+          - AbstractOverlayComponent.PADDING;
+      if(c.getHorizontalAlignmentWeight() < 0) {
+        x = insets.left + AbstractOverlayComponent.PADDING;
+      } else {
+        x = width - insets.right - dim.width - 1 - AbstractOverlayComponent.PADDING;
+      }
+      c.setPosition(new Point(x, y));
+    }
   }
 
 }
