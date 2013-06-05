@@ -42,6 +42,7 @@ public class GisControlPanel extends JPanel {
     addQuery(new BrandenburgQuery(1000, "Brandenburger"));
     addQuery(new BrandenburgTorQuery("Tor"));
     add(new FlickrChloroplethQueryCheckbox(gisPanel));
+    addTableSelectionCheckBox(gisPanel, Table.FLICKR, "All Flickr Photos");
     addQuery(new Query<Object>(
         "select distinct b.gid as gid,  b.geom as geom, b.name as name " +
             "from berlin_administrative as a, buildings as b " +
@@ -56,9 +57,9 @@ public class GisControlPanel extends JPanel {
     });
     add(new CommercialRatioQueryCheckbox(gisPanel));
     add(new ParksNearWaterQueryCheckBox(gisPanel));
+    addTableSelectionCheckBox(gisPanel, Table.BERLIN_WATER, "Water");
     addTableSelectionCheckBox(gisPanel, Table.BERLIN_POI, "All Points of Interest");
     addTableSelectionCheckBox(gisPanel, Table.BUILDINGS, "All Buildings");
-    addTableSelectionCheckBox(gisPanel, Table.FLICKR, "All Flickr Photos");
     setSize(getMinimumSize());
     addForeignListeners(gisPanel);
   }

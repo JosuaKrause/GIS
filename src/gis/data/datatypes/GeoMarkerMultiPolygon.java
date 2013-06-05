@@ -111,4 +111,9 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public boolean isPoint() {
+    return false;
+  }
+
 }

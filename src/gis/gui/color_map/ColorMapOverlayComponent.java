@@ -47,4 +47,5 @@ public class ColorMapOverlayComponent extends AbstractOverlayComponent {
     GisPanel.drawText(g, top, position.x - tw - 5, position.y);
     GisPanel.drawText(g, bottom, position.x - bw - 5, position.y + HEIGHT);
   }
+
 }

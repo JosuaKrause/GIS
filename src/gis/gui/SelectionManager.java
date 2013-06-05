@@ -83,13 +83,27 @@ public class SelectionManager {
       sb.append(selection[0].getInfo());
     } else if(numSelected == 2) {
       final double d = db.getDistance(selection[0].getId(), selection[1].getId());
-      sb.append(String.format("Distance: %.5fm - ", d));
+      sb.append(String.format("Distance: %.5fm", d));
       final NineCut nc = db.getNineCutDescription(
           selection[0].getId(), selection[1].getId());
-      final Formatter formatter = new Formatter(sb, Locale.US);
-      formatter.format(nc.getFormat(),
-          selection[0].getInfo(), selection[1].getInfo());
-      formatter.close();
+      final boolean ap = selection[0].isPoint();
+      final boolean bp = selection[1].isPoint();
+      if(!(ap && bp)) {
+        sb.append(" - \"");
+        final Formatter formatter = new Formatter(sb, Locale.US);
+        if(!ap && !bp) {
+          formatter.format(nc.getFormat(),
+              selection[0].getInfo(), selection[1].getInfo());
+          formatter.close();
+          sb.append("\" Nine-Cut-Matrix: ");
+          sb.append(nc.getMatrix());
+        } else {
+          formatter.format(nc.getPointPolyFormat(),
+              selection[0].getInfo(), selection[1].getInfo());
+          formatter.close();
+          sb.append("\"");
+        }
+      }
     }
     sel.setText(sb.toString());
   }
