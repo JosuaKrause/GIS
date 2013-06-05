@@ -150,7 +150,8 @@ public class Flickr {
           "userIsAdmi bool," + // FALSE
           "userContac integer," + // 248
           "userPhotoS integer," + // 96
-          "distanceToBT double precision" + ");");
+          "distanceToBT double precision " +
+          ");");
       stat.execute("SELECT AddGeometryColumn('','" + tablename
           + "','poly_geom','-1','POINT',2);");
       System.out.print("done\n");
@@ -182,7 +183,7 @@ public class Flickr {
     }
 
     System.out.print("please wait! saving data.. ");
-    long max = -Long.MAX_VALUE;
+    long max = Long.MIN_VALUE;
     long min = Long.MAX_VALUE;
     long sum = 0;
     long num = 0;
@@ -241,7 +242,7 @@ public class Flickr {
               "_m.jpg", "_c.jpg");
           if(exists(imagepath)) {
             str[3] = "data/flickr/" + id + ".jpg";
-            getImage(imagepath, str[3]);
+            // getImage(imagepath, str[3]);
           }
           str[19] = str[19].replace(",", ".");
           str[20] = str[20].replace(",", ".");
