@@ -4,6 +4,8 @@ import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 import gis.data.db.Query;
 import gis.gui.color_map.ColorMap;
+import gis.gui.color_map.IIntensityMapping;
+import gis.gui.color_map.IntervalIntensityMapping;
 import gis.gui.overlay.IOverlayComponent;
 
 import java.awt.Color;
@@ -28,16 +30,16 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
         final Query<?> q = getQuery();
         if(isSelected()) {
           gisPanel.addQuery(q);
-          q.getResult();// to initialize heat map and and overlay component
+          q.getResult();
         } else {
           gisPanel.removeQuery(q);
         }
 
-        final ColorMap heatMap = ((CommercialRatioQuery) getQuery()).getHeapMap();
-        if(heatMap.getHeatMapOverlayComponent() == null) {
-          heatMap.initOverlayComponent(gisPanel);
+        final ColorMap colorMap = ((CommercialRatioQuery) q).getColorMap();
+        if(colorMap.getColorMapOverlayComponent() == null) {
+          colorMap.initOverlayComponent(gisPanel);
         }
-        final IOverlayComponent hmoc = heatMap.getHeatMapOverlayComponent();
+        final IOverlayComponent hmoc = colorMap.getColorMapOverlayComponent();
         if(isSelected()) {
           hmoc.setVisible(true);
         } else {
@@ -51,7 +53,7 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
 
   public static class CommercialRatioQuery extends Query<Double> {
 
-    private ColorMap heatMap;
+    private ColorMap colorMap;
     private double maxRatio = Double.NEGATIVE_INFINITY;
 
     public CommercialRatioQuery() {
@@ -66,13 +68,12 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
               "from berlin_administrative as a, buildings as b " +
               "where b.type = 'commercial' and st_intersects(a.geom, b.geom) " +
               "group by a.gid ) as b " +
-              "on a.gid = b.gid " +
-              "order by gid;",
+              "on a.gid = b.gid",
           Table.BERLIN_ADMINISTRATIVE, "commercial ratio");
     }
 
-    public ColorMap getHeapMap() {
-      return heatMap;
+    public ColorMap getColorMap() {
+      return colorMap;
     }
 
     @Override
@@ -90,14 +91,26 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
     @Override
     protected void addFlavour(final GeoMarker m, final Double f) {
       if(maxRatio > 0) {
-        heatMap = ColorMap.getHeatMap(0, maxRatio);
+        final IIntensityMapping intensityMapping =
+            new IntervalIntensityMapping(0, 0, maxRatio, 1);
+        colorMap = new ColorMap(intensityMapping, new Color[] {
+            new Color(248, 16, 0), new Color(252, 252, 0), Color.WHITE},
+            new double[] { 0, 0.5, 1}) {
+
+          @Override
+          public String formatValue(final double value) {
+            return String.format("%.3f\u2030", value * 1000);
+          }
+
+        };
         maxRatio = Double.NEGATIVE_INFINITY;
       }
-      m.setColor(heatMap.getColor(f));
+      m.setColor(colorMap.getColor(f));
       m.setAlphaSelected(0.9f);
       m.setAlphaNotSelected(1.0f);
       m.setOutlineColor(Color.BLACK);
     }
 
-  }
+  } // CommercialRatioQuery
+
 }

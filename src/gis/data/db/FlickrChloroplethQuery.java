@@ -2,9 +2,10 @@ package gis.data.db;
 
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
-import gis.gui.InfoFrame;
 import gis.gui.color_map.ColorMap;
+import gis.gui.color_map.IntervalIntensityMapping;
 
+import java.awt.Color;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -25,8 +26,21 @@ public class FlickrChloroplethQuery extends Query<Double> {
         "group by a." + tid;
   }
 
+  private static final String queryWNulls() {
+    final String inner = query();
+    final Table t = Table.BERLIN_ADMINISTRATIVE;
+    final String tid = t.idColumnName;
+    final String info = t.infoColumnName;
+    final String geom = t.geomColumnName;
+    return "select a." + tid + " as " + tid + ", a." + info + " as " + info +
+        ", a." + geom + " as " + geom + ", " +
+        "b.num as num " +
+        "from " + t.name + " as a left outer join (" + inner + ") as b " +
+        "on a." + tid + " = b." + tid;
+  }
+
   public FlickrChloroplethQuery(final String name) {
-    super(query(), Table.BERLIN_ADMINISTRATIVE, name);
+    super(queryWNulls(), Table.BERLIN_ADMINISTRATIVE, name);
   }
 
   private double maxNum = Double.NEGATIVE_INFINITY;
@@ -36,7 +50,7 @@ public class FlickrChloroplethQuery extends Query<Double> {
   @Override
   protected Double getFlavour(final ResultSet r) throws SQLException {
     Double num = r.getDouble("num");
-    InfoFrame.getInstance().addText("" + num);
+    // InfoFrame.getInstance().addText("" + num);
     if(num == null) {
       num = 0.0;
     }
@@ -49,10 +63,20 @@ public class FlickrChloroplethQuery extends Query<Double> {
   @Override
   protected void addFlavour(final GeoMarker m, final Double f) {
     if(maxNum > 0) {
-      colorCode = ColorMap.getHeatMap(0, maxNum);
+      colorCode = new ColorMap(new IntervalIntensityMapping(0, 0, maxNum, 1),
+          new Color[] { new Color(67, 162, 202),
+              new Color(168, 221, 181), new Color(224, 243, 219)},
+          new double[] { 0, 0.5, 1});
       maxNum = Double.NEGATIVE_INFINITY;
     }
     m.setColor(colorCode.getColor(f));
+    m.setAlphaSelected(0.9f);
+    m.setAlphaNotSelected(1.0f);
+    m.setOutlineColor(Color.BLACK);
+  }
+
+  public ColorMap getColorCode() {
+    return colorCode;
   }
 
 }

@@ -4,20 +4,20 @@ import java.awt.Color;
 
 public abstract class AbstractColorMapping implements IColorMapping {
 
-  protected final IIntensityMapping intensityMaping;
+  protected final IIntensityMapping intensityMapping;
   protected final Color[] colors;
   protected final double[] intensities;
 
   public AbstractColorMapping(final IIntensityMapping intensityMapping,
       final Color[] colors, final double[] intensities) {
-    intensityMaping = intensityMapping;
+    this.intensityMapping = intensityMapping;
     this.colors = colors;
     this.intensities = intensities;
   }
 
   @Override
   public final Color getColor(final double value) {
-    final double intensity = intensityMaping.getIntensity(value);
+    final double intensity = intensityMapping.getIntensity(value);
     return intensityToColor(intensity);
   }
 
@@ -25,24 +25,25 @@ public abstract class AbstractColorMapping implements IColorMapping {
 
   public static Color linearInterpolation(final Color a, final Color b,
       final double aRatio) {
-    final int aRed = a.getRed();
-    final int aGreen = a.getGreen();
-    final int aBlue = a.getBlue();
-    final int aAlpha = a.getAlpha();
-    final int bRed = b.getRed();
-    final int bGreen = b.getGreen();
-    final int bBlue = b.getBlue();
-    final int bAlpha = b.getAlpha();
-    final int resRed = interpolateColorChannel(aRed, bRed, aRatio);
-    final int resGreen = interpolateColorChannel(aGreen, bGreen, aRatio);
-    final int resBlue = interpolateColorChannel(aBlue, bBlue, aRatio);
-    final int resAlpha = interpolateColorChannel(aAlpha, bAlpha, aRatio);
-    return new Color(resRed, resGreen, resBlue, resAlpha);
+    final float[] ca = a.getRGBColorComponents(null);
+    final float[] cb = b.getRGBColorComponents(null);
+    interpolateColorChannel(ca, cb, (float) aRatio);
+    return new Color(ca[0], ca[1], ca[2], ca.length < 4 ? 1f : ca[3]);
   }
 
-  private static int interpolateColorChannel(final int a, final int b, final double aRatio) {
-    final double d = a * aRatio + b * (1 - aRatio);
-    return (int) Math.round(d);
+  private static void interpolateColorChannel(final float[] a, final float[] b,
+      final float aRatio) {
+    for(int i = 0; i < Math.min(a.length, b.length); ++i) {
+      a[i] = a[i] * aRatio + b[i] * (1 - aRatio);
+    }
+  }
+
+  public double getMax() {
+    return intensityMapping.getMax();
+  }
+
+  public double getMin() {
+    return intensityMapping.getMin();
   }
 
 }

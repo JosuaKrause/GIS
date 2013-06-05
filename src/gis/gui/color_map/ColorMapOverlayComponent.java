@@ -6,6 +6,7 @@ import gis.gui.overlay.AbstractOverlayComponent;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
 public class ColorMapOverlayComponent extends AbstractOverlayComponent {
@@ -14,12 +15,12 @@ public class ColorMapOverlayComponent extends AbstractOverlayComponent {
   private static final int BOTTOM = 5;
   private static final int HEIGHT = 100 + BOTTOM;
 
-  private final ColorMap heatMap;
+  private final ColorMap colorMap;
 
   public ColorMapOverlayComponent(final GisPanel gisPanel,
-      final int horizontalAlignmentWeight, final ColorMap heatMap) {
+      final int horizontalAlignmentWeight, final ColorMap colorMap) {
     super(gisPanel, new Dimension(WIDTH, HEIGHT), horizontalAlignmentWeight);
-    this.heatMap = heatMap;
+    this.colorMap = colorMap;
   }
 
   @Override
@@ -34,10 +35,16 @@ public class ColorMapOverlayComponent extends AbstractOverlayComponent {
     final int numLines = HEIGHT - 1 - BOTTOM;
     for(int line = 0; line < numLines + BOTTOM; ++line) {
       final double intensity = (line - BOTTOM) / (double) numLines;
-      g.setColor(heatMap.intensityToColor(Math.max(intensity, 0)));
+      g.setColor(colorMap.intensityToColor(Math.max(intensity, 0)));
       final int y = position.y + numLines - line + BOTTOM;
       g.drawLine(left, y, right, y);
     }
+    final String top = colorMap.formatValue(colorMap.getMax());
+    final String bottom = colorMap.formatValue(colorMap.getMin());
+    final FontMetrics fm = g.getFontMetrics();
+    final int tw = fm.stringWidth(top);
+    final int bw = fm.stringWidth(bottom);
+    GisPanel.drawText(g, top, position.x - tw - 5, position.y);
+    GisPanel.drawText(g, bottom, position.x - bw - 5, position.y + HEIGHT);
   }
-
 }

@@ -23,6 +23,7 @@ public class TestColorMappingFrame extends JFrame {
       public void mouseClicked(final MouseEvent arg0) {
         System.exit(0);
       }
+
     });
   }
 
@@ -44,7 +45,10 @@ public class TestColorMappingFrame extends JFrame {
   }
 
   public static void main(final String[] args) {
-    final IColorMapping mapping = ColorMap.getHeatMap(0, 1);
+    final IColorMapping mapping = new ColorMap(new IntervalIntensityMapping(0, 0, 1, 1),
+        new Color[] {
+            new Color(248, 16, 0), new Color(252, 252, 0), Color.WHITE},
+        new double[] { 0, 0.5, 1});
     final TestColorMappingFrame frame = new TestColorMappingFrame(mapping);
     frame.setVisible(true);
   }

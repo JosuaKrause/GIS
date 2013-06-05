@@ -31,6 +31,16 @@ public class IntervalIntensityMapping implements IIntensityMapping {
   }
 
   @Override
+  public double getMin() {
+    return input.get(0);
+  }
+
+  @Override
+  public double getMax() {
+    return input.get(input.size() - 1);
+  }
+
+  @Override
   public double getIntensity(final double value) {
     final int size = input.size();
     if(value >= input.get(size - 1)) return output.get(size - 1);
@@ -46,23 +56,6 @@ public class IntervalIntensityMapping implements IIntensityMapping {
     }
     return output.get(0);
   }
-
-  // public static void main(final String[] args) {
-  // final IntervalIntensityMapping m = new IntervalIntensityMapping(0, 0, 20,
-  // 0.5, 100, 1);
-  // System.out.println(m.input);
-  // System.out.println(m.output);
-  // System.out.println(m);
-  //
-  // System.out.println(m.getIntensity(-1));
-  // System.out.println(m.getIntensity(0));
-  // System.out.println(m.getIntensity(10));
-  // System.out.println(m.getIntensity(20));
-  // System.out.println(m.getIntensity(33));
-  // System.out.println(m.getIntensity(90));
-  // System.out.println(m.getIntensity(100));
-  // System.out.println(m.getIntensity(200));
-  // }
 
   @Override
   public String toString() {
