@@ -194,6 +194,6 @@ public abstract class GeoMarker {
 
   public void setOutlineColor(final Color outlineColor) {
     this.outlineColor = outlineColor;
-    ;
   }
+
 }

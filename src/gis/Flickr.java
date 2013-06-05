@@ -2,16 +2,12 @@ package gis;
 
 import gis.data.db.config.FileConfiguration;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -173,10 +169,9 @@ public class Flickr {
       writer = new CSVWriter(new FileWriter("error.csv"), ';');
       m_threadPool = Executors.newFixedThreadPool(numThreads);
       m_processedQueue = new LinkedList<>();
-      int id = 0;
       while(!m_stringQueue.isEmpty()) {
         final FutureTask<Long> task = new FutureTask<>(
-            new FlickerThread(++id, m_stringQueue.poll(), m_conn,
+            new FlickerThread(m_stringQueue.poll(), m_conn,
                 tablename, distObject, writer));
         m_processedQueue.add(task);
         m_threadPool.execute(task);
@@ -225,17 +220,15 @@ public class Flickr {
     String[] str;
     Connection con;
     String tablename;
-    int id;
     PGgeometry distanceObject;
     final CSVWriter writer;
 
-    public FlickerThread(final int id, final String[] str,
+    public FlickerThread(final String[] str,
         final Connection con, final String tablename,
         final PGgeometry distanceObject, final CSVWriter writer) {
       this.str = str;
       this.con = con;
       this.tablename = tablename;
-      this.id = id;
       this.distanceObject = distanceObject;
       this.writer = writer;
     }
@@ -250,7 +243,6 @@ public class Flickr {
               "_m.jpg", "_c.jpg");
           if(exists(imagepath)) {
             str[3] = "img:" + imagepath;
-            // getImage(imagepath, str[3]);
           } else {
             str[3] = "url:" + str[3];
           }
@@ -308,23 +300,6 @@ public class Flickr {
 
       in.close();
       return null;
-    }
-
-    public void getImage(final String imageurl, final String imagepath)
-        throws IOException {
-      final URL url = new URL(imageurl);
-      final InputStream in = new BufferedInputStream(url.openStream());
-      final ByteArrayOutputStream out = new ByteArrayOutputStream();
-      final byte[] buf = new byte[1024];
-      int n = 0;
-      while((n = in.read(buf)) != -1) {
-        out.write(buf, 0, n);
-      }
-      out.close();
-      in.close();
-      final FileOutputStream fos = new FileOutputStream(imagepath);
-      fos.write(out.toByteArray());
-      fos.close();
     }
 
   } // FlickerThread

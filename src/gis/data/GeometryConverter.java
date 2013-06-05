@@ -2,7 +2,6 @@ package gis.data;
 
 import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
-import gis.data.datatypes.GeoMarkerLineString;
 import gis.data.datatypes.GeoMarkerMultiPolygon;
 import gis.data.datatypes.GeoMarkerPoint;
 import gis.data.datatypes.GeoMarkerPolygon;
@@ -12,7 +11,6 @@ import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.postgis.Geometry;
-import org.postgis.LineString;
 import org.postgis.LinearRing;
 import org.postgis.MultiPolygon;
 import org.postgis.PGgeometry;
@@ -74,14 +72,6 @@ public final class GeometryConverter {
           }
         }
         return new GeoMarkerMultiPolygon(info, id, polygons);
-      case Geometry.LINESTRING:
-        final LineString ls = (LineString) geom.getGeometry();
-        final Point[] points = ls.getPoints();
-        final Coordinate[] coordinates = new Coordinate[points.length];
-        for(int i = 0; i < points.length; ++i) {
-          coordinates[i] = new Coordinate(points[i].y, points[i].x);
-        }
-        return new GeoMarkerLineString(info, id, coordinates);
       default:
         throw new UnsupportedOperationException(
             "unsupported geometry type " + geom.getGeoType() + " " + geom.getType());

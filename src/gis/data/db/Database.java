@@ -10,7 +10,6 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.sql.Connection;
@@ -173,41 +172,46 @@ public class Database {
     final Table t = id.getQuery().getTable();
     final String query = "select photoUrl from " + t.name + " where " + t.idColumnName
         + " = '" + id.getId() + "'";
+    String imgUrl;
     try (Connection connection = getConnection();
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(query)) {
       if(!rs.next()) throw new IllegalStateException("expected more results");
       final String url = rs.getString("photoUrl");
       if(url == null || url.startsWith("img:")) return null;
-      String imgUrl = url.substring(4);
-      if(imgUrl.endsWith("/")) {
-        try (InputStreamReader in = new InputStreamReader(new URL(imgUrl).openStream());
-            BufferedReader br = new BufferedReader(in)) {
-          final Pattern p = Pattern
-              .compile(".*<link rel=\"image_src\" href=\"(http:.*)\" id=\"image-src\">.*");
-          String line;
-          while((line = br.readLine()) != null) {
-            final Matcher m = p.matcher(line);
-            if(m.find()) {
-              imgUrl = m.group(1);
-              break;
-            }
+      imgUrl = url.substring(4);
+    } catch(final Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+    if(imgUrl.endsWith("/")) {
+      try (InputStreamReader in = new InputStreamReader(new URL(imgUrl).openStream());
+          BufferedReader br = new BufferedReader(in)) {
+        final Pattern p = Pattern
+            .compile(".*<link rel=\"image_src\" href=\"(http:.*)\" id=\"image-src\">.*");
+        String line;
+        while((line = br.readLine()) != null) {
+          final Matcher m = p.matcher(line);
+          if(m.find()) {
+            imgUrl = m.group(1);
+            break;
           }
         }
-      }
-      System.out.print("trying to load: " + imgUrl);
-      final BufferedImage img = ImageIO.read(new URL(imgUrl));
-      if(img == null) {
-        System.out.println(" failed");
+      } catch(final Exception e) {
+        e.printStackTrace();
         return null;
       }
-      System.out.println(" finished");
-      return img.getScaledInstance(100, -1, Image.SCALE_SMOOTH);
-    } catch(final SQLException | IllegalStateException | IOException e) {
-      System.out.println(" failed");
-      e.printStackTrace();
     }
-    return null;
+    System.out.print("trying to load: " + imgUrl);
+    final BufferedImage img;
+    try {
+      img = ImageIO.read(new URL(imgUrl));
+    } catch(final Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+    System.out.println(" finished");
+    return img.getScaledInstance(100, -1, Image.SCALE_SMOOTH);
   }
 
   public String getNineCutDescription(final ElementId id1, final ElementId id2) {
