@@ -13,26 +13,36 @@ public class ParksNearWaterQueryCheckBox extends QueryCheckBox {
   public ParksNearWaterQueryCheckBox(final GisPanel gisPanel) {
     super(
         gisPanel,
-        new Query<Boolean>(
-            "select p.gid, p.name as name, st_dwithin(p.geom, w.geom, 50, true) as near_water, "
+        new Query<Double>(
+            "select p.gid, p.name, p.geom, min(st_distance(w.geom, p.geom, true)) "
                 +
-                "p.geom from park as p, berlin_water as w where st_dwithin(p.geom, w.geom, 50, true) "
-            , Table.PARK, "Parks near Water") {
+                "as water_dist from berlin_water as w, ("
+                +
+                "select * from berlin_poi "
+                +
+                "where category = 'Leisure'and (((name like 'Park%' or name like '%park%') "
+                +
+                "and not name like 'Parking%') or name like '%arten%') and not name like '%layground%' "
+                +
+                "and not name like 'Theme park%' and not name like 'Theater%' and " +
+                "not name = 'Common:Gartenamt') as p " +
+                "group by p.gid, p.name, p.geom;"
+            , Table.BERLIN_POI, "Parks near Water") {
 
           @Override
-          protected Boolean getFlavour(final ResultSet r) throws SQLException {
+          protected Double getFlavour(final ResultSet r) throws SQLException {
 
-            return r.getBoolean("near_water");
+            return r.getDouble("water_dist");
           }
 
           @Override
-          protected void addFlavour(final GeoMarker m, final Boolean nearWater) {
-            if(nearWater) {
+          protected void addFlavour(final GeoMarker m, final Double waterDist) {
+            if(waterDist < 50) {
               m.setColor(Table.PARK.color.brighter());
             } else {
               m.setColor(Table.PARK.color);
             }
-
+            // m.setFixedSize(true);
             m.setOutlineColor(Color.BLACK);
             m.setAlphaNotSelected(0.9f);
             m.setAlphaSelected(0.5f);
