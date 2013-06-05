@@ -28,7 +28,8 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
         final Query<?> q = getQuery();
         if(isSelected()) {
           gisPanel.addQuery(q);
-          q.getResult();// to initialize heat map and and overlay component
+          // to initialize heat map and and overlay component
+          q.getResult();
         } else {
           gisPanel.removeQuery(q);
         }
@@ -90,7 +91,7 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
     @Override
     protected void addFlavour(final GeoMarker m, final Double f) {
       if(maxRatio > 0) {
-        heatMap = ColorMap.getHeatMap(0, maxRatio);
+        heatMap = ColorMap.getColorMap(0, maxRatio);
         maxRatio = Double.NEGATIVE_INFINITY;
       }
       m.setColor(heatMap.getColor(f));

@@ -21,4 +21,5 @@ public class SteppedColorMap extends ColorMap {
     if(value == intensities[0]) return minIntensityColor;
     return super.intensityToColor(value);
   }
+
 }

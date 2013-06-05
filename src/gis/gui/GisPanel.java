@@ -175,20 +175,10 @@ public class GisPanel extends JMapViewer {
     }
     { // draw HUD
       final double fps = 1.0 / (System.nanoTime() - start) * 1e9;
-      final String hud = "FPS: " + fps;
-      g2.setColor(Color.WHITE);
+      final String hud = String.format("FPS: %.3f", fps);
       final float x = 5f;
       final float y = 16.5f;
-      g2.drawString(hud, x - 1, y);
-      g2.drawString(hud, x + 1, y);
-      g2.drawString(hud, x, y - 1);
-      g2.drawString(hud, x, y + 1);
-      g2.drawString(hud, x - 1, y - 1);
-      g2.drawString(hud, x + 1, y - 1);
-      g2.drawString(hud, x - 1, y + 1);
-      g2.drawString(hud, x + 1, y + 1);
-      g2.setColor(Color.BLACK);
-      g2.drawString(hud, x, y);
+      drawText(g2, hud, x, y);
     }
     // note -- after this method returns the zoomValue
     // slider is drawn with the same graphics object
@@ -199,6 +189,21 @@ public class GisPanel extends JMapViewer {
         c.paint(g2);
       }
     }
+  }
+
+  public static final void drawText(final Graphics2D g,
+      final String text, final float x, final float y) {
+    g.setColor(Color.WHITE);
+    g.drawString(text, x - 1, y);
+    g.drawString(text, x + 1, y);
+    g.drawString(text, x, y - 1);
+    g.drawString(text, x, y + 1);
+    g.drawString(text, x - 1, y - 1);
+    g.drawString(text, x + 1, y - 1);
+    g.drawString(text, x - 1, y + 1);
+    g.drawString(text, x + 1, y + 1);
+    g.setColor(Color.BLACK);
+    g.drawString(text, x, y);
   }
 
   public void setHoverImage(final Image img, final Point2D pos) {

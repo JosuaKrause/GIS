@@ -49,7 +49,7 @@ public class FlickrChloroplethQuery extends Query<Double> {
   @Override
   protected void addFlavour(final GeoMarker m, final Double f) {
     if(maxNum > 0) {
-      colorCode = ColorMap.getHeatMap(0, maxNum);
+      colorCode = ColorMap.getColorMap(0, maxNum);
       maxNum = Double.NEGATIVE_INFINITY;
     }
     m.setColor(colorCode.getColor(f));

@@ -9,9 +9,9 @@ public class ColorMap extends AbstractColorMapping {
 
   protected IOverlayComponent heatMapOverlayComponent;
 
-  public static ColorMap getHeatMap(final double min, final double max) {
-    final IIntensityMapping intensityMapping = new IntervalIntensityMapping(
-        min, 0, max, 1);
+  public static ColorMap getColorMap(final double min, final double max) {
+    final IIntensityMapping intensityMapping =
+        new IntervalIntensityMapping(min, 0, max, 1);
     return new ColorMap(intensityMapping);
   }
 
