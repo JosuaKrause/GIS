@@ -40,6 +40,7 @@ public class MouseSelectionListener extends MouseAdapter {
 
   @Override
   public void mouseMoved(final MouseEvent e) {
+    if(!e.isShiftDown()) return;
     final Point2D pos = e.getPoint();
     final GisPanel gisPanel = this.gisPanel;
     final Thread s = new Thread() {
