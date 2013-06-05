@@ -60,6 +60,9 @@ public class MouseSelectionListener extends MouseAdapter {
       }
 
     };
+    if(cur != null) {
+      cur.interrupt();
+    }
     cur = s;
     s.setDaemon(true);
     s.start();
