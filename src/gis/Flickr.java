@@ -39,7 +39,8 @@ public class Flickr {
     final Flickr flickrParser = new Flickr();
     flickrParser.connect("jdbc:postgresql://134.34.225.25/joschi_gis_db",
         "postgres", "admin");
-    flickrParser.process("flickr", path, 1, flickrParser.getBrandenburgerTor());
+    flickrParser.process("flickr", path, Runtime.getRuntime().availableProcessors(),
+        flickrParser.getBrandenburgerTor());
     flickrParser.disconnect();
   }
 
@@ -207,7 +208,8 @@ public class Flickr {
     }
 
     try (final Statement stat = m_conn.createStatement()) {
-      stat.execute("UPDATE " + tablename + " set geom = ST_SetSRID(geom, 4326);");
+      stat.execute("UPDATE " + tablename
+          + " set poly_geom = ST_SetSRID(poly_geom, 4326);");
     } catch(final SQLException e) {
       e.printStackTrace();
     }
@@ -241,8 +243,10 @@ public class Flickr {
           final String imagepath = getImageUrl(str[3]).replace(
               "_m.jpg", "_c.jpg");
           if(exists(imagepath)) {
-            str[3] = "data/flickr/" + id + ".jpg";
+            str[3] = "img:" + imagepath;
             // getImage(imagepath, str[3]);
+          } else {
+            str[3] = "url:" + str[3];
           }
           str[19] = str[19].replace(",", ".");
           str[20] = str[20].replace(",", ".");
