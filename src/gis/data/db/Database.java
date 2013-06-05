@@ -1,5 +1,6 @@
 package gis.data.db;
 
+import gis.data.NineCut;
 import gis.data.datatypes.ElementId;
 import gis.data.datatypes.Table;
 import gis.data.db.config.FileConfiguration;
@@ -214,22 +215,33 @@ public class Database {
     return img.getScaledInstance(100, -1, Image.SCALE_SMOOTH);
   }
 
-  public String getNineCutDescription(final ElementId id1, final ElementId id2) {
-    // final String query =
-    // "select st_area(st_intersection(a.geom, b.geom), true) from _TABLE_ as a, _TABLE_ as b where a.gid = _GID_ and b.gid = _GID_;";
-    // try (Connection connection = getConnection();
-    // Statement stmt = connection.createStatement();
-    // ResultSet rs = stmt.executeQuery(query)) {
-    //
-    // while(rs.next()) {
-    // final String gid = rs.getString("gid");
-    // final ElementId id = new ElementId(q, gid);
-    // ids.add(id);
-    // }
-    // } catch(final SQLException e) {
-    // e.printStackTrace();
-    // }
-    return "TODO";
-  }
+  public NineCut getNineCutDescription(final ElementId id1, final ElementId id2) {
+    NineCut nc = null;
+    final String query = "select " +
+        "st_disjoint(a.geom, b.geom) as disjoint, " +
+        "st_overlaps(a.geom, b.geom) as overlaps, " +
+        "st_contains(a.geom, b.geom) as contains, " +
+        "st_within(a.geom, b.geom) as inside, " +
+        "st_touches(a.geom, b.geom) as meet, " +
+        "st_covers(a.geom, b.geom) as covers, " +
+        "st_covers(b.geom, a.geom) as covered_by, " +
+        "st_equals(a.geom, b.geom) as equal " +
+        "from " + id1.getQuery().getTable().name + " as a, " +
+        id2.getQuery().getTable().name + " as b where a.gid = " +
+        id1.getId() + " and b.gid = " + id2.getId();
+    try (Connection connection = getConnection();
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(query)) {
+      if(rs.next()) {
+        nc = NineCut.get(rs.getBoolean("disjoint"), rs.getBoolean("meet"),
+            rs.getBoolean("covers"), rs.getBoolean("overlaps"),
+            rs.getBoolean("contains"),
+            rs.getBoolean("equal"), rs.getBoolean("covered_by"), rs.getBoolean("inside"));
+      }
 
+    } catch(final SQLException e) {
+      e.printStackTrace();
+    }
+    return nc;
+  }
 }

@@ -16,7 +16,7 @@ public class TableSelectionMenuItem extends JMenuItem {
     final boolean selected = selectionManager.isSelected(marker);
     final String txt = marker.getId().getQuery().getName() + ": " + marker.getInfo();
     if(selected) {
-      setText("<html><b>" + txt + "</b>");
+      setText("<html><b>" + txt + "✔</b>");
     } else {
       setText(txt);
     }

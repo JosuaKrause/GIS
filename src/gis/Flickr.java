@@ -35,6 +35,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 public class Flickr {
 
   public static void main(final String[] args) throws IOException {
+    System.exit(0);// TODO
     final String path = new String("flickrData.csv");
     final Flickr flickrParser = new Flickr();
     final FileConfiguration conf = new FileConfiguration(new FileInputStream(new File(
