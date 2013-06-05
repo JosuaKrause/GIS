@@ -70,8 +70,8 @@ public class FlickrChloroplethQuery extends Query<Double> {
       maxNum = Double.NEGATIVE_INFINITY;
     }
     m.setColor(colorCode.getColor(f));
-    m.setAlphaSelected(0.9f);
-    m.setAlphaNotSelected(1.0f);
+    m.setAlphaSelected(0.6f);
+    m.setAlphaNotSelected(.9f);
     m.setOutlineColor(Color.BLACK);
   }
 

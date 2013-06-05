@@ -69,7 +69,7 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
               "where b.type = 'commercial' and st_intersects(a.geom, b.geom) " +
               "group by a.gid ) as b " +
               "on a.gid = b.gid",
-          Table.BERLIN_ADMINISTRATIVE, "commercial ratio");
+          Table.BERLIN_ADMINISTRATIVE, "Commercial Ratio");
     }
 
     public ColorMap getColorMap() {
@@ -106,8 +106,8 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
         maxRatio = Double.NEGATIVE_INFINITY;
       }
       m.setColor(colorMap.getColor(f));
-      m.setAlphaSelected(0.9f);
-      m.setAlphaNotSelected(1.0f);
+      m.setAlphaSelected(0.6f);
+      m.setAlphaNotSelected(0.9f);
       m.setOutlineColor(Color.BLACK);
     }
 

@@ -11,8 +11,6 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -41,34 +39,14 @@ public class GisControlPanel extends JPanel {
     gisPanel.registerOverlayComponent(smoc);
     smoc.setVisible(true);
     this.gisPanel = Objects.requireNonNull(gisPanel);
-    addQuery(new BrandenburgQuery(1000, "brandenburg"));
-    addQuery(new BrandenburgTorQuery("tor"));
+    addQuery(new BrandenburgQuery(1000, "Brandenburger"));
+    addQuery(new BrandenburgTorQuery("Tor"));
     add(new FlickrChloroplethQueryCheckbox(gisPanel));
-    addQuery(new Query<Double>(
-        "select distinct b.gid as gid,  b.geom as geom, " +
-            "b.name as name from berlin_administrative as a, " +
-            "buildings as b where b.type = 'commercial' and " +
-            "st_intersects(a.geom, b.geom) and " +
-            "st_area(st_intersection(a.geom, b.geom), true) < " +
-            "0.99 * st_area(b.geom, true)",
-        Table.BUILDINGS, "border buildings") {
-
-      @Override
-      protected Double getFlavour(final ResultSet r) throws SQLException {
-        return (double) r.getInt("gid");
-      }
-
-      @Override
-      protected void addFlavour(final GeoMarker m, final Double f) {
-        m.setColor(new Color(228, 26, 28));
-      }
-
-    });
     addQuery(new Query<Object>(
         "select distinct b.gid as gid,  b.geom as geom, b.name as name " +
             "from berlin_administrative as a, buildings as b " +
             "where b.type = 'commercial'",
-        Table.BUILDINGS, "commercial") {
+        Table.BUILDINGS, "All Commercial") {
 
       @Override
       protected void addFlavour(final GeoMarker m, final Object o) {
@@ -78,8 +56,8 @@ public class GisControlPanel extends JPanel {
     });
     add(new CommercialRatioQueryCheckbox(gisPanel));
     add(new ParksNearWaterQueryCheckBox(gisPanel));
-    addTableSelectionCheckBox(gisPanel, Table.BERLIN_POI, "Points of Interest");
-    addTableSelectionCheckBox(gisPanel, Table.BUILDINGS, "Buildings");
+    addTableSelectionCheckBox(gisPanel, Table.BERLIN_POI, "All Points of Interest");
+    addTableSelectionCheckBox(gisPanel, Table.BUILDINGS, "All Buildings");
     addTableSelectionCheckBox(gisPanel, Table.FLICKR, "All Flickr Photos");
     setSize(getMinimumSize());
     addForeignListeners(gisPanel);
