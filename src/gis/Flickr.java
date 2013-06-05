@@ -1,8 +1,12 @@
 package gis;
 
+import gis.data.db.config.FileConfiguration;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -34,11 +38,13 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 public class Flickr {
 
-  public static void main(final String[] args) {
+  public static void main(final String[] args) throws IOException {
     final String path = new String("flickrData.csv");
     final Flickr flickrParser = new Flickr();
-    flickrParser.connect("jdbc:postgresql://134.34.225.25/joschi_gis_db",
-        "postgres", "admin");
+    final FileConfiguration conf = new FileConfiguration(new FileInputStream(new File(
+        "config.txt")));
+    flickrParser.connect("jdbc:postgresql:" + conf.getUrl(),
+        conf.getUser(), conf.getPassword());
     flickrParser.process("flickr", path, Runtime.getRuntime().availableProcessors(),
         flickrParser.getBrandenburgerTor());
     flickrParser.disconnect();
