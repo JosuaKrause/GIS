@@ -16,7 +16,7 @@ import java.util.Objects;
 public class CommercialRatioQueryCheckbox extends QueryCheckBox {
 
   public CommercialRatioQueryCheckbox(final GisPanel gisPanel) {
-    super(Objects.requireNonNull(gisPanel), new CommercialRatioQuery(gisPanel));
+    super(Objects.requireNonNull(gisPanel), new CommercialRatioQuery());
     for(final ActionListener al : getActionListeners()) {
       removeActionListener(al);
     }
@@ -54,7 +54,7 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
     private ColorMap heatMap;
     private double maxRatio = Double.NEGATIVE_INFINITY;
 
-    public CommercialRatioQuery(final GisPanel gisPanel) {
+    public CommercialRatioQuery() {
       super(
           "select a.gid as gid, lor, (select b_area / a_area) as ratio, geom "
               +

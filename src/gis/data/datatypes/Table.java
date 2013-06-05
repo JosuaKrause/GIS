@@ -14,8 +14,6 @@ public enum Table {
   /** Administrative regions. */
   BERLIN_ADMINISTRATIVE("berlin_administrative", GeometryType.POLYGON,
       "lor", convert(Color.RED), "gid", "geom"),
-  // BERLIN_HIGHWAY("berlin_highway", GeometryType.LINESTRING,
-  // "name", convert(Color.GRAY), "gid", "geom"),
   /** Locations in berlin. */
   BERLIN_LOCATION("berlin_location", GeometryType.POINT,
       "name", convert(Color.PINK), "gid", "geom"),

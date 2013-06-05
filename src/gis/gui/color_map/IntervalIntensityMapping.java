@@ -5,8 +5,8 @@ import java.util.List;
 
 public class IntervalIntensityMapping implements IIntensityMapping {
 
-  protected List<Double> input = new ArrayList<Double>();
-  protected List<Double> output = new ArrayList<Double>();
+  protected List<Double> input = new ArrayList<>();
+  protected List<Double> output = new ArrayList<>();
 
   /**
    * The input parameters must be a sequence of pairs (in_i, out_i), such that

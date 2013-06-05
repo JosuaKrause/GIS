@@ -79,11 +79,6 @@ public class GisControlPanel extends JPanel {
     add(new QueryCheckBox(gisPanel, query));
   }
 
-  private void addTableSelectionCheckBox(final GisPanel gisPanel, final Table table) {
-    final QueryCheckBox box = QueryCheckBox.createTableQuery(gisPanel, table);
-    add(box);
-  }
-
   public Component add(final QueryCheckBox box) {
     checkBoxes.add(box);
     return add((JComponent) box);
@@ -93,16 +88,6 @@ public class GisControlPanel extends JPanel {
     final MouseSelectionListener l = new MouseSelectionListener(gisPanel, this);
     gisPanel.addMouseListener(l);
     gisPanel.addMouseMotionListener(l);
-  }
-
-  private List<Query<?>> getSelectedQueries() {
-    final List<Query<?>> queries = new ArrayList<>();
-    for(final QueryCheckBox box : checkBoxes) {
-      if(box.isSelected()) {
-        queries.add(box.getQuery());
-      }
-    }
-    return queries;
   }
 
   public boolean processSelectionClick(final Point2D pos) {

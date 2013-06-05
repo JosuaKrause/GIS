@@ -31,7 +31,7 @@ public class GisPanel extends JMapViewer {
   boolean drawImage = false;
   private BufferedImage image;
 
-  private final List<IOverlayComponent> overlayComponents = new ArrayList<IOverlayComponent>();
+  private final List<IOverlayComponent> overlayComponents = new ArrayList<>();
 
   public GisPanel() {
     grabFocus();
@@ -51,8 +51,8 @@ public class GisPanel extends JMapViewer {
   private Image curHover;
 
   private final Set<Query<?>> queries = new HashSet<>();
-  private Point center;
-  private int zoom;
+  private Point centerPosition;
+  private int zoomValue;
 
   public void addQuery(final Query<?> q) {
     queries.add(q);
@@ -160,7 +160,8 @@ public class GisPanel extends JMapViewer {
       if(curHover != null) {
         final Point p = new Point(getCenter());
         final int z = getZoom();
-        if(center != null && (p.x != center.x || p.y != center.y || z != zoom)) {
+        if(centerPosition != null
+            && (p.x != centerPosition.x || p.y != centerPosition.y || z != zoomValue)) {
           setHoverImage(null, p);
         } else {
           final Graphics2D g = (Graphics2D) g2.create();
@@ -168,8 +169,8 @@ public class GisPanel extends JMapViewer {
           g.drawImage(curHover, 0, 0, this);
           g.dispose();
         }
-        center = p;
-        zoom = z;
+        centerPosition = p;
+        zoomValue = z;
       }
     }
     { // draw HUD
@@ -189,7 +190,7 @@ public class GisPanel extends JMapViewer {
       g2.setColor(Color.BLACK);
       g2.drawString(hud, x, y);
     }
-    // note -- after this method returns the zoom
+    // note -- after this method returns the zoomValue
     // slider is drawn with the same graphics object
 
     // draw overlayComponents
@@ -239,17 +240,6 @@ public class GisPanel extends JMapViewer {
         }
       }
     }
-  }
-
-  private void addListeners() {
-    addComponentListener(new ComponentAdapter() {
-
-      @Override
-      public void componentResized(final ComponentEvent e) {
-        updateImage();
-      }
-
-    });
   }
 
   public void registerOverlayComponent(final IOverlayComponent overlayComponent) {

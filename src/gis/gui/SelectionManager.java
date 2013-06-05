@@ -37,8 +37,10 @@ public class SelectionManager {
   }
 
   /**
-   * @param m
-   * @return the marker's index in {@link selection} or -1.
+   * Getter.
+   * 
+   * @param m The geo marker.
+   * @return the marker's index in {@link #selection} or -1.
    */
   private int indexOf(final GeoMarker m) {
     for(int i = 0; i < numSelected; ++i) {
