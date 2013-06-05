@@ -51,9 +51,16 @@ public class GeoMarkerPoint extends GeoMarker {
     return latLonBBox;
   }
 
+  private boolean fixedSize;
+
+  @Override
+  public void setFixedSize(final boolean fixedSize) {
+    this.fixedSize = fixedSize;
+  }
+
   @Override
   public void paint(final Graphics2D g, final GisPanel panel, final boolean simple) {
-    if(simple) {
+    if(!fixedSize && simple) {
       paintSimple(g, panel);
       return;
     }
@@ -69,6 +76,8 @@ public class GeoMarkerPoint extends GeoMarker {
 
   private Shape computeGeometry(final GisPanel panel) {
     final Point2D pos = panel.getMapPosition(coord, false);
+    if(fixedSize) return new Ellipse2D.Double(
+        pos.getX() - radius, pos.getY() - radius, radius * 2, radius * 2);
     final Point2D other = panel.getMapPosition(
         new Coordinate(coord.getLat(), coord.getLon() + radius), false);
     final double r = other.getX() - pos.getX();
@@ -78,7 +87,7 @@ public class GeoMarkerPoint extends GeoMarker {
 
   @Override
   public boolean pick(final Point2D pos, final GisPanel panel, final boolean simple) {
-    if(simple) return pickSimple(pos, panel);
+    if(!fixedSize && simple) return pickSimple(pos, panel);
     return computeGeometry(panel).contains(pos);
   }
 

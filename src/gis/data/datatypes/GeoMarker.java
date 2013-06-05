@@ -161,6 +161,10 @@ public abstract class GeoMarker {
    */
   public abstract void setRadius(final double radius);
 
+  public void setFixedSize(@SuppressWarnings("unused") final boolean fixedSize) {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * Setter.
    * 
