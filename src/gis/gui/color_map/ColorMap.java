@@ -5,17 +5,17 @@ import gis.gui.overlay.IOverlayComponent;
 
 import java.awt.Color;
 
-public class HeatMap extends AbstractColorMapping {
+public class ColorMap extends AbstractColorMapping {
 
   protected IOverlayComponent heatMapOverlayComponent;
 
-  public static HeatMap getHeatMap(final double min, final double max) {
-    final IIntensityMapping intensityMapping = new IntervalIntensityMapping(min, 0, max,
-        1);
-    return new HeatMap(intensityMapping);
+  public static ColorMap getHeatMap(final double min, final double max) {
+    final IIntensityMapping intensityMapping = new IntervalIntensityMapping(
+        min, 0, max, 1);
+    return new ColorMap(intensityMapping);
   }
 
-  protected HeatMap(final IIntensityMapping intensityMapping) {
+  protected ColorMap(final IIntensityMapping intensityMapping) {
     super(intensityMapping,
         new Color[] { new Color(248, 16, 0), new Color(252, 252, 0),
             Color.WHITE},
@@ -27,7 +27,7 @@ public class HeatMap extends AbstractColorMapping {
 
   @Override
   public Color intensityToColor(final double intensity) {
-    if(intensity == 0) return Color.MAGENTA;// TODO
+    if(intensity == 0) return colors[0].darker();
     final int size = intensities.length;
     for(int interval = 0; interval < size - 1; ++interval) {
       if(intensities[interval + 1] < intensity) {
@@ -43,11 +43,12 @@ public class HeatMap extends AbstractColorMapping {
   }
 
   public void initOverlayComponent(final GisPanel gisPanel) {
-    heatMapOverlayComponent = new HeatMapOverlayComponent(gisPanel, 1, this);
+    heatMapOverlayComponent = new ColorMapOverlayComponent(gisPanel, 1, this);
     gisPanel.registerOverlayComponent(heatMapOverlayComponent);
   }
 
   public IOverlayComponent getHeatMapOverlayComponent() {
     return heatMapOverlayComponent;
   }
+
 }

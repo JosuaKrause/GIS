@@ -3,7 +3,7 @@ package gis.data.db;
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 import gis.gui.InfoFrame;
-import gis.gui.color_map.HeatMap;
+import gis.gui.color_map.ColorMap;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,7 +31,7 @@ public class FlickrChloroplethQuery extends Query<Double> {
 
   private double maxNum = Double.NEGATIVE_INFINITY;
 
-  private HeatMap colorCode;
+  private ColorMap colorCode;
 
   @Override
   protected Double getFlavour(final ResultSet r) throws SQLException {
@@ -49,7 +49,7 @@ public class FlickrChloroplethQuery extends Query<Double> {
   @Override
   protected void addFlavour(final GeoMarker m, final Double f) {
     if(maxNum > 0) {
-      colorCode = HeatMap.getHeatMap(0, maxNum);
+      colorCode = ColorMap.getHeatMap(0, maxNum);
       maxNum = Double.NEGATIVE_INFINITY;
     }
     m.setColor(colorCode.getColor(f));

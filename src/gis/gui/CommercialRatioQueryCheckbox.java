@@ -3,7 +3,7 @@ package gis.gui;
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 import gis.data.db.Query;
-import gis.gui.color_map.HeatMap;
+import gis.gui.color_map.ColorMap;
 import gis.gui.overlay.IOverlayComponent;
 
 import java.awt.Color;
@@ -33,7 +33,7 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
           gisPanel.removeQuery(q);
         }
 
-        final HeatMap heatMap = ((CommercialRatioQuery) getQuery()).getHeapMap();
+        final ColorMap heatMap = ((CommercialRatioQuery) getQuery()).getHeapMap();
         if(heatMap.getHeatMapOverlayComponent() == null) {
           heatMap.initOverlayComponent(gisPanel);
         }
@@ -51,7 +51,7 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
 
   public static class CommercialRatioQuery extends Query<Double> {
 
-    private HeatMap heatMap;
+    private ColorMap heatMap;
     private double maxRatio = Double.NEGATIVE_INFINITY;
 
     public CommercialRatioQuery(final GisPanel gisPanel) {
@@ -71,7 +71,7 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
           Table.BERLIN_ADMINISTRATIVE, "commercial ratio");
     }
 
-    public HeatMap getHeapMap() {
+    public ColorMap getHeapMap() {
       return heatMap;
     }
 
@@ -90,7 +90,7 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
     @Override
     protected void addFlavour(final GeoMarker m, final Double f) {
       if(maxRatio > 0) {
-        heatMap = HeatMap.getHeatMap(0, maxRatio);
+        heatMap = ColorMap.getHeatMap(0, maxRatio);
         maxRatio = Double.NEGATIVE_INFINITY;
       }
       m.setColor(heatMap.getColor(f));

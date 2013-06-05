@@ -2,17 +2,17 @@ package gis.gui.color_map;
 
 import java.awt.Color;
 
-public class SteppedHeatMap extends HeatMap {
+public class SteppedColorMap extends ColorMap {
 
-  public static SteppedHeatMap getSteppedHeatMap(final double min, final double max) {
+  public static SteppedColorMap getSteppedHeatMap(final double min, final double max) {
     final IIntensityMapping intensityMapping = new IntervalIntensityMapping(min, 0, max,
         1);
-    return new SteppedHeatMap(intensityMapping);
+    return new SteppedColorMap(intensityMapping);
   }
 
   protected final Color minIntensityColor = Color.MAGENTA;
 
-  protected SteppedHeatMap(final IIntensityMapping intensityMapping) {
+  protected SteppedColorMap(final IIntensityMapping intensityMapping) {
     super(intensityMapping);
   }
 

@@ -44,7 +44,7 @@ public class TestColorMappingFrame extends JFrame {
   }
 
   public static void main(final String[] args) {
-    final IColorMapping mapping = HeatMap.getHeatMap(0, 1);
+    final IColorMapping mapping = ColorMap.getHeatMap(0, 1);
     final TestColorMappingFrame frame = new TestColorMappingFrame(mapping);
     frame.setVisible(true);
   }
