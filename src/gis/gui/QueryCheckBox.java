@@ -51,4 +51,7 @@ public class QueryCheckBox extends JCheckBox {
     return q.getTable();
   }
 
+  Query getQuery() {
+    return q;
+  }
 }

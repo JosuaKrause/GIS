@@ -5,7 +5,6 @@ import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 import gis.data.db.Database;
 import gis.data.db.Query;
-import gis.gui.color_map.HeatMap;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -50,9 +49,9 @@ public class GisControlPanel extends JPanel {
 
         }));
 
-    for(final Table t : Table.values()) {
-      addTableSelectionCheckBox(gisPanel, t);
-    }
+    // for(final Table t : Table.values()) {
+    // addTableSelectionCheckBox(gisPanel, t);
+    // }
 
     add(new QueryCheckBox(
         "border buildings",
@@ -78,50 +77,9 @@ public class GisControlPanel extends JPanel {
           }
 
         }));
-    add(new QueryCheckBox(
-        "commercial ratio",
-        gisPanel,
-        new Query<Double>(
-            "select a.gid as gid, lor as info, (select b_area / a_area) as ratio, geom "
-                +
-                "from berlin_administrative as a left outer join "
-                +
-                "( select a.gid, st_area(a.geom, true) as a_area, sum(st_area(st_intersection("
-                +
-                "a.geom, b.geom), true)) as b_area " +
-                "from berlin_administrative as a, buildings as b " +
-                "where b.type = 'commercial' and st_intersects(a.geom, b.geom) " +
-                "group by a.gid ) as b " +
-                "on a.gid = b.gid " +
-                "order by gid;",
-            Table.BERLIN_ADMINISTRATIVE) {
+    add(new CommercialRatioQueryCheckbox(gisPanel));
+    add(new ParksNearWaterQueryCheckBox(gisPanel));
 
-          private double maxRatio = Double.NEGATIVE_INFINITY;
-
-          private HeatMap heatMap;
-
-          @Override
-          protected Double getFlavour(final ResultSet r) throws SQLException {
-            Double ratio = r.getDouble("ratio");
-            if(ratio == null) {
-              ratio = 0.0;
-            }
-            if(ratio > maxRatio) {
-              maxRatio = ratio;
-            }
-            return ratio;
-          }
-
-          @Override
-          protected void addFlavour(final GeoMarker m, final Double f) {
-            if(maxRatio > 0) {
-              heatMap = HeatMap.getHeatMap(0, maxRatio);
-              maxRatio = Double.NEGATIVE_INFINITY;
-            }
-            m.setColor(heatMap.getColor(f));
-          }
-
-        }));
     setSize(getMinimumSize());
     addGisPanelListeners(gisPanel);
   }

@@ -20,7 +20,7 @@ public enum Table {
   BERLIN_WATER("berlin_water", GeometryType.POLYGON, "name", convert(Color.BLUE)),
   BUILDINGS("buildings", GeometryType.POLYGON, "name", convert(Color.ORANGE)),
   LANDUSE("landuse", GeometryType.POLYGON, "name", convert(Color.YELLOW)),
-
+  PARK("park", GeometryType.POLYGON, "name", convert(new Color(12, 203, 2)));
   ; // EOD
 
   public final String name;

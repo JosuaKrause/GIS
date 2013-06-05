@@ -83,6 +83,10 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
       path.closePath();
     }
     g.fill(path);
+    if(outlineColor != null) {
+      g.setColor(outlineColor);
+      g.draw(path);
+    }
   }
 
   @Override
