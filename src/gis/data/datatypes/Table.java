@@ -98,7 +98,7 @@ public enum Table {
    * @param base The base color.
    * @return The color.
    */
-  private static Color convert(final Color base) {
+  public static Color convert(final Color base) {
     final float[] hsb = Color.RGBtoHSB(
         base.getRed(), base.getGreen(), base.getBlue(), null);
     return Color.getHSBColor(hsb[0], hsb[1] * .8f, hsb[2] * .8f);

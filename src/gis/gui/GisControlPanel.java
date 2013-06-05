@@ -38,13 +38,12 @@ public class GisControlPanel extends JPanel {
     addQuery(new BrandenburgQuery(1000, "brandenburg"));
     addQuery(new BrandenburgTorQuery("tor"));
     addQuery(new Query<Double>(
-        "select distinct b.gid as gid,  b.geom as geom, b.name as name "
-            +
-            "from berlin_administrative as a, buildings as b "
-            +
-            "where b.type = 'commercial' and st_intersects(a.geom, b.geom) and "
-            +
-            "st_area(st_intersection(a.geom, b.geom), true) < 0.99 * st_area(b.geom, true)",
+        "select distinct b.gid as gid,  b.geom as geom, " +
+            "b.name as name from berlin_administrative as a, " +
+            "buildings as b where b.type = 'commercial' and " +
+            "st_intersects(a.geom, b.geom) and " +
+            "st_area(st_intersection(a.geom, b.geom), true) < " +
+            "0.99 * st_area(b.geom, true)",
         Table.BUILDINGS, "border buildings") {
 
       @Override
@@ -54,18 +53,28 @@ public class GisControlPanel extends JPanel {
 
       @Override
       protected void addFlavour(final GeoMarker m, final Double f) {
-        m.setColor(Color.RED);
+        m.setColor(Table.convert(Color.RED));
+      }
+
+    });
+    addQuery(new Query<Object>(
+        "select distinct b.gid as gid,  b.geom as geom, b.name as name " +
+            "from berlin_administrative as a, buildings as b " +
+            "where b.type = 'commercial'",
+        Table.BUILDINGS, "commercial") {
+
+      @Override
+      protected void addFlavour(final GeoMarker m, final Object o) {
+        m.setColor(Table.convert(Color.CYAN));
       }
 
     });
     addQuery(new Query<Double>(
-        "select a.gid as gid, lor as lor, (select b_area / a_area) as ratio, geom "
-            +
-            "from berlin_administrative as a left outer join "
-            +
-            "( select a.gid, st_area(a.geom, true) as a_area, sum(st_area(st_intersection("
-            +
-            "a.geom, b.geom), true)) as b_area " +
+        "select a.gid as gid, lor as lor," +
+            "(select b_area / a_area) as ratio, geom " +
+            "from berlin_administrative as a left outer join " +
+            "( select a.gid, st_area(a.geom, true) as a_area, " +
+            "sum(st_area(st_intersection(a.geom, b.geom), true)) as b_area " +
             "from berlin_administrative as a, buildings as b " +
             "where b.type = 'commercial' and st_intersects(a.geom, b.geom) " +
             "group by a.gid ) as b " +
