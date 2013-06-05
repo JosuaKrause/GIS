@@ -111,10 +111,7 @@ public class SelectionManager {
       selection[i].setSelected(false);
     }
     numSelected = 0;
-    onSelect();
+    onSelection();
   }
 
-  private void onSelect() {
-    // TODO delete me
-  }
 }

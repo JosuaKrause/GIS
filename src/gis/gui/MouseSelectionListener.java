@@ -27,6 +27,7 @@ public class MouseSelectionListener extends MouseAdapter {
 
   @Override
   public void mouseClicked(final MouseEvent e) {
+    gisPanel.grabFocus();
     if(SwingUtilities.isLeftMouseButton(e)) {
       if(gisControlPanel.processSelectionClick(e.getPoint())) {
         gisPanel.repaint();
@@ -40,6 +41,7 @@ public class MouseSelectionListener extends MouseAdapter {
 
   @Override
   public void mouseMoved(final MouseEvent e) {
+    gisPanel.grabFocus();
     final Point2D pos = e.getPoint();
     final GisPanel gisPanel = this.gisPanel;
     final List<GeoMarker> picks = new ArrayList<>();
