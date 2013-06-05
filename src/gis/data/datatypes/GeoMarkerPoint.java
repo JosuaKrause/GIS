@@ -60,15 +60,26 @@ public class GeoMarkerPoint extends GeoMarker {
     final Graphics2D g2 = (Graphics2D) g.create();
     g2.setComposite(getComposite());
     g2.setColor(getColor());
+    final Shape e = computeGeometry(panel);
+    g2.fill(e);
+    g2.dispose();
+    g.setColor(Color.BLACK);
+    g.draw(e);
+  }
+
+  private Shape computeGeometry(final GisPanel panel) {
     final Point2D pos = panel.getMapPosition(coord, false);
     final Point2D other = panel.getMapPosition(
         new Coordinate(coord.getLat(), coord.getLon() + radius), false);
     final double r = other.getX() - pos.getX();
     final Shape e = new Ellipse2D.Double(pos.getX() - r, pos.getY() - r, 2 * r, 2 * r);
-    g2.fill(e);
-    g2.dispose();
-    g.setColor(Color.BLACK);
-    g.draw(e);
+    return e;
+  }
+
+  @Override
+  public boolean pick(final Point2D pos, final GisPanel panel, final boolean simple) {
+    if(simple) return pickSimple(pos, panel);
+    return computeGeometry(panel).contains(pos);
   }
 
   @Override

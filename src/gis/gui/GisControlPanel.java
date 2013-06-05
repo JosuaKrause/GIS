@@ -1,18 +1,16 @@
 package gis.gui;
 
-import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 import gis.data.db.BrandenburgQuery;
 import gis.data.db.BrandenburgTorQuery;
-import gis.data.db.Database;
 import gis.data.db.FlickrChloroplethQuery;
 import gis.data.db.Query;
 import gis.gui.color_map.HeatMap;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -24,8 +22,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-
-import org.openstreetmap.gui.jmapviewer.Coordinate;
 
 public class GisControlPanel extends JPanel {
 
@@ -145,19 +141,11 @@ public class GisControlPanel extends JPanel {
     return queries;
   }
 
-  public boolean processSelectionClick(final Point p, final Coordinate c) {
-    final List<Query<?>> queries = getSelectedQueries();
-    final GisPanel panel = gisPanel;
-    if(queries.isEmpty()) return false;
-    final List<ElementId> ids = Database.getInstance().getByCoordinate(
-        c, queries, panel.getMeterPerPixel() * 5);
+  public boolean processSelectionClick(final Point2D pos) {
     final List<GeoMarker> markers = new ArrayList<>();
-    for(final ElementId id : ids) {
-      final GeoMarker m = id.getMarker();
-      if(m != null) {
-        markers.add(m);
-      }
-    }
+    final GisPanel panel = gisPanel;
+    panel.pick(pos, markers);
+    if(markers.isEmpty()) return false;
     if(markers.size() == 1) return selectionManager.clickedOn(markers.get(0));
     final JPopupMenu menu = new JPopupMenu();
     menu.addPopupMenuListener(new PopupMenuListener() {
@@ -181,7 +169,7 @@ public class GisControlPanel extends JPanel {
     for(final GeoMarker m : markers) {
       menu.add(new TableSelectionMenuItem(m, selectionManager, panel));
     }
-    menu.show(panel, p.x, p.y);
+    menu.show(panel, (int) pos.getX(), (int) pos.getY());
     return true;
   }
 

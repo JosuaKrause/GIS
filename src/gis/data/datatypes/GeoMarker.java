@@ -100,6 +100,8 @@ public abstract class GeoMarker {
     return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
   }
 
+  public abstract boolean pick(Point2D pos, GisPanel panel, boolean simple);
+
   /**
    * Paints the element.
    * 
@@ -123,6 +125,11 @@ public abstract class GeoMarker {
     g2.dispose();
     g.setColor(Color.BLACK);
     g.draw(r);
+  }
+
+  protected boolean pickSimple(final Point2D pos, final GisPanel panel) {
+    final Rectangle2D r = transformRect(panel, getLatLonBBox());
+    return r.contains(pos);
   }
 
   /**

@@ -4,6 +4,7 @@ import gis.gui.GisPanel;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
@@ -32,6 +33,12 @@ public class GeoMarkerLineString extends GeoMarker {
      * getMapPosition(ca, false); } else if (pb == null) { pb =
      * getMapPosition(cb, false); } ls.paintLineSegment(g, pb, pa); } }
      */
+  }
+
+  @Override
+  public boolean pick(final Point2D pos, final GisPanel panel, final boolean simple) {
+    // TODO
+    return false;
   }
 
   @Override

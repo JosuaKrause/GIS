@@ -11,9 +11,11 @@ import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
@@ -48,6 +50,43 @@ public class GisPanel extends JMapViewer {
     queries.remove(q);
     q.clearCache();
     repaint();
+  }
+
+  public void pick(final Point2D pos, final List<GeoMarker> picks) {
+    final Coordinate tl = getPosition(0, 0);
+    final Coordinate br = getPosition(getWidth(), getHeight());
+    final Rectangle2D latLonVP;
+    if(tl != null && br != null) {
+      final double minLon = Math.min(tl.getLon(), br.getLon());
+      final double maxLon = Math.max(tl.getLon(), br.getLon());
+      final double minLat = Math.min(tl.getLat(), br.getLat());
+      final double maxLat = Math.max(tl.getLat(), br.getLat());
+      latLonVP = new Rectangle2D.Double(
+          minLon, minLat, maxLon - minLon, maxLat - minLat);
+    } else {
+      latLonVP = null;
+    }
+    for(final Query<?> q : queries) {
+      for(final GeoMarker m : q.getResult()) {
+        if(latLonVP == null) {
+          // we're too small anyway and nowhere near the border of the map
+          continue;
+        }
+        // visibility check
+        if(!m.inViewport(latLonVP)) {
+          continue;
+        }
+        // smallness check
+        final Rectangle2D box = m.getLatLonBBox();
+        final double hor = box.getWidth() / latLonVP.getWidth() * getWidth();
+        final double ver = box.getHeight() / latLonVP.getHeight() * getHeight();
+        final boolean simple = (hor < 3 || ver < 3) || (hor < 6 && ver < 6);
+        // painting the marker
+        if(m.pick(pos, this, simple)) {
+          picks.add(m);
+        }
+      }
+    }
   }
 
   @Override

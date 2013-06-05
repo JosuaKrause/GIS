@@ -70,6 +70,14 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
     final Graphics2D g2 = (Graphics2D) g.create();
     g2.setComposite(getComposite());
     g2.setColor(getColor());
+    final Path2D path = computeGeometry(panel);
+    g2.fill(path);
+    g2.dispose();
+    g.setColor(Color.BLACK);
+    g.draw(path);
+  }
+
+  private Path2D computeGeometry(final GisPanel panel) {
     final Path2D path = new Path2D.Double();
     for(final Coordinate[] coords : polygons) {
       boolean first = true;
@@ -84,10 +92,13 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
       }
       path.closePath();
     }
-    g2.fill(path);
-    g2.dispose();
-    g.setColor(Color.BLACK);
-    g.draw(path);
+    return path;
+  }
+
+  @Override
+  public boolean pick(final Point2D pos, final GisPanel panel, final boolean simple) {
+    if(simple) return pickSimple(pos, panel);
+    return computeGeometry(panel).contains(pos);
   }
 
   @Override
