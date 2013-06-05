@@ -7,9 +7,27 @@ import java.awt.GridBagLayout;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
+/**
+ * The GIS frame shows the main application.
+ * 
+ * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+ * @author Joschi <josua.krause@googlemail.com>
+ */
 public class GisFrame extends JFrame {
+  /** The instance. */
+  private static final GisFrame INSTANCE = new GisFrame();
 
-  public GisFrame() {
+  /**
+   * Getter.
+   * 
+   * @return The instance.
+   */
+  public static final GisFrame getInstance() {
+    return INSTANCE;
+  }
+
+  /** Creates the GIS frame. */
+  private GisFrame() {
     // initialize
     super("GIS Viewer");
     final GisPanel gisPanel = new GisPanel();
@@ -41,4 +59,11 @@ public class GisFrame extends JFrame {
     setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     gisPanel.setDisplayPositionByLatLon(52.5, 13.4, 10);
   }
+
+  @Override
+  public void dispose() {
+    InfoFrame.getInstance().dispose();
+    super.dispose();
+  }
+
 }

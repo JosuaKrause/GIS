@@ -2,8 +2,6 @@ package gis;
 
 import gis.gui.GisFrame;
 
-import javax.swing.JFrame;
-
 /**
  * Starts the main application.
  * 
@@ -25,8 +23,7 @@ public class Main {
    * @param args No arguments are processed.
    */
   public static void main(final String[] args) {
-    final JFrame frame = new GisFrame();
-    frame.setVisible(true);
+    GisFrame.getInstance().setVisible(true);
   }
 
 }

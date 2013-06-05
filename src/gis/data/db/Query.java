@@ -28,17 +28,17 @@ public class Query<T> {
   private final String query;
   /** The table. */
   private final Table table;
+  /** The name of the query. */
   private final String name;
 
   /**
    * Creates a query.
    * 
-   * @param query The SQL query. The column named 'gid' of the result must be
-   *          the id of the element in the table given here. The column 'geom'
-   *          must be the geometric reference. The column 'info' gets the row
-   *          information.
+   * @param query The SQL query. The column names used are taken from the
+   *          {@link Table} definition.
    * @param table The table whose elements are returned. (At least for which the
    *          ids count)
+   * @param name The name of the query.
    */
   public Query(final String query, final Table table, final String name) {
     this.name = Objects.requireNonNull(name);
@@ -46,12 +46,23 @@ public class Query<T> {
     this.query = Objects.requireNonNull(query);
   }
 
+  /** The lookup for ids. */
   private final Map<ElementId, GeoMarker> map = new HashMap<>();
 
+  /**
+   * Getter.
+   * 
+   * @return The table.
+   */
   public Table getTable() {
     return table;
   }
 
+  /**
+   * Getter.
+   * 
+   * @return The name.
+   */
   public String getName() {
     return name;
   }
@@ -104,11 +115,26 @@ public class Query<T> {
     return markers;
   }
 
+  /**
+   * Retrieves the flavour of the query.
+   * 
+   * @param r The current row.
+   * @return The flavour for the row.
+   * @throws SQLException If an exception occurs.
+   */
+  @SuppressWarnings("unused")
   protected T getFlavour(final ResultSet r) throws SQLException {
     return null;
   }
 
-  protected void addFlavour(final GeoMarker m, final T f) {
+  /**
+   * Adds flavour to the geo marker.
+   * 
+   * @param m The marker.
+   * @param f The flavour.
+   */
+  protected void addFlavour(@SuppressWarnings("unused") final GeoMarker m,
+      @SuppressWarnings("unused") final T f) {
     // nothing here
   }
 
