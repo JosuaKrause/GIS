@@ -6,6 +6,7 @@ import gis.data.datatypes.Table;
 import gis.data.db.BrandenburgQuery;
 import gis.data.db.BrandenburgTorQuery;
 import gis.data.db.Database;
+import gis.data.db.FlickrChloroplethQuery;
 import gis.data.db.Query;
 import gis.gui.color_map.HeatMap;
 
@@ -37,6 +38,7 @@ public class GisControlPanel extends JPanel {
     this.gisPanel = Objects.requireNonNull(gisPanel);
     addQuery(new BrandenburgQuery(1000, "brandenburg"));
     addQuery(new BrandenburgTorQuery("tor"));
+    addQuery(new FlickrChloroplethQuery("flickr_admin"));
     addQuery(new Query<Double>(
         "select distinct b.gid as gid,  b.geom as geom, " +
             "b.name as name from berlin_administrative as a, " +
