@@ -35,7 +35,6 @@ public class SelectionManagerOverlayComponent extends AbstractOverlayComponent {
     final FontMetrics fm = g2.getFontMetrics();
     final int w = fm.stringWidth(text);
     final int h = fm.getHeight();
-    System.out.println(position);
     final double border = 5;
     g2.fill(new Rectangle2D.Double(position.x - border, position.y - border,
         w + 2 * border, h + 2 * border));
