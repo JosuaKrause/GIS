@@ -27,7 +27,7 @@ public class GisControlPanel extends JPanel {
   private final GisPanel gisPanel;
   private final SelectionManager selectionManager;
 
-  public GisControlPanel(final GisPanel gisPanel) {
+  public GisControlPanel(final GisFrame gisFrame, final GisPanel gisPanel) {
     selectionManager = new SelectionManager();
     final SelectionManagerOverlayComponent smoc = new SelectionManagerOverlayComponent(
         gisPanel, selectionManager);
@@ -75,7 +75,7 @@ public class GisControlPanel extends JPanel {
     // addTableSelectionCheckBox(gisPanel, t);
     // }
     setSize(getMinimumSize());
-    addGisPanelListeners(gisPanel);
+    addForeignListeners(gisFrame, gisPanel);
   }
 
   private void addQuery(final Query<?> query) {
@@ -87,10 +87,12 @@ public class GisControlPanel extends JPanel {
     return add((JComponent) box);
   }
 
-  private void addGisPanelListeners(final GisPanel gisPanel) {
+  private void addForeignListeners(final GisFrame gisFrame, final GisPanel gisPanel) {
     final MouseSelectionListener l = new MouseSelectionListener(gisPanel, this);
     gisPanel.addMouseListener(l);
     gisPanel.addMouseMotionListener(l);
+    gisFrame.addKeyListener(new DeselectionListener(gisFrame, selectionManager));
+    gisPanel.addKeyListener(new DeselectionListener(gisPanel, selectionManager));
   }
 
   public boolean processSelectionClick(final Point2D pos) {

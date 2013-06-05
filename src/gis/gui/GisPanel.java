@@ -32,6 +32,7 @@ public class GisPanel extends JMapViewer {
   private final List<IOverlayComponent> overlayComponents = new ArrayList<>();
 
   public GisPanel() {
+    setFocusable(true);
     grabFocus();
     updateImage();
     addComponentListener(new ComponentAdapter() {

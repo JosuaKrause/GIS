@@ -30,8 +30,9 @@ public class GisFrame extends JFrame {
   private GisFrame() {
     // initialize
     super("GIS Viewer");
+    setFocusable(true);
     final GisPanel gisPanel = new GisPanel();
-    final GisControlPanel gisControlPanel = new GisControlPanel(gisPanel);
+    final GisControlPanel gisControlPanel = new GisControlPanel(this, gisPanel);
 
     // set layout
     setLayout(new GridBagLayout());

@@ -67,7 +67,7 @@ public class SelectionManager {
     if(numSelected == 2) {
       final double d = Database.getInstance().getDistance(
           selection[0].getId(), selection[1].getId());
-      InfoFrame.getInstance().addText("Distance: " + d);
+      // InfoFrame.getInstance().addText("Distance: " + d);//TODO remove
     }
   }
 
@@ -83,4 +83,15 @@ public class SelectionManager {
     return numSelected;
   }
 
+  public synchronized void deselectAll() {
+    for(int i = 0; i < numSelected; ++i) {
+      selection[i].setSelected(false);
+    }
+    numSelected = 0;
+    onSelect();
+  }
+
+  private void onSelect() {
+    // TODO delete me
+  }
 }
