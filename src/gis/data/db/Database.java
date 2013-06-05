@@ -5,8 +5,14 @@ import gis.data.datatypes.Table;
 import gis.data.db.config.FileConfiguration;
 import gis.data.db.config.GISConfiguration;
 
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -14,6 +20,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.imageio.ImageIO;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.postgresql.PGConnection;
@@ -157,6 +167,47 @@ public class Database {
       e.printStackTrace();
     }
     return distance;
+  }
+
+  public Image getImage(final ElementId id) {
+    final Table t = id.getQuery().getTable();
+    final String query = "select photoUrl from " + t.name + " where " + t.idColumnName
+        + " = '" + id.getId() + "'";
+    try (Connection connection = getConnection();
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(query)) {
+      if(!rs.next()) throw new IllegalStateException("expected more results");
+      final String url = rs.getString("photoUrl");
+      if(url == null || url.startsWith("img:")) return null;
+      String imgUrl = url.substring(4);
+      if(imgUrl.endsWith("/")) {
+        try (InputStreamReader in = new InputStreamReader(new URL(imgUrl).openStream());
+            BufferedReader br = new BufferedReader(in)) {
+          final Pattern p = Pattern
+              .compile(".*<link rel=\"image_src\" href=\"(http:.*)\" id=\"image-src\">.*");
+          String line;
+          while((line = br.readLine()) != null) {
+            final Matcher m = p.matcher(line);
+            if(m.find()) {
+              imgUrl = m.group(1);
+              break;
+            }
+          }
+        }
+      }
+      System.out.print("trying to load: " + imgUrl);
+      final BufferedImage img = ImageIO.read(new URL(imgUrl));
+      if(img == null) {
+        System.out.println(" failed");
+        return null;
+      }
+      System.out.println(" finished");
+      return img.getScaledInstance(100, -1, Image.SCALE_SMOOTH);
+    } catch(final SQLException | IllegalStateException | IOException e) {
+      System.out.println(" failed");
+      e.printStackTrace();
+    }
+    return null;
   }
 
 }

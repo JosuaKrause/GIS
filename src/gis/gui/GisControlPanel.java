@@ -128,7 +128,9 @@ public class GisControlPanel extends JPanel {
   }
 
   private void addGisPanelListeners(final GisPanel gisPanel) {
-    gisPanel.addMouseListener(new MouseSelectionListener(gisPanel, this));
+    final MouseSelectionListener l = new MouseSelectionListener(gisPanel, this);
+    gisPanel.addMouseListener(l);
+    gisPanel.addMouseMotionListener(l);
   }
 
   private List<Query<?>> getSelectedQueries() {

@@ -7,7 +7,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -39,7 +41,13 @@ public class GisPanel extends JMapViewer {
     });
   }
 
+  private double imgPosX, imgPosY;
+
+  private Image curHover;
+
   private final Set<Query<?>> queries = new HashSet<>();
+  private Point center;
+  private int zoom;
 
   public void addQuery(final Query<?> q) {
     queries.add(q);
@@ -143,24 +151,51 @@ public class GisPanel extends JMapViewer {
       }
       g.dispose();
     }
-    // draw HUD
-    final double fps = 1.0 / (System.nanoTime() - start) * 1e9;
-    final String hud = "FPS: " + fps;
-    g2.setColor(Color.WHITE);
-    final float x = 5f;
-    final float y = 16.5f;
-    g2.drawString(hud, x - 1, y);
-    g2.drawString(hud, x + 1, y);
-    g2.drawString(hud, x, y - 1);
-    g2.drawString(hud, x, y + 1);
-    g2.drawString(hud, x - 1, y - 1);
-    g2.drawString(hud, x + 1, y - 1);
-    g2.drawString(hud, x - 1, y + 1);
-    g2.drawString(hud, x + 1, y + 1);
-    g2.setColor(Color.BLACK);
-    g2.drawString(hud, x, y);
+    { // draw hover image
+      if(curHover != null) {
+        final Point p = new Point(getCenter());
+        final int z = getZoom();
+        if(center != null && (p.x != center.x || p.y != center.y || z != zoom)) {
+          setHoverImage(null, p);
+        } else {
+          final Graphics2D g = (Graphics2D) g2.create();
+          g.translate(imgPosX, imgPosY);
+          g.drawImage(curHover, 0, 0, this);
+          g.dispose();
+        }
+        center = p;
+        zoom = z;
+      }
+    }
+    { // draw HUD
+      final double fps = 1.0 / (System.nanoTime() - start) * 1e9;
+      final String hud = "FPS: " + fps;
+      g2.setColor(Color.WHITE);
+      final float x = 5f;
+      final float y = 16.5f;
+      g2.drawString(hud, x - 1, y);
+      g2.drawString(hud, x + 1, y);
+      g2.drawString(hud, x, y - 1);
+      g2.drawString(hud, x, y + 1);
+      g2.drawString(hud, x - 1, y - 1);
+      g2.drawString(hud, x + 1, y - 1);
+      g2.drawString(hud, x - 1, y + 1);
+      g2.drawString(hud, x + 1, y + 1);
+      g2.setColor(Color.BLACK);
+      g2.drawString(hud, x, y);
+    }
     // note -- after this method returns the zoom
     // slider is drawn with the same graphics object
+  }
+
+  public void setHoverImage(final Image img, final Point2D pos) {
+    if(curHover != null) {
+      curHover.flush();
+    }
+    curHover = img;
+    imgPosX = pos.getX();
+    imgPosY = pos.getY();
+    repaint();
   }
 
   private void paintImage(final Graphics2D gfx) {
