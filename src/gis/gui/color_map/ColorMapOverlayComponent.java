@@ -39,8 +39,8 @@ public class ColorMapOverlayComponent extends AbstractOverlayComponent {
       final int y = position.y + numLines - line + BOTTOM;
       g.drawLine(left, y, right, y);
     }
-    final String top = String.format("%.3f\u2030", colorMap.getMax() * 1000);
-    final String bottom = "" + colorMap.getMin();
+    final String top = colorMap.formatValue(colorMap.getMax());
+    final String bottom = colorMap.formatValue(colorMap.getMin());
     final FontMetrics fm = g.getFontMetrics();
     final int tw = fm.stringWidth(top);
     final int bw = fm.stringWidth(bottom);

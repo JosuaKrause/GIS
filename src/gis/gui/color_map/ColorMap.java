@@ -7,22 +7,11 @@ import java.awt.Color;
 
 public class ColorMap extends AbstractColorMapping {
 
-  protected IOverlayComponent heatMapOverlayComponent;
+  private IOverlayComponent colorMapOverlayComponent;
 
-  public static ColorMap getColorMap(final double min, final double max) {
-    final IIntensityMapping intensityMapping =
-        new IntervalIntensityMapping(min, 0, max, 1);
-    return new ColorMap(intensityMapping);
-  }
-
-  protected ColorMap(final IIntensityMapping intensityMapping) {
-    super(intensityMapping,
-        new Color[] { new Color(248, 16, 0), new Color(252, 252, 0),
-            Color.WHITE},
-        new double[] { 0, 0.5, 1});
-    // new Color[] { new Color(198, 13, 0), new Color(248, 16, 0),
-    // new Color(252, 252, 0), Color.WHITE},
-    // new double[] { 0, 0.0001, 0.5, 1});
+  public ColorMap(final IIntensityMapping intensityMapping, final Color[] colors,
+      final double[] vals) {
+    super(intensityMapping, colors, vals);
   }
 
   @Override
@@ -43,12 +32,16 @@ public class ColorMap extends AbstractColorMapping {
   }
 
   public void initOverlayComponent(final GisPanel gisPanel) {
-    heatMapOverlayComponent = new ColorMapOverlayComponent(gisPanel, 1, this);
-    gisPanel.registerOverlayComponent(heatMapOverlayComponent);
+    colorMapOverlayComponent = new ColorMapOverlayComponent(gisPanel, 1, this);
+    gisPanel.registerOverlayComponent(colorMapOverlayComponent);
   }
 
-  public IOverlayComponent getHeatMapOverlayComponent() {
-    return heatMapOverlayComponent;
+  public IOverlayComponent getColorMapOverlayComponent() {
+    return colorMapOverlayComponent;
+  }
+
+  public String formatValue(final double value) {
+    return "" + value;
   }
 
 }
