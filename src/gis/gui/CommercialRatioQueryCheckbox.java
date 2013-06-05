@@ -94,7 +94,7 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
         final IIntensityMapping intensityMapping =
             new IntervalIntensityMapping(0, 0, maxRatio, 1);
         colorMap = new ColorMap(intensityMapping, new Color[] {
-            new Color(248, 16, 0), new Color(252, 252, 0), Color.WHITE},
+            new Color(240, 59, 32), new Color(254, 178, 76), new Color(255, 237, 160)},
             new double[] { 0, 0.5, 1}) {
 
           @Override

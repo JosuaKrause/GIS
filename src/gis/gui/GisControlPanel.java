@@ -54,7 +54,7 @@ public class GisControlPanel extends JPanel {
 
       @Override
       protected void addFlavour(final GeoMarker m, final Double f) {
-        m.setColor(Table.convert(Color.RED));
+        m.setColor(new Color(228, 26, 28));
       }
 
     });
@@ -66,7 +66,7 @@ public class GisControlPanel extends JPanel {
 
       @Override
       protected void addFlavour(final GeoMarker m, final Object o) {
-        m.setColor(Table.convert(Color.CYAN));
+        m.setColor(new Color(55, 126, 184));
       }
 
     });

@@ -29,7 +29,7 @@ public abstract class GeoMarker {
   /** alpha value used for drawing if the geo marker is selected */
   private float alphaSelected = 0.7f;
   /** alpha value used for drawing if the geo marker is not selected */
-  private float alphaNotSelected = 0.3f;
+  private float alphaNotSelected = 0.45f;
   /**
    * The color of the used for drawing the geo markers outline. If this variable
    * is <code>null</code>, then no outline will be drawn.
