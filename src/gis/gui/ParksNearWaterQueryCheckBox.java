@@ -42,7 +42,8 @@ public class ParksNearWaterQueryCheckBox extends QueryCheckBox {
             } else {
               m.setColor(Table.PARK.color);
             }
-            // m.setFixedSize(true);
+            m.setFixedSize(true);
+            m.setRadius(8);
             m.setOutlineColor(Color.BLACK);
             m.setAlphaNotSelected(0.9f);
             m.setAlphaSelected(0.6f);
