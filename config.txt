@@ -1,5 +1,0 @@
-hostname=localhost
-port=5432
-dbname=gis_db
-user=postgres
-password=BajingoOnFire
