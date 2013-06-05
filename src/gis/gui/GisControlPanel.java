@@ -37,11 +37,8 @@ public class GisControlPanel extends JPanel {
     this.gisPanel = Objects.requireNonNull(gisPanel);
     addQuery(new BrandenburgQuery(1000, "brandenburg"));
     addQuery(new BrandenburgTorQuery("tor"));
-    for(final Table t : Table.values()) {
-      addTableSelectionCheckBox(gisPanel, t);
-    }
     addQuery(new Query<Double>(
-        "select distinct b.gid as gid,  b.geom as geom, b.name as info "
+        "select distinct b.gid as gid,  b.geom as geom, b.name as name "
             +
             "from berlin_administrative as a, buildings as b "
             +
@@ -62,7 +59,7 @@ public class GisControlPanel extends JPanel {
 
     });
     addQuery(new Query<Double>(
-        "select a.gid as gid, lor as info, (select b_area / a_area) as ratio, geom "
+        "select a.gid as gid, lor as lor, (select b_area / a_area) as ratio, geom "
             +
             "from berlin_administrative as a left outer join "
             +
@@ -102,6 +99,9 @@ public class GisControlPanel extends JPanel {
       }
 
     });
+    for(final Table t : Table.values()) {
+      addTableSelectionCheckBox(gisPanel, t);
+    }
     setSize(getMinimumSize());
     addGisPanelListeners(gisPanel);
   }
