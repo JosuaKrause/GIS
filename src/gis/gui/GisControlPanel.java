@@ -35,82 +35,79 @@ public class GisControlPanel extends JPanel {
   public GisControlPanel(final GisPanel gisPanel) {
     selectionManager = new SelectionManager();
     this.gisPanel = Objects.requireNonNull(gisPanel);
-    add(new QueryCheckBox("brandenburg", gisPanel, new BrandenburgQuery(1000)));
-    add(new QueryCheckBox("tor", gisPanel, new BrandenburgTorQuery()));
+    addQuery(new BrandenburgQuery(1000, "brandenburg"));
+    addQuery(new BrandenburgTorQuery("tor"));
     for(final Table t : Table.values()) {
       addTableSelectionCheckBox(gisPanel, t);
     }
+    addQuery(new Query<Double>(
+        "select distinct b.gid as gid,  b.geom as geom, b.name as info "
+            +
+            "from berlin_administrative as a, buildings as b "
+            +
+            "where b.type = 'commercial' and st_intersects(a.geom, b.geom) and "
+            +
+            "st_area(st_intersection(a.geom, b.geom), true) < 0.99 * st_area(b.geom, true)",
+        Table.BUILDINGS, "border buildings") {
 
-    add(new QueryCheckBox(
-        "border buildings",
-        gisPanel,
-        new Query<Double>(
-            "select distinct b.gid as gid,  b.geom as geom, b.name as info "
-                +
-                "from berlin_administrative as a, buildings as b "
-                +
-                "where b.type = 'commercial' and st_intersects(a.geom, b.geom) and "
-                +
-                "st_area(st_intersection(a.geom, b.geom), true) < 0.99 * st_area(b.geom, true)",
-            Table.BUILDINGS) {
+      @Override
+      protected Double getFlavour(final ResultSet r) throws SQLException {
+        return (double) r.getInt("gid");
+      }
 
-          @Override
-          protected Double getFlavour(final ResultSet r) throws SQLException {
-            return (double) r.getInt("gid");
-          }
+      @Override
+      protected void addFlavour(final GeoMarker m, final Double f) {
+        m.setColor(Color.RED);
+      }
 
-          @Override
-          protected void addFlavour(final GeoMarker m, final Double f) {
-            m.setColor(Color.RED);
-          }
+    });
+    addQuery(new Query<Double>(
+        "select a.gid as gid, lor as info, (select b_area / a_area) as ratio, geom "
+            +
+            "from berlin_administrative as a left outer join "
+            +
+            "( select a.gid, st_area(a.geom, true) as a_area, sum(st_area(st_intersection("
+            +
+            "a.geom, b.geom), true)) as b_area " +
+            "from berlin_administrative as a, buildings as b " +
+            "where b.type = 'commercial' and st_intersects(a.geom, b.geom) " +
+            "group by a.gid ) as b " +
+            "on a.gid = b.gid " +
+            "order by gid;",
+        Table.BERLIN_ADMINISTRATIVE, "commercial ratio") {
 
-        }));
-    add(new QueryCheckBox(
-        "commercial ratio",
-        gisPanel,
-        new Query<Double>(
-            "select a.gid as gid, lor as info, (select b_area / a_area) as ratio, geom "
-                +
-                "from berlin_administrative as a left outer join "
-                +
-                "( select a.gid, st_area(a.geom, true) as a_area, sum(st_area(st_intersection("
-                +
-                "a.geom, b.geom), true)) as b_area " +
-                "from berlin_administrative as a, buildings as b " +
-                "where b.type = 'commercial' and st_intersects(a.geom, b.geom) " +
-                "group by a.gid ) as b " +
-                "on a.gid = b.gid " +
-                "order by gid;",
-            Table.BERLIN_ADMINISTRATIVE) {
+      private double maxRatio = Double.NEGATIVE_INFINITY;
 
-          private double maxRatio = Double.NEGATIVE_INFINITY;
+      private HeatMap heatMap;
 
-          private HeatMap heatMap;
+      @Override
+      protected Double getFlavour(final ResultSet r) throws SQLException {
+        Double ratio = r.getDouble("ratio");
+        if(ratio == null) {
+          ratio = 0.0;
+        }
+        if(ratio > maxRatio) {
+          maxRatio = ratio;
+        }
+        return ratio;
+      }
 
-          @Override
-          protected Double getFlavour(final ResultSet r) throws SQLException {
-            Double ratio = r.getDouble("ratio");
-            if(ratio == null) {
-              ratio = 0.0;
-            }
-            if(ratio > maxRatio) {
-              maxRatio = ratio;
-            }
-            return ratio;
-          }
+      @Override
+      protected void addFlavour(final GeoMarker m, final Double f) {
+        if(maxRatio > 0) {
+          heatMap = HeatMap.getHeatMap(0, maxRatio);
+          maxRatio = Double.NEGATIVE_INFINITY;
+        }
+        m.setColor(heatMap.getColor(f));
+      }
 
-          @Override
-          protected void addFlavour(final GeoMarker m, final Double f) {
-            if(maxRatio > 0) {
-              heatMap = HeatMap.getHeatMap(0, maxRatio);
-              maxRatio = Double.NEGATIVE_INFINITY;
-            }
-            m.setColor(heatMap.getColor(f));
-          }
-
-        }));
+    });
     setSize(getMinimumSize());
     addGisPanelListeners(gisPanel);
+  }
+
+  private void addQuery(final Query<?> query) {
+    add(new QueryCheckBox(query.getName(), gisPanel, query));
   }
 
   private void addTableSelectionCheckBox(final GisPanel gisPanel, final Table table) {
@@ -127,25 +124,25 @@ public class GisControlPanel extends JPanel {
     gisPanel.addMouseListener(new MouseSelectionListener(gisPanel, this));
   }
 
-  private List<Table> getSelectedTables() {
-    final List<Table> tables = new ArrayList<>();
+  private List<Query<?>> getSelectedQueries() {
+    final List<Query<?>> queries = new ArrayList<>();
     for(final QueryCheckBox box : checkBoxes) {
       if(box.isSelected()) {
-        tables.add(box.getTable());
+        queries.add(box.getQuery());
       }
     }
-    return tables;
+    return queries;
   }
 
   public boolean processSelectionClick(final Point p, final Coordinate c) {
-    final List<Table> tables = getSelectedTables();
+    final List<Query<?>> queries = getSelectedQueries();
     final GisPanel panel = gisPanel;
-    if(tables.isEmpty()) return false;
+    if(queries.isEmpty()) return false;
     final List<ElementId> ids = Database.getInstance().getByCoordinate(
-        c, getSelectedTables(), panel.getMeterPerPixel() * 5);
+        c, queries, panel.getMeterPerPixel() * 5);
     final List<GeoMarker> markers = new ArrayList<>();
     for(final ElementId id : ids) {
-      final GeoMarker m = panel.getGeoMarker(id);
+      final GeoMarker m = id.getMarker();
       if(m != null) {
         markers.add(m);
       }

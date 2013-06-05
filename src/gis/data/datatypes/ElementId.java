@@ -1,5 +1,7 @@
 package gis.data.datatypes;
 
+import gis.data.db.Query;
+
 import java.util.Objects;
 
 /**
@@ -10,29 +12,29 @@ import java.util.Objects;
  * @author Joschi <josua.krause@gmail.com>
  */
 public class ElementId {
-  /** The table. */
-  private final Table table;
+  /** The query. */
+  private final Query<?> query;
   /** The id in the table. */
   private final String id;
 
   /**
    * Creates an element id.
    * 
-   * @param table The table.
+   * @param query The query.
    * @param id The id.
    */
-  public ElementId(final Table table, final String id) {
-    this.table = Objects.requireNonNull(table);
+  public ElementId(final Query<?> query, final String id) {
+    this.query = Objects.requireNonNull(query);
     this.id = Objects.requireNonNull(id);
   }
 
   /**
    * Getter.
    * 
-   * @return The table of the element.
+   * @return The query of the element.
    */
-  public Table getTable() {
-    return table;
+  public Query<?> getQuery() {
+    return query;
   }
 
   /**
@@ -44,12 +46,22 @@ public class ElementId {
     return id;
   }
 
+  /**
+   * Getter.
+   * 
+   * @return Returns the corresponding geo marker if it exist. When the geo
+   *         marker does not exist, <code>null</code> is returned.
+   */
+  public GeoMarker getMarker() {
+    return query.get(this);
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + id.hashCode();
-    result = prime * result + table.hashCode();
+    result = prime * result + query.hashCode();
     return result;
   }
 
@@ -59,13 +71,13 @@ public class ElementId {
     if(!(obj instanceof ElementId)) return false;
     final ElementId other = (ElementId) obj;
     if(!id.equals(other.id)) return false;
-    if(!table.equals(other.table)) return false;
+    if(!query.equals(other.query)) return false;
     return true;
   }
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "[id: " + id + " table: " + table.name + "]";
+    return getClass().getSimpleName() + "[id: " + id + " query: " + query.getName() + "]";
   }
 
 }

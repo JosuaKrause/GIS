@@ -75,15 +75,16 @@ public class Database {
   }
 
   public List<ElementId> getByCoordinate(
-      final Coordinate c, final List<Table> tables, final double maxDistMeters) {
+      final Coordinate c, final List<Query<?>> queries, final double maxDistMeters) {
     final List<ElementId> ids = new ArrayList<>();
-    for(final Table t : tables) {
+    for(final Query<?> q : queries) {
+      final Table t = q.getTable();
       switch(t.geometryType) {
         case POINT:
-          getPointsByCoordinate(c, t, maxDistMeters, ids);
+          getPointsByCoordinate(c, q, maxDistMeters, ids);
           break;
         case POLYGON:
-          getPolygonsByCoordinate(c, t, ids);
+          getPolygonsByCoordinate(c, q, ids);
           break;
         default:
           throw new IllegalStateException();
@@ -92,8 +93,9 @@ public class Database {
     return ids;
   }
 
-  private void getPointsByCoordinate(final Coordinate c, final Table table,
+  private void getPointsByCoordinate(final Coordinate c, final Query<?> q,
       final double maxDistMeters, final List<ElementId> ids) {
+    final Table table = q.getTable();
     final String query = "SELECT " + table.idColumnName + " as gid FROM " + table.name +
         " WHERE ST_DWithin(" + table.geomColumnName + ", ST_SetSRID(ST_Point(" +
         c.getLon() + "," + c.getLat() + "), 4326), " + maxDistMeters + ", true)";
@@ -102,7 +104,7 @@ public class Database {
         ResultSet rs = stmt.executeQuery(query)) {
       while(rs.next()) {
         final String gid = rs.getString("gid");
-        final ElementId id = new ElementId(table, gid);
+        final ElementId id = new ElementId(q, gid);
         ids.add(id);
       }
     } catch(final SQLException e) {
@@ -111,7 +113,8 @@ public class Database {
   }
 
   private void getPolygonsByCoordinate(
-      final Coordinate c, final Table table, final List<ElementId> ids) {
+      final Coordinate c, final Query<?> q, final List<ElementId> ids) {
+    final Table table = q.getTable();
     final String query = "SELECT " + table.idColumnName + " as gid FROM " + table.name +
         " WHERE ST_Contains(" + table.geomColumnName + ", ST_SetSRID(ST_Point(" +
         c.getLon() + ", " + c.getLat() + "), 4326))";
@@ -120,7 +123,7 @@ public class Database {
         ResultSet rs = stmt.executeQuery(query)) {
       while(rs.next()) {
         final String gid = rs.getString("gid");
-        final ElementId id = new ElementId(table, gid);
+        final ElementId id = new ElementId(q, gid);
         ids.add(id);
       }
     } catch(final SQLException e) {
@@ -129,15 +132,17 @@ public class Database {
   }
 
   public double getDistance(final ElementId from, final ElementId to) {
+    final Table f = from.getQuery().getTable();
+    final Table t = to.getQuery().getTable();
     double distance = Double.NaN;
     final String fromId = from.getId();
-    final String fromIdCol = from.getTable().idColumnName;
-    final String fromTable = from.getTable().name;
-    final String fromGeom = from.getTable().geomColumnName;
+    final String fromIdCol = f.idColumnName;
+    final String fromTable = f.name;
+    final String fromGeom = f.geomColumnName;
     final String toId = to.getId();
-    final String toIdCol = to.getTable().idColumnName;
-    final String toTable = to.getTable().name;
-    final String toGeom = to.getTable().geomColumnName;
+    final String toIdCol = t.idColumnName;
+    final String toTable = t.name;
+    final String toGeom = t.geomColumnName;
     final String query = "SELECT ST_DISTANCE( " +
         "f." + fromGeom + ", t." + toGeom + " , true) as distance " +
         "FROM " + fromTable + " as f, " + toTable + " as t " +

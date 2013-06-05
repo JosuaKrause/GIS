@@ -28,6 +28,7 @@ public class Query<T> {
   private final String query;
   /** The table. */
   private final Table table;
+  private final String name;
 
   /**
    * Creates a query.
@@ -39,7 +40,8 @@ public class Query<T> {
    * @param table The table whose elements are returned. (At least for which the
    *          ids count)
    */
-  public Query(final String query, final Table table) {
+  public Query(final String query, final Table table, final String name) {
+    this.name = Objects.requireNonNull(name);
     this.table = Objects.requireNonNull(table);
     this.query = Objects.requireNonNull(query);
   }
@@ -48,6 +50,10 @@ public class Query<T> {
 
   public Table getTable() {
     return table;
+  }
+
+  public String getName() {
+    return name;
   }
 
   /** Whether the content has been already fetched. */
@@ -81,7 +87,7 @@ public class Query<T> {
       for(int i = 0; i < geom.size(); ++i) {
         final String info = infos.get(i);
         final GeoMarker m = GeometryConverter.convert(
-            new ElementId(table, ids.get(i)), geom.get(i),
+            new ElementId(this, ids.get(i)), geom.get(i),
             info == null ? "" + ids.get(i) : info);
         addFlavour(m, flavour.get(i));
         markers.add(m);
@@ -113,6 +119,13 @@ public class Query<T> {
     map.clear();
   }
 
+  /**
+   * Getter.
+   * 
+   * @param id The id.
+   * @return The marker for the given id or <code>null</code> if the id does not
+   *         occur in the result of the query.
+   */
   public GeoMarker get(final ElementId id) {
     return map.get(id);
   }

@@ -1,6 +1,5 @@
 package gis.gui;
 
-import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
 import gis.data.db.Query;
 
@@ -165,14 +164,6 @@ public class GisPanel extends JMapViewer {
       }
 
     });
-  }
-
-  public GeoMarker getGeoMarker(final ElementId id) {
-    for(final Query<?> q : queries) {
-      final GeoMarker m = q.get(id);
-      if(m != null) return m;
-    }
-    throw new IllegalStateException();
   }
 
 }

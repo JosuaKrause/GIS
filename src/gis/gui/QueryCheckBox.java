@@ -18,7 +18,7 @@ public class QueryCheckBox extends JCheckBox {
     final Query<?> q = new Query<Object>(
         "SELECT " + table.idColumnName + ", " + table.geomColumnName + ", "
             + table.infoColumnName + " FROM " + table.name,
-        table) {
+        table, table.name) {
 
       @Override
       protected void addFlavour(final GeoMarker m, final Object f) {
@@ -48,8 +48,8 @@ public class QueryCheckBox extends JCheckBox {
     });
   }
 
-  public Table getTable() {
-    return q.getTable();
+  public Query<?> getQuery() {
+    return q;
   }
 
 }

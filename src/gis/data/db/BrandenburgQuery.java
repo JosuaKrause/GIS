@@ -25,8 +25,8 @@ public class BrandenburgQuery extends Query<Double> {
         " WHERE ST_DISTANCE(b." + bgeom + ", a." + ageom + ", true) <= " + maxDistance;
   }
 
-  public BrandenburgQuery(final double maxMeter) {
-    super(query(maxMeter), Table.FLICKR);
+  public BrandenburgQuery(final double maxMeter, final String name) {
+    super(query(maxMeter), Table.FLICKR, name);
     this.maxMeter = maxMeter;
   }
 
@@ -38,7 +38,7 @@ public class BrandenburgQuery extends Query<Double> {
   @Override
   protected void addFlavour(final GeoMarker m, final Double f) {
     final double r = f / maxMeter * 0.0005 + 0.00005;
-    System.out.println(r);
+    // System.out.println(r);
     m.setRadius(r);
     m.setColor(getTable().color);
   }

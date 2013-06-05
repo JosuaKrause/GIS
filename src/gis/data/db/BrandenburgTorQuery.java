@@ -12,9 +12,9 @@ public class BrandenburgTorQuery extends Query<Object> {
   private static final String geom = Table.BUILDINGS.geomColumnName;
   private static final String name = Table.BUILDINGS.name;
 
-  public BrandenburgTorQuery() {
+  public BrandenburgTorQuery(final String str) {
     super("SELECT " + gid + ", " + info + ", " + geom + " FROM " + name +
-        " WHERE name = 'Brandenburger Tor'", Table.BUILDINGS);
+        " WHERE name = 'Brandenburger Tor'", Table.BUILDINGS, str);
   }
 
   @Override
