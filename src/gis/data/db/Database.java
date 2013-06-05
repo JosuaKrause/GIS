@@ -210,4 +210,22 @@ public class Database {
     return null;
   }
 
+  public String getNineCutDescription(final ElementId id1, final ElementId id2) {
+    // final String query =
+    // "select st_area(st_intersection(a.geom, b.geom), true) from _TABLE_ as a, _TABLE_ as b where a.gid = _GID_ and b.gid = _GID_;";
+    // try (Connection connection = getConnection();
+    // Statement stmt = connection.createStatement();
+    // ResultSet rs = stmt.executeQuery(query)) {
+    //
+    // while(rs.next()) {
+    // final String gid = rs.getString("gid");
+    // final ElementId id = new ElementId(q, gid);
+    // ids.add(id);
+    // }
+    // } catch(final SQLException e) {
+    // e.printStackTrace();
+    // }
+    return "TODO";
+  }
+
 }

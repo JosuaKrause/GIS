@@ -1,5 +1,5 @@
-hostname=134.34.225.25
+hostname=localhost
 port=5432
-dbname=joschi_gis_db
+dbname=gis_db
 user=postgres
-password=admin
+password=BajingoOnFire

@@ -43,7 +43,7 @@ public class Flickr {
     final Flickr flickrParser = new Flickr();
     final FileConfiguration conf = new FileConfiguration(new FileInputStream(new File(
         "config.txt")));
-    flickrParser.connect("jdbc:postgresql:" + conf.getUrl(),
+    flickrParser.connect(conf.getUrl(),
         conf.getUser(), conf.getPassword());
     flickrParser.process("flickr", path, Runtime.getRuntime().availableProcessors(),
         flickrParser.getBrandenburgerTor());

@@ -30,6 +30,10 @@ public class GisControlPanel extends JPanel {
 
   public GisControlPanel(final GisPanel gisPanel) {
     selectionManager = new SelectionManager();
+    final SelectionManagerOverlayComponent smoc = new SelectionManagerOverlayComponent(
+        gisPanel, selectionManager);
+    gisPanel.registerOverlayComponent(smoc);
+    smoc.setVisible(true);
     this.gisPanel = Objects.requireNonNull(gisPanel);
     addQuery(new BrandenburgQuery(1000, "brandenburg"));
     addQuery(new BrandenburgTorQuery("tor"));
