@@ -28,26 +28,43 @@ public class Query<T> {
   private final String query;
   /** The table. */
   private final Table table;
+  /** The name of the query. */
+  private final String name;
 
   /**
    * Creates a query.
    * 
-   * @param query The SQL query. The column named 'gid' of the result must be
-   *          the id of the element in the table given here. The column 'geom'
-   *          must be the geometric reference. The column 'info' gets the row
-   *          information.
+   * @param query The SQL query. The column names used are taken from the
+   *          {@link Table} definition.
    * @param table The table whose elements are returned. (At least for which the
    *          ids count)
+   * @param name The name of the query.
    */
-  public Query(final String query, final Table table) {
+  public Query(final String query, final Table table, final String name) {
+    this.name = Objects.requireNonNull(name);
     this.table = Objects.requireNonNull(table);
     this.query = Objects.requireNonNull(query);
   }
 
+  /** The lookup for ids. */
   private final Map<ElementId, GeoMarker> map = new HashMap<>();
 
+  /**
+   * Getter.
+   * 
+   * @return The table.
+   */
   public Table getTable() {
     return table;
+  }
+
+  /**
+   * Getter.
+   * 
+   * @return The name.
+   */
+  public String getName() {
+    return name;
   }
 
   /** Whether the content has been already fetched. */
@@ -65,15 +82,15 @@ public class Query<T> {
     System.out.println("executing: " + query);
     try (Connection conn = Database.getInstance().getConnection()) {
       final List<PGgeometry> geom = new ArrayList<>();
-      final List<Integer> ids = new ArrayList<>();
+      final List<String> ids = new ArrayList<>();
       final List<String> infos = new ArrayList<>();
       final List<T> flavour = new ArrayList<>();
       final long start = System.currentTimeMillis();
       try (Statement s = conn.createStatement(); ResultSet r = s.executeQuery(query)) {
         while(r.next()) {
-          ids.add(r.getInt("gid"));
-          geom.add((PGgeometry) r.getObject("geom"));
-          infos.add(r.getString("info"));
+          ids.add(r.getString(table.idColumnName));
+          geom.add((PGgeometry) r.getObject(table.geomColumnName));
+          infos.add(r.getString(table.infoColumnName));
           flavour.add(getFlavour(r));
         }
       }
@@ -81,7 +98,7 @@ public class Query<T> {
       for(int i = 0; i < geom.size(); ++i) {
         final String info = infos.get(i);
         final GeoMarker m = GeometryConverter.convert(
-            new ElementId(table, ids.get(i)), geom.get(i),
+            new ElementId(this, ids.get(i)), geom.get(i),
             info == null ? "" + ids.get(i) : info);
         addFlavour(m, flavour.get(i));
         markers.add(m);
@@ -98,11 +115,26 @@ public class Query<T> {
     return markers;
   }
 
+  /**
+   * Retrieves the flavour of the query.
+   * 
+   * @param r The current row.
+   * @return The flavour for the row.
+   * @throws SQLException If an exception occurs.
+   */
+  @SuppressWarnings("unused")
   protected T getFlavour(final ResultSet r) throws SQLException {
     return null;
   }
 
-  protected void addFlavour(final GeoMarker m, final T f) {
+  /**
+   * Adds flavour to the geo marker.
+   * 
+   * @param m The marker.
+   * @param f The flavour.
+   */
+  protected void addFlavour(@SuppressWarnings("unused") final GeoMarker m,
+      @SuppressWarnings("unused") final T f) {
     // nothing here
   }
 
@@ -113,6 +145,13 @@ public class Query<T> {
     map.clear();
   }
 
+  /**
+   * Getter.
+   * 
+   * @param id The id.
+   * @return The marker for the given id or <code>null</code> if the id does not
+   *         occur in the result of the query.
+   */
   public GeoMarker get(final ElementId id) {
     return map.get(id);
   }

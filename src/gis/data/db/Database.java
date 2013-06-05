@@ -75,15 +75,16 @@ public class Database {
   }
 
   public List<ElementId> getByCoordinate(
-      final Coordinate c, final List<Table> tables, final double maxDistMeters) {
+      final Coordinate c, final List<Query<?>> queries, final double maxDistMeters) {
     final List<ElementId> ids = new ArrayList<>();
-    for(final Table t : tables) {
+    for(final Query<?> q : queries) {
+      final Table t = q.getTable();
       switch(t.geometryType) {
         case POINT:
-          getPointsByCoordinate(c, t, maxDistMeters, ids);
+          getPointsByCoordinate(c, q, maxDistMeters, ids);
           break;
         case POLYGON:
-          getPolygonsByCoordinate(c, t, ids);
+          getPolygonsByCoordinate(c, q, ids);
           break;
         default:
           throw new IllegalStateException();
@@ -92,17 +93,18 @@ public class Database {
     return ids;
   }
 
-  private void getPointsByCoordinate(final Coordinate c, final Table table,
+  private void getPointsByCoordinate(final Coordinate c, final Query<?> q,
       final double maxDistMeters, final List<ElementId> ids) {
-    final String query = "SELECT gid FROM " + table.name +
-        " WHERE ST_DWithin(geom, ST_SetSRID(ST_Point(" +
+    final Table table = q.getTable();
+    final String query = "SELECT " + table.idColumnName + " as gid FROM " + table.name +
+        " WHERE ST_DWithin(" + table.geomColumnName + ", ST_SetSRID(ST_Point(" +
         c.getLon() + "," + c.getLat() + "), 4326), " + maxDistMeters + ", true)";
     try (Connection connection = getConnection();
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(query)) {
       while(rs.next()) {
-        final int gid = rs.getInt(1);
-        final ElementId id = new ElementId(table, gid);
+        final String gid = rs.getString("gid");
+        final ElementId id = new ElementId(q, gid);
         ids.add(id);
       }
     } catch(final SQLException e) {
@@ -111,20 +113,50 @@ public class Database {
   }
 
   private void getPolygonsByCoordinate(
-      final Coordinate c, final Table table, final List<ElementId> ids) {
-    final String query = "SELECT gid FROM " + table.name +
-        " WHERE ST_Contains(geom, ST_SetSRID(ST_Point(" +
+      final Coordinate c, final Query<?> q, final List<ElementId> ids) {
+    final Table table = q.getTable();
+    final String query = "SELECT " + table.idColumnName + " as gid FROM " + table.name +
+        " WHERE ST_Contains(" + table.geomColumnName + ", ST_SetSRID(ST_Point(" +
         c.getLon() + ", " + c.getLat() + "), 4326))";
     try (Connection connection = getConnection();
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(query)) {
       while(rs.next()) {
-        final int gid = rs.getInt(1);
-        final ElementId id = new ElementId(table, gid);
+        final String gid = rs.getString("gid");
+        final ElementId id = new ElementId(q, gid);
         ids.add(id);
       }
     } catch(final SQLException e) {
       e.printStackTrace();
     }
   }
+
+  public double getDistance(final ElementId from, final ElementId to) {
+    final Table f = from.getQuery().getTable();
+    final Table t = to.getQuery().getTable();
+    double distance = Double.NaN;
+    final String fromId = from.getId();
+    final String fromIdCol = f.idColumnName;
+    final String fromTable = f.name;
+    final String fromGeom = f.geomColumnName;
+    final String toId = to.getId();
+    final String toIdCol = t.idColumnName;
+    final String toTable = t.name;
+    final String toGeom = t.geomColumnName;
+    final String query = "SELECT ST_DISTANCE( " +
+        "f." + fromGeom + ", t." + toGeom + " , true) as distance " +
+        "FROM " + fromTable + " as f, " + toTable + " as t " +
+        "WHERE f." + fromIdCol + " = " + fromId + " AND t." + toIdCol + " = " + toId;
+    try (Connection connection = getConnection();
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(query)) {
+      if(!rs.next()) throw new IllegalStateException("expected more results");
+      distance = rs.getDouble("distance");
+      if(rs.next()) throw new IllegalStateException("too many result rows");
+    } catch(final SQLException | IllegalStateException e) {
+      e.printStackTrace();
+    }
+    return distance;
+  }
+
 }

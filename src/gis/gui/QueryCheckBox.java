@@ -16,8 +16,9 @@ public class QueryCheckBox extends JCheckBox {
   public static final QueryCheckBox createTableQuery(
       final GisPanel panel, final Table table) {
     final Query<?> q = new Query<Object>(
-        "SELECT gid, geom, " + table.infoColumnName + " as info FROM " + table.name,
-        table) {
+        "SELECT " + table.idColumnName + ", " + table.geomColumnName + ", "
+            + table.infoColumnName + " FROM " + table.name,
+        table, table.name) {
 
       @Override
       protected void addFlavour(final GeoMarker m, final Object f) {
@@ -47,8 +48,8 @@ public class QueryCheckBox extends JCheckBox {
     });
   }
 
-  public Table getTable() {
-    return q.getTable();
+  public Query<?> getQuery() {
+    return q;
   }
 
 }

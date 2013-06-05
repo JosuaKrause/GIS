@@ -11,32 +11,70 @@ import java.util.Map;
  * @author Joschi <josua.krause@gmail.com>
  */
 public enum Table {
-  BERLIN_ADMINISTRATIVE("berlin_administrative", GeometryType.POLYGON, "lor",
-      convert(Color.RED)),
-  BERLIN_HIGHWAY("berlin_highway", GeometryType.LINESTRING, "name", convert(Color.GRAY)),
-  BERLIN_LOCATION("berlin_location", GeometryType.POINT, "name", convert(Color.PINK)),
-  BERLIN_NATURAL("berlin_natural", GeometryType.POLYGON, "name", convert(Color.GREEN)),
-  BERLIN_POI("berlin_poi", GeometryType.POINT, "name", convert(Color.MAGENTA)),
-  BERLIN_WATER("berlin_water", GeometryType.POLYGON, "name", convert(Color.BLUE)),
-  BUILDINGS("buildings", GeometryType.POLYGON, "name", convert(Color.ORANGE)),
-  LANDUSE("landuse", GeometryType.POLYGON, "name", convert(Color.YELLOW)),
+  /** Administrative regions. */
+  BERLIN_ADMINISTRATIVE("berlin_administrative", GeometryType.POLYGON,
+      "lor", convert(Color.RED), "gid", "geom"),
+  // BERLIN_HIGHWAY("berlin_highway", GeometryType.LINESTRING,
+  // "name", convert(Color.GRAY), "gid", "geom"),
+  /** Locations in berlin. */
+  BERLIN_LOCATION("berlin_location", GeometryType.POINT,
+      "name", convert(Color.PINK), "gid", "geom"),
+  /** Natural locations in berlin. */
+  BERLIN_NATURAL("berlin_natural", GeometryType.POLYGON,
+      "name", convert(Color.GREEN), "gid", "geom"),
+  /** Points-of-interest ini berlin. */
+  BERLIN_POI("berlin_poi", GeometryType.POINT,
+      "name", convert(Color.MAGENTA), "gid", "geom"),
+  /** Water in berlin. */
+  BERLIN_WATER("berlin_water", GeometryType.POLYGON,
+      "name", convert(Color.BLUE), "gid", "geom"),
+  /** Buildings. */
+  BUILDINGS("buildings", GeometryType.POLYGON,
+      "name", convert(Color.ORANGE), "gid", "geom"),
+  /** Land use. */
+  LANDUSE("landuse", GeometryType.POLYGON,
+      "name", convert(Color.YELLOW), "gid", "geom"),
+  /** Flickr data. */
+  FLICKR("flickr", GeometryType.POINT,
+      "phototitle", convert(Color.ORANGE), "photoid", "poly_geom"),
 
   ; // EOD
-
+  /** The table name. */
   public final String name;
+  /** The geometry type. */
   public final GeometryType geometryType;
+  /** The column for the info. */
   public final String infoColumnName;
+  /** The default color. */
   public final Color color;
+  /** The id column. */
+  public final String idColumnName;
+  /** The geom column. */
+  public final String geomColumnName;
 
+  /**
+   * Creates a table.
+   * 
+   * @param name The name of the table.
+   * @param geometryType The geometry type.
+   * @param infoColumnName The info col.
+   * @param color The default color.
+   * @param id The id col.
+   * @param geom The geom col.
+   */
   private Table(final String name, final GeometryType geometryType,
-      final String infoColumnName, final Color color) {
+      final String infoColumnName, final Color color, final String id, final String geom) {
     this.name = name;
     this.geometryType = geometryType;
     this.infoColumnName = infoColumnName;
     this.color = color;
+    idColumnName = id;
+    geomColumnName = geom;
   }
 
-  private static final Map<Table, Integer> mapping = new HashMap<Table, Integer>();
+  /** The reverse lookup. */
+  private static final Map<Table, Integer> mapping = new HashMap<>();
+
   static {
     final Table[] values = values();
     for(int i = 0; i < values.length; ++i) {
@@ -54,6 +92,12 @@ public enum Table {
     return mapping.get(table);
   }
 
+  /**
+   * Converts the base color into a more friendly color.
+   * 
+   * @param base The base color.
+   * @return The color.
+   */
   private static Color convert(final Color base) {
     final float[] hsb = Color.RGBtoHSB(
         base.getRed(), base.getGreen(), base.getBlue(), null);

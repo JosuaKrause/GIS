@@ -1,6 +1,7 @@
 package gis.gui;
 
 import gis.data.datatypes.GeoMarker;
+import gis.data.db.Database;
 
 public class SelectionManager {
 
@@ -61,6 +62,11 @@ public class SelectionManager {
     selection[numSelected] = m;
     ++numSelected;
     System.out.println("select " + m.getId());
+    if(numSelected == 2) {
+      final double d = Database.getInstance().getDistance(
+          selection[0].getId(), selection[1].getId());
+      InfoFrame.getInstance().addText("Distance: " + d);
+    }
   }
 
   public synchronized GeoMarker[] getSelection() {
