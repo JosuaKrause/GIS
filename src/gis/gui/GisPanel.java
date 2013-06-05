@@ -19,9 +19,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
@@ -50,7 +48,7 @@ public class GisPanel extends JMapViewer {
 
   private Image curHover;
 
-  private final Set<Query<?>> queries = new HashSet<>();
+  private final List<Query<?>> queries = new ArrayList<>();
   private Point centerPosition;
   private int zoomValue;
 
