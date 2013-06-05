@@ -13,7 +13,7 @@ public class FlickrChloroplethQueryCheckbox extends QueryCheckBox {
 
   public FlickrChloroplethQueryCheckbox(final GisPanel gisPanel) {
     super(Objects.requireNonNull(gisPanel), new FlickrChloroplethQuery(
-        "Flickr per Administrative"));
+        "Flickr Ratio"));
     for(final ActionListener al : getActionListeners()) {
       removeActionListener(al);
     }

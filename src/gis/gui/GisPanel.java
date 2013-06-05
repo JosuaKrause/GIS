@@ -33,7 +33,6 @@ public class GisPanel extends JMapViewer {
 
   public GisPanel() {
     setFocusable(true);
-    grabFocus();
     updateImage();
     addComponentListener(new ComponentAdapter() {
 

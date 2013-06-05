@@ -103,11 +103,7 @@ public class Query<T> {
         addFlavour(m, flavour.get(i));
         markers.add(m);
         map.put(m.getId(), m);
-        if(i % 100 == 0) {
-          System.out.println("fetching: " + ((i + 1.0) / geom.size() * 100.0) + "%");
-        }
       }
-      System.out.println("fetching: 100%");
       hasContent = true;
     } catch(final SQLException e) {
       throw new IllegalStateException(e);
