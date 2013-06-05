@@ -13,29 +13,29 @@ import java.util.Map;
 public enum Table {
   /** Administrative regions. */
   BERLIN_ADMINISTRATIVE("berlin_administrative", GeometryType.POLYGON,
-      "lor", convert(Color.RED), "gid", "geom"),
+      "lor", new Color(228, 26, 28), "gid", "geom"),
   /** Locations in berlin. */
   BERLIN_LOCATION("berlin_location", GeometryType.POINT,
-      "name", convert(Color.PINK), "gid", "geom"),
+      "name", new Color(247, 129, 191), "gid", "geom"),
   /** Natural locations in berlin. */
   BERLIN_NATURAL("berlin_natural", GeometryType.POLYGON,
-      "name", convert(Color.GREEN), "gid", "geom"),
+      "name", new Color(77, 175, 74), "gid", "geom"),
   /** Points-of-interest ini berlin. */
   BERLIN_POI("berlin_poi", GeometryType.POINT,
-      "name", convert(Color.MAGENTA), "gid", "geom"),
+      "name", new Color(166, 86, 40), "gid", "geom"),
   /** Water in berlin. */
   BERLIN_WATER("berlin_water", GeometryType.POLYGON,
-      "name", convert(Color.BLUE), "gid", "geom"),
+      "name", new Color(55, 126, 184), "gid", "geom"),
   /** Buildings. */
   BUILDINGS("buildings", GeometryType.POLYGON,
-      "name", convert(Color.ORANGE), "gid", "geom"),
+      "name", new Color(152, 78, 163), "gid", "geom"),
   /** Land use. */
   LANDUSE("landuse", GeometryType.POLYGON,
-      "name", convert(Color.YELLOW), "gid", "geom"),
+      "name", new Color(77, 175, 74), "gid", "geom"),
   /** Flickr data. */
   FLICKR("flickr", GeometryType.POINT,
-      "phototitle", convert(Color.ORANGE), "photoid", "poly_geom"),
-  PARK("park", GeometryType.POLYGON, "name", convert(new Color(12, 203, 2)), "gid",
+      "phototitle", new Color(255, 255, 51), "photoid", "poly_geom"),
+  PARK("park", GeometryType.POLYGON, "name", new Color(12, 203, 2), "gid",
       "geom"),
 
   ; // EOD
@@ -90,18 +90,6 @@ public enum Table {
    */
   public static int indexOf(final Table table) {
     return mapping.get(table);
-  }
-
-  /**
-   * Converts the base color into a more friendly color.
-   * 
-   * @param base The base color.
-   * @return The color.
-   */
-  public static Color convert(final Color base) {
-    final float[] hsb = Color.RGBtoHSB(
-        base.getRed(), base.getGreen(), base.getBlue(), null);
-    return Color.getHSBColor(hsb[0], hsb[1] * .8f, hsb[2] * .8f);
   }
 
 }

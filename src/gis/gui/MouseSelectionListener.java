@@ -40,15 +40,22 @@ public class MouseSelectionListener extends MouseAdapter {
 
   @Override
   public void mouseMoved(final MouseEvent e) {
-    if(!e.isShiftDown()) return;
     final Point2D pos = e.getPoint();
     final GisPanel gisPanel = this.gisPanel;
+    final List<GeoMarker> picks = new ArrayList<>();
+    gisPanel.pick(pos, picks);
+    for(final GeoMarker m : picks) {
+      if(m.getId().getQuery().getTable() != Table.FLICKR) {
+        gisPanel.setToolTipText(m.getInfo());
+        gisPanel.repaint();
+        return;
+      }
+    }
+    if(!e.isShiftDown()) return;
     final Thread s = new Thread() {
 
       @Override
       public void run() {
-        final List<GeoMarker> picks = new ArrayList<>();
-        gisPanel.pick(pos, picks);
         for(final GeoMarker m : picks) {
           if(cur != this || isInterrupted()) return;
           if(m.getId().getQuery().getTable() != Table.FLICKR) {

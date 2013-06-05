@@ -39,6 +39,7 @@ public class GisPanel extends JMapViewer {
 
       @Override
       public void componentResized(final ComponentEvent e) {
+        alignOverlayComponents();
         updateImage();
       }
 
@@ -266,7 +267,7 @@ public class GisPanel extends JMapViewer {
       final int y = height - insets.bottom - dim.height
           - AbstractOverlayComponent.PADDING;
       if(c.getHorizontalAlignmentWeight() < 0) {
-        x = insets.left + AbstractOverlayComponent.PADDING;
+        x = insets.left + 2 * AbstractOverlayComponent.PADDING;
       } else {
         x = width - insets.right - dim.width - 1 - AbstractOverlayComponent.PADDING;
       }

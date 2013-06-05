@@ -1,46 +1,45 @@
 package gis.gui;
 
-import gis.data.NineCut;
-import gis.data.datatypes.GeoMarker;
-import gis.data.db.Database;
 import gis.gui.overlay.AbstractOverlayComponent;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.util.Formatter;
-import java.util.Locale;
+import java.awt.geom.Rectangle2D;
+import java.util.Objects;
 
 public class SelectionManagerOverlayComponent extends AbstractOverlayComponent {
 
   protected static final int WIDTH = 200;
-  protected static final int HEIGHT = 0;
+  protected static final int HEIGHT = 20;
 
-  private final SelectionManager selectionManager;
-  private final Database db = Database.getInstance();
-
-  public SelectionManagerOverlayComponent(final GisPanel gisPanel,
-      final SelectionManager selectionManager) {
+  public SelectionManagerOverlayComponent(final GisPanel gisPanel) {
     super(gisPanel, new Dimension(WIDTH, HEIGHT), Integer.MIN_VALUE);
-    this.selectionManager = selectionManager;
+  }
+
+  private String text = "";
+
+  public void setText(final String text) {
+    this.text = Objects.requireNonNull(text);
+    gisPanel.repaint();
   }
 
   @Override
   public void paint(final Graphics2D g) {
-    final GeoMarker[] selected = selectionManager.getSelection();
-    if(selected.length == 0) return;
-    final StringBuilder sb = new StringBuilder();
-    if(selected.length == 1) {
-      sb.append(selected[0].getInfo());
-    } else {
-      final NineCut nc = db.getNineCutDescription(selected[0].getId(),
-          selected[1].getId());
-      final Formatter formatter = new Formatter(sb, Locale.US);
-      formatter.format(nc.getFormat(), selected[0].getInfo(),
-          selected[1].getInfo());
-      formatter.close();
-    }
-    g.setColor(Color.BLACK);
-    g.drawString(sb.toString(), position.x, position.y);
+    if(text.isEmpty()) return;
+    final Graphics2D g2 = (Graphics2D) g.create();
+    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .4f));
+    g2.setColor(Color.BLACK);
+    final FontMetrics fm = g2.getFontMetrics();
+    final int w = fm.stringWidth(text);
+    final int h = fm.getHeight();
+    final double border = 5;
+    g2.fill(new Rectangle2D.Double(position.x - border, position.y - border,
+        w + 2 * border, h + 2 * border));
+    g2.dispose();
+    GisPanel.drawText(g, text, position.x, (float) (position.y + h - border * .5f));
   }
+
 }

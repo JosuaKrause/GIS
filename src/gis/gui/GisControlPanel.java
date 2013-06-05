@@ -29,8 +29,9 @@ public class GisControlPanel extends JPanel {
 
   public GisControlPanel(final GisFrame gisFrame, final GisPanel gisPanel) {
     selectionManager = new SelectionManager();
-    final SelectionManagerOverlayComponent smoc = new SelectionManagerOverlayComponent(
-        gisPanel, selectionManager);
+    final SelectionManagerOverlayComponent smoc =
+        new SelectionManagerOverlayComponent(gisPanel);
+    selectionManager.setSelector(smoc);
     gisPanel.registerOverlayComponent(smoc);
     smoc.setVisible(true);
     this.gisPanel = Objects.requireNonNull(gisPanel);
@@ -53,7 +54,7 @@ public class GisControlPanel extends JPanel {
 
       @Override
       protected void addFlavour(final GeoMarker m, final Double f) {
-        m.setColor(Table.convert(Color.RED));
+        m.setColor(new Color(228, 26, 28));
       }
 
     });
@@ -65,17 +66,22 @@ public class GisControlPanel extends JPanel {
 
       @Override
       protected void addFlavour(final GeoMarker m, final Object o) {
-        m.setColor(Table.convert(Color.CYAN));
+        m.setColor(new Color(55, 126, 184));
       }
 
     });
     add(new CommercialRatioQueryCheckbox(gisPanel));
     add(new ParksNearWaterQueryCheckBox(gisPanel));
-    // for(final Table t : Table.values()) {
-    // addTableSelectionCheckBox(gisPanel, t);
-    // }
+    addTableSelectionCheckBox(gisPanel, Table.BERLIN_POI, "Points of Interest");
+    addTableSelectionCheckBox(gisPanel, Table.BUILDINGS, "Buildings");
+    addTableSelectionCheckBox(gisPanel, Table.FLICKR, "All Flickr Photos");
     setSize(getMinimumSize());
     addForeignListeners(gisFrame, gisPanel);
+  }
+
+  private void addTableSelectionCheckBox(final GisPanel gisPanel, final Table table,
+      final String name) {
+    add(QueryCheckBox.createTableQuery(gisPanel, table, name));
   }
 
   private void addQuery(final Query<?> query) {

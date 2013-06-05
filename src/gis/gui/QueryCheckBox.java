@@ -14,11 +14,11 @@ public class QueryCheckBox extends JCheckBox {
   private final Query<?> q;
 
   public static final QueryCheckBox createTableQuery(
-      final GisPanel panel, final Table table) {
+      final GisPanel panel, final Table table, final String name) {
     final Query<?> q = new Query<Object>(
         "SELECT " + table.idColumnName + ", " + table.geomColumnName + ", "
             + table.infoColumnName + " FROM " + table.name,
-        table, table.name) {
+        table, name) {
 
       @Override
       protected void addFlavour(final GeoMarker m, final Object f) {
