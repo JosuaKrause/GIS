@@ -72,11 +72,16 @@ public class GisControlPanel extends JPanel {
     });
     add(new CommercialRatioQueryCheckbox(gisPanel));
     add(new ParksNearWaterQueryCheckBox(gisPanel));
-    // for(final Table t : Table.values()) {
-    // addTableSelectionCheckBox(gisPanel, t);
-    // }
+    addTableSelectionCheckBox(gisPanel, Table.BERLIN_POI, "Points of Interest");
+    addTableSelectionCheckBox(gisPanel, Table.BUILDINGS, "Buildings");
+    addTableSelectionCheckBox(gisPanel, Table.FLICKR, "All Flickr Photos");
     setSize(getMinimumSize());
     addGisPanelListeners(gisPanel);
+  }
+
+  private void addTableSelectionCheckBox(final GisPanel gisPanel, final Table table,
+      final String name) {
+    add(QueryCheckBox.createTableQuery(gisPanel, table, name));
   }
 
   private void addQuery(final Query<?> query) {

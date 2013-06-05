@@ -53,10 +53,10 @@ public class GeoMarkerPoint extends GeoMarker {
 
   @Override
   public void paint(final Graphics2D g, final GisPanel panel, final boolean simple) {
-    // if(simple) {
-    // paintSimple(g, panel);
-    // return;
-    // }
+    if(simple) {
+      paintSimple(g, panel);
+      return;
+    }
     final Graphics2D g2 = (Graphics2D) g.create();
     g2.setComposite(getComposite());
     g2.setColor(getColor());
