@@ -39,7 +39,8 @@ public class SelectionManagerOverlayComponent extends AbstractOverlayComponent {
     g2.fill(new Rectangle2D.Double(position.x - border, position.y - border,
         w + 2 * border, h + 2 * border));
     g2.dispose();
-    GisPanel.drawText(g, text, position.x, (float) (position.y + h - border * .5f));
+    g.setColor(Color.WHITE);
+    g.drawString(text, position.x, (float) (position.y + h - border * .5f));
   }
 
 }

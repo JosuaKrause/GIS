@@ -97,4 +97,9 @@ public class GeoMarkerPoint extends GeoMarker {
     computeLatLonBBox();
   }
 
+  @Override
+  public boolean isPoint() {
+    return true;
+  }
+
 }

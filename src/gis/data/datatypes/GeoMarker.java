@@ -165,6 +165,8 @@ public abstract class GeoMarker {
     throw new UnsupportedOperationException();
   }
 
+  public abstract boolean isPoint();
+
   /**
    * Setter.
    * 
