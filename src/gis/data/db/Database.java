@@ -216,19 +216,25 @@ public class Database {
   }
 
   public NineCut getNineCutDescription(final ElementId id1, final ElementId id2) {
+    final Table a = id1.getQuery().getTable();
+    final String ag = a.geomColumnName;
+    final String ai = a.idColumnName;
+    final Table b = id2.getQuery().getTable();
+    final String bg = b.geomColumnName;
+    final String bi = b.idColumnName;
     NineCut nc = null;
     final String query = "select " +
-        "st_disjoint(a.geom, b.geom) as disjoint, " +
-        "st_overlaps(a.geom, b.geom) as overlaps, " +
-        "st_contains(a.geom, b.geom) as contains, " +
-        "st_within(a.geom, b.geom) as inside, " +
-        "st_touches(a.geom, b.geom) as meet, " +
-        "st_covers(a.geom, b.geom) as covers, " +
-        "st_covers(b.geom, a.geom) as covered_by, " +
-        "st_equals(a.geom, b.geom) as equal " +
-        "from " + id1.getQuery().getTable().name + " as a, " +
-        id2.getQuery().getTable().name + " as b where a.gid = " +
-        id1.getId() + " and b.gid = " + id2.getId();
+        "st_disjoint(a." + ag + ", b." + bg + ") as disjoint, " +
+        "st_overlaps(a." + ag + ", b." + bg + ") as overlaps, " +
+        "st_contains(a." + ag + ", b." + bg + ") as contains, " +
+        "st_within(a." + ag + ", b." + bg + ") as inside, " +
+        "st_touches(a." + ag + ", b." + bg + ") as meet, " +
+        "st_covers(a." + ag + ", b." + bg + ") as covers, " +
+        "st_covers(b." + bg + ", a." + ag + ") as covered_by, " +
+        "st_equals(a." + ag + ", b." + bg + ") as equal " +
+        "from " + a.name + " as a, " +
+        b.name + " as b where a." + ai + " = " +
+        id1.getId() + " and b." + bi + " = " + id2.getId();
     try (Connection connection = getConnection();
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(query)) {
@@ -238,10 +244,10 @@ public class Database {
             rs.getBoolean("contains"),
             rs.getBoolean("equal"), rs.getBoolean("covered_by"), rs.getBoolean("inside"));
       }
-
     } catch(final SQLException e) {
       e.printStackTrace();
     }
     return nc;
   }
+
 }

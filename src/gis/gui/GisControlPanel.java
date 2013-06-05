@@ -29,8 +29,9 @@ public class GisControlPanel extends JPanel {
 
   public GisControlPanel(final GisPanel gisPanel) {
     selectionManager = new SelectionManager();
-    final SelectionManagerOverlayComponent smoc = new SelectionManagerOverlayComponent(
-        gisPanel, selectionManager);
+    final SelectionManagerOverlayComponent smoc =
+        new SelectionManagerOverlayComponent(gisPanel);
+    selectionManager.setSelector(smoc);
     gisPanel.registerOverlayComponent(smoc);
     smoc.setVisible(true);
     this.gisPanel = Objects.requireNonNull(gisPanel);

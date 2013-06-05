@@ -1,7 +1,11 @@
 package gis.gui;
 
+import gis.data.NineCut;
 import gis.data.datatypes.GeoMarker;
 import gis.data.db.Database;
+
+import java.util.Formatter;
+import java.util.Locale;
 
 public class SelectionManager {
 
@@ -51,24 +55,43 @@ public class SelectionManager {
 
   private void deselect(final int index) {
     selection[index].setSelected(false);
-    final GeoMarker m = selection[index];
     if(index == 0 && numSelected == 2) {
       selection[0] = selection[1];
     }
     --numSelected;
-    System.out.println("deselect " + m.getId());
+    onSelection();
   }
 
   private void select(final GeoMarker m) {
     m.setSelected(true);
     selection[numSelected] = m;
     ++numSelected;
-    System.out.println("select " + m.getId());
-    if(numSelected == 2) {
-      final double d = Database.getInstance().getDistance(
+    onSelection();
+  }
+
+  private SelectionManagerOverlayComponent sel;
+
+  public void setSelector(final SelectionManagerOverlayComponent sel) {
+    this.sel = sel;
+  }
+
+  private void onSelection() {
+    if(sel == null) return;
+    final Database db = Database.getInstance();
+    final StringBuilder sb = new StringBuilder();
+    if(numSelected == 1) {
+      sb.append(selection[0].getInfo());
+    } else if(numSelected == 2) {
+      final double d = db.getDistance(selection[0].getId(), selection[1].getId());
+      sb.append(String.format("Distance: %.5fm - ", d));
+      final NineCut nc = db.getNineCutDescription(
           selection[0].getId(), selection[1].getId());
-      InfoFrame.getInstance().addText("Distance: " + d);
+      final Formatter formatter = new Formatter(sb, Locale.US);
+      formatter.format(nc.getFormat(),
+          selection[0].getInfo(), selection[1].getInfo());
+      formatter.close();
     }
+    sel.setText(sb.toString());
   }
 
   public synchronized GeoMarker[] getSelection() {
