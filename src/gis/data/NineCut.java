@@ -94,4 +94,5 @@ public enum NineCut {
   public static final Dimension getDimension() {
     return DIMENSION;
   }
+
 }

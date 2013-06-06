@@ -15,6 +15,6 @@ public interface IColorMapping {
    * @param value the input value
    * @return mapped color
    */
-  public Color getColor(double value);
+  Color getColor(double value);
 
 }
