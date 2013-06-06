@@ -5,10 +5,14 @@ import gis.data.datatypes.Table;
 import gis.data.db.Query;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ParksNearWaterQueryCheckBox extends QueryCheckBox {
+
+  private static final double DEFAULT_DISTANCE_THRESHOLD_IN_METERS = 50;
 
   // -- Table: park
   //
@@ -64,7 +68,8 @@ public class ParksNearWaterQueryCheckBox extends QueryCheckBox {
 
           @Override
           protected void addFlavour(final GeoMarker m, final Double waterDist) {
-            if(waterDist < 50) {
+            final double threshold = GisFrame.getInstance().getGisPanel().getThresholdDistanceInMeters();
+            if(waterDist < threshold) {
               m.setColor(new Color(90, 180, 172));
             } else {
               m.setColor(new Color(216, 179, 101));
@@ -77,6 +82,18 @@ public class ParksNearWaterQueryCheckBox extends QueryCheckBox {
           }
 
         });
+    addActionListener(new ActionListener() {
+
+      @Override
+      public void actionPerformed(final ActionEvent arg0) {
+        if(isSelected()) {
+          GisFrame.getInstance().getGisPanel().openDistanceThresholdSelector(
+              getQuery(), DEFAULT_DISTANCE_THRESHOLD_IN_METERS);
+        } else {
+          GisFrame.getInstance().getGisPanel().closeDistanceThresholdSelector();
+        }
+      }
+    });
   }
 
 }
