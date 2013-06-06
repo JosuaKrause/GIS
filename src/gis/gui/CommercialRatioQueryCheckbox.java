@@ -107,7 +107,7 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
       }
       m.setColor(colorMap.getColor(f));
       m.setAlphaSelected(0.6f);
-      m.setAlphaNotSelected(0.9f);
+      m.setAlphaNotSelected(0.8f);
       m.setOutlineColor(Color.BLACK);
     }
 

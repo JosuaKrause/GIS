@@ -71,7 +71,7 @@ public class FlickrChloroplethQuery extends Query<Double> {
     }
     m.setColor(colorCode.getColor(f));
     m.setAlphaSelected(0.6f);
-    m.setAlphaNotSelected(.9f);
+    m.setAlphaNotSelected(.8f);
     m.setOutlineColor(Color.BLACK);
   }
 
