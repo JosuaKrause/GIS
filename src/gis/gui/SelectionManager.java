@@ -82,6 +82,7 @@ public class SelectionManager {
     final Database db = Database.getInstance();
     final StringBuilder sb = new StringBuilder();
     NineCut nc = null;
+    sel.setNineCut(nc);
     if(numSelected == 1) {
       sb.append(selection[0].getInfo());
     } else if(numSelected == 2) {
@@ -98,8 +99,7 @@ public class SelectionManager {
           formatter.format(nc.getFormat(),
               selection[0].getInfo(), selection[1].getInfo());
           formatter.close();
-          // sb.append("\" Nine-Cut-Matrix: ");
-          // sb.append(nc.getMatrix());
+          sel.setNineCut(nc);
         } else {
           formatter.format(nc.getPointPolyFormat(),
               selection[0].getInfo(), selection[1].getInfo());
@@ -109,7 +109,6 @@ public class SelectionManager {
       }
     }
     sel.setText(sb.toString());
-    sel.setNineCut(nc);
   }
 
   public synchronized GeoMarker[] getSelection() {
