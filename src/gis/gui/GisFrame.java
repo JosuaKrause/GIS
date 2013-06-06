@@ -26,11 +26,13 @@ public class GisFrame extends JFrame {
     return INSTANCE;
   }
 
+  private final GisPanel gisPanel;
+
   /** Creates the GIS frame. */
   private GisFrame() {
     // initialize
     super("GIS Viewer");
-    final GisPanel gisPanel = new GisPanel();
+    gisPanel = new GisPanel();
     final GisControlPanel gisControlPanel = new GisControlPanel(gisPanel);
 
     // set layout
@@ -67,4 +69,7 @@ public class GisFrame extends JFrame {
     super.dispose();
   }
 
+  public GisPanel getGisPanel() {
+    return gisPanel;
+  }
 }

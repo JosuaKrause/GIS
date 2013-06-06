@@ -3,6 +3,7 @@ package gis.gui;
 import gis.data.datatypes.GeoMarker;
 import gis.data.db.Query;
 import gis.gui.overlay.AbstractOverlayComponent;
+import gis.gui.overlay.DistanceThresholdSelector;
 import gis.gui.overlay.IOverlayComponent;
 
 import java.awt.Color;
@@ -30,6 +31,7 @@ public class GisPanel extends JMapViewer {
   private BufferedImage image;
 
   private final List<IOverlayComponent> overlayComponents = new ArrayList<>();
+  private DistanceThresholdSelector distanceThresholdSelector;
 
   public GisPanel() {
     setFocusable(true);
@@ -188,6 +190,10 @@ public class GisPanel extends JMapViewer {
         c.paint(g2);
       }
     }
+    // draw distance selector for "parks near water" task
+    if(distanceThresholdSelector != null) {
+      distanceThresholdSelector.paint(g2, getWidth() - 5, 5);
+    }
   }
 
   public static final void drawText(final Graphics2D g,
@@ -274,4 +280,23 @@ public class GisPanel extends JMapViewer {
     }
   }
 
+  public void openDistanceThresholdSelector(final Query<?> query,
+      final double distanceInMeters) {
+    if(distanceThresholdSelector == null) {
+      distanceThresholdSelector = new DistanceThresholdSelector(query, distanceInMeters);
+      add(distanceThresholdSelector);
+    }
+  }
+
+  public void closeDistanceThresholdSelector() {
+    if(distanceThresholdSelector != null) {
+      remove(distanceThresholdSelector);
+      distanceThresholdSelector = null;
+    }
+  }
+
+  public double getThresholdDistanceInMeters() {
+    if(distanceThresholdSelector != null) return distanceThresholdSelector.getDistanceInMeters();
+    return -1;
+  }
 }
