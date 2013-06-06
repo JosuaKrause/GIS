@@ -38,8 +38,9 @@ public class Flickr {
     System.exit(0);// TODO
     final String path = new String("flickrData.csv");
     final Flickr flickrParser = new Flickr();
-    final FileConfiguration conf = new FileConfiguration(new FileInputStream(new File(
-        "config.txt")));
+    final FileInputStream in = new FileInputStream(new File("config.txt"));
+    final FileConfiguration conf = new FileConfiguration(in);
+    in.close();
     flickrParser.connect(conf.getUrl(),
         conf.getUser(), conf.getPassword());
     flickrParser.process("flickr", path, Runtime.getRuntime().availableProcessors(),

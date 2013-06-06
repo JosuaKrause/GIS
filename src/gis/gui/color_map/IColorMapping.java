@@ -2,6 +2,11 @@ package gis.gui.color_map;
 
 import java.awt.Color;
 
+/**
+ * A color mapping.
+ * 
+ * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
+ */
 public interface IColorMapping {
 
   /**
