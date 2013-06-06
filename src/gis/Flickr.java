@@ -55,8 +55,14 @@ public class Flickr {
           .executeQuery("select geom from buildings where name = 'Brandenburger Tor'");
       while(r.next()) {
         final PGgeometry geom = (PGgeometry) r.getObject("geom");
-        if(geom != null) return geom;
+        if(geom != null) {
+          r.close();
+          stat.close();
+          return geom;
+        }
       }
+      r.close();
+      stat.close();
     } catch(final SQLException e) {
       System.err.print("error occurred: " + e.getMessage() + " \n");
     }
@@ -92,21 +98,21 @@ public class Flickr {
     try {
       System.out.print("reading file.. ");
       m_stringQueue = new LinkedList<>();
-      {
-        final CSVReader reader = new CSVReader(
-            new FileReader(filename), ';');
+      try (CSVReader reader = new CSVReader(
+          new FileReader(filename), ';')) {
         String[] nextLine;
         while((nextLine = reader.readNext()) != null) {
           m_stringQueue.add(nextLine);
         }
+        reader.close();
       }
-      {
-        final CSVReader reader = new CSVReader(
-            new FileReader(filename), ',');
+      try (CSVReader reader = new CSVReader(
+          new FileReader(filename), ',')) {
         String[] nextLine;
         while((nextLine = reader.readNext()) != null) {
           m_stringQueue.add(nextLine);
         }
+        reader.close();
       }
       System.out.print("done\n");
     } catch(final IOException e) {// Catch exception if any
@@ -160,15 +166,14 @@ public class Flickr {
       stat.execute("SELECT AddGeometryColumn('','" + tablename
           + "','poly_geom','-1','POINT',2);");
       System.out.print("done\n");
+      stat.close();
     } catch(final SQLException e) {
       System.err.print("error occurred: " + e.getMessage() + " \n");
       return;
     }
 
     System.out.print("starting parser.. ");
-    final CSVWriter writer;
-    try {
-      writer = new CSVWriter(new FileWriter("error.csv"), ';');
+    try (CSVWriter writer = new CSVWriter(new FileWriter("error.csv"), ';')) {
       m_threadPool = Executors.newFixedThreadPool(numThreads);
       m_processedQueue = new LinkedList<>();
       while(!m_stringQueue.isEmpty()) {
@@ -180,7 +185,6 @@ public class Flickr {
       }
 
       System.out.print("done\n");
-
     } catch(final IOException e) {
       System.err.print("error occurred: " + e.getMessage() + " \n");
       return;
@@ -203,7 +207,6 @@ public class Flickr {
       System.out.println("Average time: " + sum / num + " ms");
       System.out.println("Min time: " + min + " ms");
       System.out.println("Max time: " + max + " ms");
-      writer.close();
     } catch(final Exception e) {
       System.err.println("error occurred: " + e.getMessage() + " \n");
     } finally {
@@ -239,7 +242,7 @@ public class Flickr {
     public Long call() {
       final long start = System.nanoTime();
 
-      try {
+      try (Statement stat = con.createStatement()) {
         if(str.length == 33 && exists(str[3])) {
           final String imagepath = getImageUrl(str[3]).replace(
               "_m.jpg", "_c.jpg");
@@ -250,7 +253,6 @@ public class Flickr {
           }
           str[19] = str[19].replace(",", ".");
           str[20] = str[20].replace(",", ".");
-          final Statement stat = con.createStatement();
           String query = "INSERT INTO " + tablename + " VALUES (";
           for(int i = 1; i < str.length; ++i) {
             query += "'" + str[i] + "', ";
