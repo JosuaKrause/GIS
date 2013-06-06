@@ -10,6 +10,45 @@ import java.sql.SQLException;
 
 public class ParksNearWaterQueryCheckBox extends QueryCheckBox {
 
+  // -- Table: park
+  //
+  // -- DROP TABLE park;
+  //
+  // CREATE TABLE park
+  // (
+  // gid serial NOT NULL,
+  // name character varying(48),
+  // geom geometry(Point),
+  // CONSTRAINT parks_pkey PRIMARY KEY (gid)
+  // )
+  // WITH (
+  // OIDS=FALSE
+  // );
+  // ALTER TABLE park
+  // OWNER TO postgres;
+  //
+  // -- Index: park_geom_gist
+  //
+  // -- DROP INDEX park_geom_gist;
+  //
+  // CREATE INDEX park_geom_gist
+  // ON park
+  // USING gist
+  // (geom);
+
+  // insert into park (name, water_dist, geom)
+  // select p.name as name, min(st_distance(w.geom, p.geom, true)) as
+  // water_dist, p.geom as geom
+  // from berlin_water as w, (
+  // select * from berlin_poi
+  // where category = 'Leisure'
+  // and (((name like 'Park%' or name like '%park%') and not name like
+  // 'Parking%') or name like '%arten%')
+  // and not name like '%layground%' and not name like 'Theme park%' and not
+  // name like 'Theater%' and not name = 'Common:Gartenamt'
+  // ) as p
+  // group by p.gid, p.name, p.geom;
+
   public ParksNearWaterQueryCheckBox(final GisPanel gisPanel) {
     super(
         gisPanel,

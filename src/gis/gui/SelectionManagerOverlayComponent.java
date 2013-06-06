@@ -1,5 +1,6 @@
 package gis.gui;
 
+import gis.data.NineCut;
 import gis.gui.overlay.AbstractOverlayComponent;
 
 import java.awt.AlphaComposite;
@@ -20,10 +21,15 @@ public class SelectionManagerOverlayComponent extends AbstractOverlayComponent {
   }
 
   private String text = "";
+  private NineCut nineCut = null;
 
   public void setText(final String text) {
     this.text = Objects.requireNonNull(text);
     gisPanel.repaint();
+  }
+
+  public void setNineCut(final NineCut nineCut) {
+    this.nineCut = nineCut;
   }
 
   @Override
@@ -33,14 +39,23 @@ public class SelectionManagerOverlayComponent extends AbstractOverlayComponent {
     g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .4f));
     g2.setColor(Color.BLACK);
     final FontMetrics fm = g2.getFontMetrics();
-    final int w = fm.stringWidth(text);
+    final int stringWidth = fm.stringWidth(text);
+    int w = stringWidth;
     final int h = fm.getHeight();
-    final double border = 5;
+    final double border = 6;
+    final int textMatrixPadding = 4;
+    if(nineCut != null) {
+      w += textMatrixPadding + NineCut.getDimension().width;
+    }
     g2.fill(new Rectangle2D.Double(position.x - border, position.y - border,
         w + 2 * border, h + 2 * border));
     g2.dispose();
     g.setColor(Color.WHITE);
     g.drawString(text, position.x, (float) (position.y + h - border * .5f));
+    if(nineCut != null) {
+      nineCut.paint(g, position.x + stringWidth + textMatrixPadding,
+          position.y + 3);
+    }
   }
 
 }

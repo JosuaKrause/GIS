@@ -32,6 +32,8 @@ public class SelectionManager {
       case 0:
         select(marker);
         return true;
+      default:
+        break;
     }
     return false;
   }
@@ -79,12 +81,13 @@ public class SelectionManager {
     if(sel == null) return;
     final Database db = Database.getInstance();
     final StringBuilder sb = new StringBuilder();
+    NineCut nc = null;
     if(numSelected == 1) {
       sb.append(selection[0].getInfo());
     } else if(numSelected == 2) {
       final double d = db.getDistance(selection[0].getId(), selection[1].getId());
       sb.append(String.format("Distance: %.5fm", d));
-      final NineCut nc = db.getNineCutDescription(
+      nc = db.getNineCutDescription(
           selection[0].getId(), selection[1].getId());
       final boolean ap = selection[0].isPoint();
       final boolean bp = selection[1].isPoint();
@@ -95,8 +98,8 @@ public class SelectionManager {
           formatter.format(nc.getFormat(),
               selection[0].getInfo(), selection[1].getInfo());
           formatter.close();
-          sb.append("\" Nine-Cut-Matrix: ");
-          sb.append(nc.getMatrix());
+          // sb.append("\" Nine-Cut-Matrix: ");
+          // sb.append(nc.getMatrix());
         } else {
           formatter.format(nc.getPointPolyFormat(),
               selection[0].getInfo(), selection[1].getInfo());
@@ -106,6 +109,7 @@ public class SelectionManager {
       }
     }
     sel.setText(sb.toString());
+    sel.setNineCut(nc);
   }
 
   public synchronized GeoMarker[] getSelection() {
