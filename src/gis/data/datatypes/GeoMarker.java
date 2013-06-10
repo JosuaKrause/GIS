@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -17,7 +18,8 @@ import java.util.Objects;
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
  * @author Joschi <josua.krause@gmail.com>
  */
-public abstract class GeoMarker {
+public abstract class GeoMarker implements Serializable {
+  private static final long serialVersionUID = -7294866106094044834L;
   /** The reference. */
   private final ElementId id;
   /** The element info. */

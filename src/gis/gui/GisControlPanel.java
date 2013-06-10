@@ -26,6 +26,8 @@ import javax.swing.event.PopupMenuListener;
 
 public class GisControlPanel extends JPanel {
 
+  private static final long serialVersionUID = -54745563278130023L;
+
   private final List<QueryCheckBox> checkBoxes = new ArrayList<>();
   private final GisPanel gisPanel;
   private final SelectionManager selectionManager;
@@ -85,6 +87,8 @@ public class GisControlPanel extends JPanel {
     gisPanel.addMouseMotionListener(l);
     final Action d = new AbstractAction() {
 
+      private static final long serialVersionUID = -8298142767434938419L;
+
       @Override
       public void actionPerformed(final ActionEvent e) {
         sm.deselectAll();
@@ -96,6 +100,8 @@ public class GisControlPanel extends JPanel {
     getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), d);
     getActionMap().put(d, d);
     final Action q = new AbstractAction() {
+
+      private static final long serialVersionUID = -8020987881253926797L;
 
       @Override
       public void actionPerformed(final ActionEvent e) {

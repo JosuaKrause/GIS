@@ -12,6 +12,7 @@ import java.sql.SQLException;
 
 public class ParksNearWaterQueryCheckBox extends QueryCheckBox {
 
+  private static final long serialVersionUID = -7695687735225875092L;
   private static final double DEFAULT_DISTANCE_THRESHOLD_IN_METERS = 50;
 
   // -- Table: park

@@ -27,6 +27,7 @@ import org.openstreetmap.gui.jmapviewer.JMapViewer;
 
 public class GisPanel extends JMapViewer {
 
+  private static final long serialVersionUID = 1674766826613294344L;
   boolean drawImage = false;
   private BufferedImage image;
 

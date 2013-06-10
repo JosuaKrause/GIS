@@ -21,15 +21,12 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
-import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.postgresql.PGConnection;
 
 /**
@@ -38,7 +35,7 @@ import org.postgresql.PGConnection;
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
  * @author Joschi <josua.krause@gmail.com>
  */
-public class Database {
+public final class Database {
 
   static {
     // create postgresql driver
@@ -88,63 +85,6 @@ public class Database {
     return connection;
   }
 
-  public List<ElementId> getByCoordinate(
-      final Coordinate c, final List<Query<?>> queries, final double maxDistMeters) {
-    final List<ElementId> ids = new ArrayList<>();
-    for(final Query<?> q : queries) {
-      final Table t = q.getTable();
-      switch(t.geometryType) {
-        case POINT:
-          getPointsByCoordinate(c, q, maxDistMeters, ids);
-          break;
-        case POLYGON:
-          getPolygonsByCoordinate(c, q, ids);
-          break;
-        default:
-          throw new IllegalStateException();
-      }
-    }
-    return ids;
-  }
-
-  private void getPointsByCoordinate(final Coordinate c, final Query<?> q,
-      final double maxDistMeters, final List<ElementId> ids) {
-    final Table table = q.getTable();
-    final String query = "SELECT " + table.idColumnName + " as gid FROM " + table.name +
-        " WHERE ST_DWithin(" + table.geomColumnName + ", ST_SetSRID(ST_Point(" +
-        c.getLon() + "," + c.getLat() + "), 4326), " + maxDistMeters + ", true)";
-    try (Connection connection = getConnection();
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(query)) {
-      while(rs.next()) {
-        final String gid = rs.getString("gid");
-        final ElementId id = new ElementId(q, gid);
-        ids.add(id);
-      }
-    } catch(final SQLException e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void getPolygonsByCoordinate(
-      final Coordinate c, final Query<?> q, final List<ElementId> ids) {
-    final Table table = q.getTable();
-    final String query = "SELECT " + table.idColumnName + " as gid FROM " + table.name +
-        " WHERE ST_Contains(" + table.geomColumnName + ", ST_SetSRID(ST_Point(" +
-        c.getLon() + ", " + c.getLat() + "), 4326))";
-    try (Connection connection = getConnection();
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(query)) {
-      while(rs.next()) {
-        final String gid = rs.getString("gid");
-        final ElementId id = new ElementId(q, gid);
-        ids.add(id);
-      }
-    } catch(final SQLException e) {
-      e.printStackTrace();
-    }
-  }
-
   public double getDistance(final ElementId from, final ElementId to) {
     final Table f = from.getQuery().getTable();
     final Table t = to.getQuery().getTable();
@@ -173,7 +113,7 @@ public class Database {
     return distance;
   }
 
-  private void ensureFile(final File file) {
+  public static void ensureFile(final File file) {
     if(file.exists()) return;
     if(file.mkdirs()) return;
     ensureFile(file.getParentFile());
@@ -182,9 +122,16 @@ public class Database {
     }
   }
 
-  private File getImageFileFor(final ElementId id) {
-    final File file = new File("cache/img/" + id.getQuery().getTable().name + "/"
-        + id.getId() + ".png");
+  public static File getImageFileFor(final ElementId id) {
+    final File file = new File(
+        "cache/img/" + id.getQuery().getTable().name + "/" + id.getId() + ".png");
+    ensureFile(file.getParentFile());
+    return file;
+  }
+
+  public static File getQueryCacheFileFor(final Query<?> query) {
+    final File file = new File(
+        "cache/query/" + query.uniqueHash() + ".res");
     ensureFile(file.getParentFile());
     return file;
   }

@@ -17,6 +17,8 @@ import java.util.Objects;
 
 public class CommercialRatioQueryCheckbox extends QueryCheckBox {
 
+  private static final long serialVersionUID = -2974461807420712240L;
+
   public CommercialRatioQueryCheckbox(final GisPanel gisPanel) {
     super(Objects.requireNonNull(gisPanel), new CommercialRatioQuery());
     for(final ActionListener al : getActionListeners()) {

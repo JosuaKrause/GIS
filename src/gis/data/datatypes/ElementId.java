@@ -2,6 +2,7 @@ package gis.data.datatypes;
 
 import gis.data.db.Query;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -11,11 +12,12 @@ import java.util.Objects;
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
  * @author Joschi <josua.krause@gmail.com>
  */
-public class ElementId {
-  /** The query. */
-  private final Query<?> query;
+public class ElementId implements Serializable {
+  private static final long serialVersionUID = 4781869027332841588L;
   /** The id in the table. */
   private final String id;
+  /** The query. */
+  private transient Query<?> query;
 
   /**
    * Creates an element id.
@@ -46,14 +48,8 @@ public class ElementId {
     return id;
   }
 
-  /**
-   * Getter.
-   * 
-   * @return Returns the corresponding geo marker if it exist. When the geo
-   *         marker does not exist, <code>null</code> is returned.
-   */
-  public GeoMarker getMarker() {
-    return query.get(this);
+  public void setQuery(final Query<?> query) {
+    this.query = Objects.requireNonNull(query);
   }
 
   @Override

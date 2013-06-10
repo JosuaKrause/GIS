@@ -5,14 +5,21 @@ import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import org.postgis.PGgeometry;
@@ -46,8 +53,24 @@ public class Query<T> {
     this.query = Objects.requireNonNull(query);
   }
 
-  /** The lookup for ids. */
-  private final Map<ElementId, GeoMarker> map = new HashMap<>();
+  public String uniqueHash() {
+    try {
+      final MessageDigest crypt = MessageDigest.getInstance("SHA-1");
+      crypt.reset();
+      crypt.update(query.getBytes("UTF-8"));
+      return byteArrayToHexString(crypt.digest());
+    } catch(UnsupportedEncodingException | NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static String byteArrayToHexString(final byte[] b) {
+    final StringBuilder res = new StringBuilder();
+    for(int i = 0; i < b.length; i++) {
+      res.append(Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1));
+    }
+    return res.toString();
+  }
 
   /**
    * Getter.
@@ -77,15 +100,63 @@ public class Query<T> {
    * 
    * @return Fetches the result of the query.
    */
-  public List<GeoMarker> getResult() {
+  public synchronized List<GeoMarker> getResult() {
     if(hasContent) return markers;
+    final long start = System.currentTimeMillis();
+    final File cacheFile = Database.getQueryCacheFileFor(this);
+    if(cacheFile.exists()) {
+      loadFromCache(cacheFile);
+    } else {
+      fetchDatabase();
+      writeToCache(cacheFile);
+    }
+    System.out.println("query took: " + (System.currentTimeMillis() - start) + "ms");
+    return markers;
+  }
+
+  private static final int MAGIC_NUMBER = 0xF00BAA0;
+
+  private synchronized void loadFromCache(final File cacheFile) {
+    if(hasContent) return;
+    System.out.println("using cache: " + query);
+    try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(cacheFile))) {
+      markers.clear();
+      if(in.readInt() != MAGIC_NUMBER) throw new IOException("incorrect magic number");
+      final int size = in.readInt();
+      for(int i = 0; i < size; ++i) {
+        final GeoMarker m = (GeoMarker) in.readObject();
+        markers.add(m);
+        m.getId().setQuery(this);
+      }
+      hasContent = true;
+    } catch(final IOException | ClassNotFoundException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  private synchronized void writeToCache(final File cacheFile) {
+    if(!hasContent) return;
+    try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(cacheFile))) {
+      out.writeInt(MAGIC_NUMBER);
+      out.writeInt(markers.size());
+      for(final GeoMarker m : markers) {
+        out.writeObject(m);
+      }
+      hasContent = true;
+    } catch(final IOException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  private synchronized void fetchDatabase() {
+    if(hasContent) return;
     System.out.println("executing: " + query);
     try (Connection conn = Database.getInstance().getConnection()) {
+      markers.clear();
       final List<PGgeometry> geom = new ArrayList<>();
       final List<String> ids = new ArrayList<>();
       final List<String> infos = new ArrayList<>();
       final List<T> flavour = new ArrayList<>();
-      final long start = System.currentTimeMillis();
       try (Statement s = conn.createStatement(); ResultSet r = s.executeQuery(query)) {
         while(r.next()) {
           ids.add(r.getString(table.idColumnName));
@@ -94,7 +165,6 @@ public class Query<T> {
           flavour.add(getFlavour(r));
         }
       }
-      System.out.println("query took: " + (System.currentTimeMillis() - start) + "ms");
       for(int i = 0; i < geom.size(); ++i) {
         final String info = infos.get(i);
         final GeoMarker m = GeometryConverter.convert(
@@ -102,13 +172,11 @@ public class Query<T> {
             info == null ? "" + ids.get(i) : info);
         addFlavour(m, flavour.get(i));
         markers.add(m);
-        map.put(m.getId(), m);
       }
       hasContent = true;
     } catch(final SQLException e) {
       throw new IllegalStateException(e);
     }
-    return markers;
   }
 
   /**
@@ -138,18 +206,6 @@ public class Query<T> {
   public void clearCache() {
     hasContent = false;
     markers.clear();
-    map.clear();
-  }
-
-  /**
-   * Getter.
-   * 
-   * @param id The id.
-   * @return The marker for the given id or <code>null</code> if the id does not
-   *         occur in the result of the query.
-   */
-  public GeoMarker get(final ElementId id) {
-    return map.get(id);
   }
 
 }

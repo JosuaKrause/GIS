@@ -19,6 +19,7 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
  */
 public class GeoMarkerPoint extends GeoMarker {
 
+  private static final long serialVersionUID = -4688156455208420112L;
   /** The radius. */
   private double radius = 0.0001;
   /** The point marker. */

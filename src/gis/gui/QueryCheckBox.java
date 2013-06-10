@@ -11,6 +11,7 @@ import javax.swing.JCheckBox;
 
 public class QueryCheckBox extends JCheckBox {
 
+  private static final long serialVersionUID = -4959236437902656258L;
   private final Query<?> q;
 
   public static final QueryCheckBox createTableQuery(

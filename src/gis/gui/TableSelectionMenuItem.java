@@ -11,6 +11,8 @@ import javax.swing.JMenuItem;
 
 public class TableSelectionMenuItem extends JMenuItem {
 
+  private static final long serialVersionUID = 2511906905198655373L;
+
   public TableSelectionMenuItem(final GeoMarker marker,
       final SelectionManager selectionManager, final GisPanel panel) {
     final boolean selected = selectionManager.isSelected(marker);

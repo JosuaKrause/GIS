@@ -14,6 +14,7 @@ import javax.swing.WindowConstants;
  * @author Joschi <josua.krause@googlemail.com>
  */
 public class GisFrame extends JFrame {
+  private static final long serialVersionUID = 8941331188193766017L;
   /** The instance. */
   private static final GisFrame INSTANCE = new GisFrame();
 

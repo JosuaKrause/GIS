@@ -11,6 +11,8 @@ import java.util.Objects;
 
 public class FlickrChloroplethQueryCheckbox extends QueryCheckBox {
 
+  private static final long serialVersionUID = -6635608292308665608L;
+
   public FlickrChloroplethQueryCheckbox(final GisPanel gisPanel) {
     super(Objects.requireNonNull(gisPanel), new FlickrChloroplethQuery(
         "Flickr Ratio"));
