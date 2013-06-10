@@ -11,7 +11,7 @@ import java.awt.geom.Rectangle2D;
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
 /**
- * A marker for multi polygons.
+ * A marker for polygons.
  * 
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
  * @author Joschi <josua.krause@googlemail.com>
@@ -25,7 +25,7 @@ public class GeoMarkerPolygon extends GeoMarker {
   private final Rectangle2D latLonBBox;
 
   /**
-   * Creates a geo marker for the list of polygons.
+   * Creates a geo marker for a polygon.
    * 
    * @param info The element info.
    * @param id The reference id.
