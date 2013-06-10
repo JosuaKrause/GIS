@@ -6,11 +6,14 @@ import gis.data.datatypes.Table;
 import gis.data.db.config.FileConfiguration;
 import gis.data.db.config.GISConfiguration;
 
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.sql.Connection;
@@ -20,6 +23,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -169,10 +173,60 @@ public class Database {
     return distance;
   }
 
+  private void ensureFile(final File file) {
+    if(file.exists()) return;
+    if(file.mkdirs()) return;
+    ensureFile(file.getParentFile());
+    if(file.isDirectory()) {
+      file.mkdir();
+    }
+  }
+
+  private File getImageFileFor(final ElementId id) {
+    final File file = new File("cache/img/" + id.getQuery().getTable().name + "/"
+        + id.getId() + ".png");
+    ensureFile(file.getParentFile());
+    return file;
+  }
+
+  private final ConcurrentHashMap<ElementId, Object> loadBlock = new ConcurrentHashMap<>();
+
   public Image getImage(final ElementId id) {
+    final File cache = getImageFileFor(id);
+    final Object own = new Object();
+    Object lock = loadBlock.putIfAbsent(id, own);
+    if(lock == null) {
+      lock = own;
+    }
+    synchronized(lock) {
+      if(!cache.exists()) {
+        final RenderedImage img = createImage(id);
+        try {
+          if(img == null) {
+            cache.createNewFile();
+          } else {
+            ImageIO.write(img, "PNG", cache);
+          }
+        } catch(final IOException e) {
+          e.printStackTrace();
+          loadBlock.remove(id, lock);
+          return null;
+        }
+      }
+    }
+    loadBlock.remove(id, lock);
+    if(cache.length() == 0) return null;
+    try {
+      return ImageIO.read(cache);
+    } catch(final IOException e) {
+      return null;
+    }
+  }
+
+  private RenderedImage createImage(final ElementId id) {
     final Table t = id.getQuery().getTable();
-    final String query = "select photoUrl from " + t.name + " where " + t.idColumnName
-        + " = '" + id.getId() + "'";
+    final String query = "select photoUrl from " + t.name + " where "
+        + t.idColumnName + " = '" + id.getId() + "'";
     String imgUrl;
     try (Connection connection = getConnection();
         Statement stmt = connection.createStatement();
@@ -212,7 +266,15 @@ public class Database {
       return null;
     }
     System.out.println(" finished");
-    return img.getScaledInstance(100, -1, Image.SCALE_SMOOTH);
+    final Image image = img.getScaledInstance(100, -1, Image.SCALE_SMOOTH);
+    final BufferedImage buff = new BufferedImage(image.getWidth(null),
+        image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+    final Graphics2D gfx = buff.createGraphics();
+    gfx.drawImage(image, 0, 0, null);
+    gfx.dispose();
+    image.flush();
+    img.flush();
+    return buff;
   }
 
   public NineCut getNineCutDescription(final ElementId id1, final ElementId id2) {

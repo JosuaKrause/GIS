@@ -62,6 +62,7 @@ public class MouseSelectionListener extends MouseAdapter {
       @Override
       public void run() {
         for(final GeoMarker m : picks) {
+          if(Thread.currentThread().isInterrupted()) return;
           if(cur != this) return;
           if(m.getId().getQuery().getTable() != Table.FLICKR) {
             continue;
