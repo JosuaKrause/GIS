@@ -11,6 +11,8 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.SwingUtilities;
 
@@ -37,11 +39,12 @@ public class MouseSelectionListener extends MouseAdapter {
 
   private ElementId curHover;
 
-  protected volatile Thread cur;
+  private static final ExecutorService LOADER = Executors.newCachedThreadPool();
+
+  protected volatile Runnable cur;
 
   @Override
   public void mouseMoved(final MouseEvent e) {
-    gisPanel.grabFocus();
     final Point2D pos = e.getPoint();
     final GisPanel gisPanel = this.gisPanel;
     final List<GeoMarker> picks = new ArrayList<>();
@@ -50,16 +53,16 @@ public class MouseSelectionListener extends MouseAdapter {
       if(m.getId().getQuery().getTable() != Table.FLICKR) {
         gisPanel.setToolTipText(m.getInfo());
         gisPanel.repaint();
-        return;
+        break;
       }
     }
     if(!e.isShiftDown()) return;
-    final Thread s = new Thread() {
+    final Runnable r = new Runnable() {
 
       @Override
       public void run() {
         for(final GeoMarker m : picks) {
-          if(cur != this || isInterrupted()) return;
+          if(cur != this) return;
           if(m.getId().getQuery().getTable() != Table.FLICKR) {
             continue;
           }
@@ -70,12 +73,8 @@ public class MouseSelectionListener extends MouseAdapter {
       }
 
     };
-    if(cur != null) {
-      cur.interrupt();
-    }
-    cur = s;
-    s.setDaemon(true);
-    s.start();
+    cur = r;
+    LOADER.execute(r);
   }
 
   protected boolean setCurHover(final Point2D pos, final ElementId id) {
