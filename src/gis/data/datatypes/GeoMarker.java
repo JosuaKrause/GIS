@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -17,7 +18,8 @@ import java.util.Objects;
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
  * @author Joschi <josua.krause@gmail.com>
  */
-public abstract class GeoMarker {
+public abstract class GeoMarker implements Serializable {
+  private static final long serialVersionUID = -2944014885595019785L;
   /** The reference. */
   private final ElementId id;
   /** The element info. */
@@ -30,6 +32,8 @@ public abstract class GeoMarker {
   private float alphaSelected = 0.7f;
   /** alpha value used for drawing if the geo marker is not selected */
   private float alphaNotSelected = 0.45f;
+
+  private double queryValue = Double.NaN;
   /**
    * The color of the used for drawing the geo markers outline. If this variable
    * is <code>null</code>, then no outline will be drawn.
@@ -46,6 +50,14 @@ public abstract class GeoMarker {
     this.id = Objects.requireNonNull(id);
     selected = false;
     this.info = Objects.requireNonNull(info);
+  }
+
+  public double getQueryValue() {
+    return queryValue;
+  }
+
+  public void setQueryValue(final double queryValue) {
+    this.queryValue = queryValue;
   }
 
   /**

@@ -3,10 +3,9 @@ package gis.data.db;
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.List;
 
-public class BrandenburgQuery extends Query<Double> {
+public class BrandenburgQuery extends Query {
 
   private final double maxMeter;
 
@@ -26,21 +25,17 @@ public class BrandenburgQuery extends Query<Double> {
   }
 
   public BrandenburgQuery(final double maxMeter, final String name) {
-    super(query(maxMeter), Table.FLICKR, name);
+    super(query(maxMeter), Table.FLICKR, name, "distance");
     this.maxMeter = maxMeter;
   }
 
   @Override
-  protected Double getFlavour(final ResultSet r) throws SQLException {
-    return r.getDouble("distance");
-  }
-
-  @Override
-  protected void addFlavour(final GeoMarker m, final Double f) {
-    final double r = f / maxMeter * 0.0005 + 0.00005;
-    // System.out.println(r);
-    m.setRadius(r);
-    m.setColor(getTable().color);
+  protected void finishLoading(final List<GeoMarker> ms) {
+    for(final GeoMarker m : ms) {
+      final double r = m.getQueryValue() / maxMeter * 0.0005 + 0.00005;
+      m.setRadius(r);
+      m.setColor(getTable().color);
+    }
   }
 
 }

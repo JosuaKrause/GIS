@@ -2,17 +2,12 @@ package gis.data;
 
 import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
-import gis.data.datatypes.GeoMarkerMultiPolygon;
 import gis.data.datatypes.GeoMarkerPoint;
 import gis.data.datatypes.GeoMarkerPolygon;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.postgis.Geometry;
 import org.postgis.LinearRing;
-import org.postgis.MultiPolygon;
 import org.postgis.PGgeometry;
 import org.postgis.Point;
 import org.postgis.Polygon;
@@ -56,22 +51,6 @@ public final class GeometryConverter {
           polyCoordinates[k] = new Coordinate(polyPoints[k].getY(), polyPoints[k].getX());
         }
         return new GeoMarkerPolygon(info, id, polyCoordinates);
-      case Geometry.MULTIPOLYGON:
-        final Polygon[] polys = ((MultiPolygon) geom.getGeometry()).getPolygons();
-        final List<Coordinate[]> polygons = new ArrayList<>(polys.length);
-        for(int i = 0; i < polys.length; ++i) {
-          final int numRings = polys[i].numRings();
-          for(int j = 0; j < numRings; ++j) {
-            final LinearRing ring = polys[i].getRing(j);
-            final Point[] points = ring.getPoints();
-            final Coordinate[] coordinates = new Coordinate[points.length];
-            for(int k = 0; k < points.length; ++k) {
-              coordinates[k] = new Coordinate(points[k].getY(), points[k].getX());
-            }
-            polygons.add(coordinates);
-          }
-        }
-        return new GeoMarkerMultiPolygon(info, id, polygons);
       default:
         throw new UnsupportedOperationException(
             "unsupported geometry type " + geom.getGeoType() + " " + geom.getType());

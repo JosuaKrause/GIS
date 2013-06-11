@@ -1,6 +1,6 @@
 package gis.gui.color_map;
 
-public interface IIntensityMapping {
+public interface IntensityMapping {
 
   /**
    * Returns the intensity value mapped to a specific value.

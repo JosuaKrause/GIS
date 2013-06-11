@@ -13,6 +13,7 @@ import javax.swing.ScrollPaneConstants;
  */
 public class InfoFrame extends JFrame {
 
+  private static final long serialVersionUID = -3308010687341627559L;
   /** The instance. */
   private static final InfoFrame INSTANCE = new InfoFrame();
   /** The text area. */

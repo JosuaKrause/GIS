@@ -25,7 +25,7 @@ public class SelectionManagerOverlayComponent extends AbstractOverlayComponent {
 
   public void setText(final String text) {
     this.text = Objects.requireNonNull(text);
-    gisPanel.repaint();
+    getPanel().repaint();
   }
 
   public void setNineCut(final NineCut nineCut) {

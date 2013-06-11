@@ -6,13 +6,13 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 
-public abstract class AbstractOverlayComponent implements IOverlayComponent {
+public abstract class AbstractOverlayComponent implements Overlay {
 
   public static final int PADDING = 5;
 
-  protected final GisPanel gisPanel;
-  protected Dimension dimension;
-  protected boolean visible;
+  private final GisPanel gisPanel;
+  private final Dimension dimension;
+  private boolean visible;
   /**
    * Coordinates of the bounding box's top left corner.
    */
@@ -39,9 +39,10 @@ public abstract class AbstractOverlayComponent implements IOverlayComponent {
   @Override
   public void setVisible(final boolean visible) {
     if(this.visible != visible) {
-      this.visible = visible;
       gisPanel.alignOverlayComponents();
+      gisPanel.repaint();
     }
+    this.visible = visible;
   }
 
   @Override
@@ -55,6 +56,10 @@ public abstract class AbstractOverlayComponent implements IOverlayComponent {
   @Override
   public int getHorizontalAlignmentWeight() {
     return horizontalAlignmentWeight;
+  }
+
+  public GisPanel getPanel() {
+    return gisPanel;
   }
 
 }

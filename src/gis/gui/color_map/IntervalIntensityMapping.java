@@ -3,7 +3,7 @@ package gis.gui.color_map;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IntervalIntensityMapping implements IIntensityMapping {
+public class IntervalIntensityMapping implements IntensityMapping {
 
   protected List<Double> input = new ArrayList<>();
   protected List<Double> output = new ArrayList<>();
@@ -15,6 +15,12 @@ public class IntervalIntensityMapping implements IIntensityMapping {
    * @param values sequence of (input value, output value) pairs
    */
   public IntervalIntensityMapping(final double... values) {
+    setMapping(values);
+  }
+
+  public void setMapping(final double... values) {
+    input.clear();
+    output.clear();
     // check constraints
     if(values.length < 4 || values.length % 2 != 0) throw new AssertionError();
     for(int i = 0; i < values.length - 4; i += 2) {

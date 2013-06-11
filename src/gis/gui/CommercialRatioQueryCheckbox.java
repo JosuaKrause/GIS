@@ -4,57 +4,40 @@ import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 import gis.data.db.Query;
 import gis.gui.color_map.ColorMap;
-import gis.gui.color_map.IIntensityMapping;
 import gis.gui.color_map.IntervalIntensityMapping;
-import gis.gui.overlay.IOverlayComponent;
+import gis.gui.overlay.Overlay;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.List;
 import java.util.Objects;
 
 public class CommercialRatioQueryCheckbox extends QueryCheckBox {
 
+  private static final long serialVersionUID = -2974461807420712240L;
+  private final CommercialRatioQuery q;
+
   public CommercialRatioQueryCheckbox(final GisPanel gisPanel) {
-    super(Objects.requireNonNull(gisPanel), new CommercialRatioQuery());
-    for(final ActionListener al : getActionListeners()) {
-      removeActionListener(al);
-    }
-
-    addActionListener(new ActionListener() {
-
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        final Query<?> q = getQuery();
-        if(isSelected()) {
-          gisPanel.addQuery(q);
-          q.getResult();
-        } else {
-          gisPanel.removeQuery(q);
-        }
-
-        final ColorMap colorMap = ((CommercialRatioQuery) q).getColorMap();
-        if(colorMap.getColorMapOverlayComponent() == null) {
-          colorMap.initOverlayComponent(gisPanel);
-        }
-        final IOverlayComponent hmoc = colorMap.getColorMapOverlayComponent();
-        if(isSelected()) {
-          hmoc.setVisible(true);
-        } else {
-          hmoc.setVisible(false);
-        }
-        gisPanel.repaint();
-      }
-
-    });
+    this(gisPanel, new CommercialRatioQuery());
   }
 
-  public static class CommercialRatioQuery extends Query<Double> {
+  private CommercialRatioQueryCheckbox(
+      final GisPanel gisPanel, final CommercialRatioQuery q) {
+    super(Objects.requireNonNull(gisPanel), q);
+    this.q = q;
+  }
 
-    private ColorMap colorMap;
-    private double maxRatio = Double.NEGATIVE_INFINITY;
+  @Override
+  public void onAction(final GisPanel gisPanel) {
+    final ColorMap colorMap = q.getColorCode();
+    if(colorMap == null) return;
+    if(colorMap.getColorMapOverlayComponent() == null) {
+      colorMap.initOverlayComponent(gisPanel);
+    }
+    final Overlay hmoc = colorMap.getColorMapOverlayComponent();
+    hmoc.setVisible(isSelected());
+  }
+
+  public static class CommercialRatioQuery extends Query {
 
     public CommercialRatioQuery() {
       super(
@@ -69,46 +52,46 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
               "where b.type = 'commercial' and st_intersects(a.geom, b.geom) " +
               "group by a.gid ) as b " +
               "on a.gid = b.gid",
-          Table.BERLIN_ADMINISTRATIVE, "Commercial Ratio");
+          Table.BERLIN_ADMINISTRATIVE, "Commercial Ratio", "ratio");
     }
 
-    public ColorMap getColorMap() {
-      return colorMap;
-    }
+    private final IntervalIntensityMapping intensityMapping =
+        new IntervalIntensityMapping(0, 0, 1, 1);
+
+    private final ColorMap colorCode = new ColorMap(intensityMapping, new Color[] {
+        new Color(240, 59, 32), new Color(254, 178, 76), new Color(255, 237,
+            160)},
+        new double[] { 0, 0.5, 1}) {
+
+      @Override
+      public String formatValue(final double value) {
+        return String.format("%.3f\u2030", value * 1000);
+      }
+
+    };
 
     @Override
-    protected Double getFlavour(final ResultSet r) throws SQLException {
-      Double ratio = r.getDouble("ratio");
-      if(ratio == null) {
-        ratio = 0.0;
+    protected void finishLoading(final List<GeoMarker> ms) {
+      double maxRatio = Double.NEGATIVE_INFINITY;
+      for(final GeoMarker m : ms) {
+        final double v = m.getQueryValue();
+        if(v > maxRatio) {
+          maxRatio = v;
+        }
       }
-      if(ratio > maxRatio) {
-        maxRatio = ratio;
-      }
-      return ratio;
-    }
-
-    @Override
-    protected void addFlavour(final GeoMarker m, final Double f) {
       if(maxRatio > 0) {
-        final IIntensityMapping intensityMapping =
-            new IntervalIntensityMapping(0, 0, maxRatio, 1);
-        colorMap = new ColorMap(intensityMapping, new Color[] {
-            new Color(240, 59, 32), new Color(254, 178, 76), new Color(255, 237, 160)},
-            new double[] { 0, 0.5, 1}) {
-
-          @Override
-          public String formatValue(final double value) {
-            return String.format("%.3f\u2030", value * 1000);
-          }
-
-        };
-        maxRatio = Double.NEGATIVE_INFINITY;
+        intensityMapping.setMapping(0, 0, maxRatio, 1);
       }
-      m.setColor(colorMap.getColor(f));
-      m.setAlphaSelected(0.6f);
-      m.setAlphaNotSelected(0.8f);
-      m.setOutlineColor(Color.BLACK);
+      for(final GeoMarker m : ms) {
+        m.setColor(colorCode.getColor(m.getQueryValue()));
+        m.setAlphaSelected(0.6f);
+        m.setAlphaNotSelected(0.8f);
+        m.setOutlineColor(Color.BLACK);
+      }
+    }
+
+    public ColorMap getColorCode() {
+      return colorCode;
     }
 
   } // CommercialRatioQuery
