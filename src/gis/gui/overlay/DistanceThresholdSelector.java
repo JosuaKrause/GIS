@@ -21,6 +21,8 @@ import javax.swing.border.Border;
 
 public class DistanceThresholdSelector extends JTextField {
 
+  private static final long serialVersionUID = 1568302050770485451L;
+
   private static final int TEXT_FIELD_WIDTH = 80;
   private static final int TEXT_FIELD_HEIGHT = 20;
 
@@ -28,7 +30,7 @@ public class DistanceThresholdSelector extends JTextField {
   private final String labelRight = "meters";
   private double distanceInMeters;
 
-  public DistanceThresholdSelector(final Query<?> query, final double distanceInMeters) {
+  public DistanceThresholdSelector(final Query query, final double distanceInMeters) {
     super(Double.toString(distanceInMeters));
     this.distanceInMeters = distanceInMeters;
     setSize(TEXT_FIELD_WIDTH, TEXT_FIELD_HEIGHT);
@@ -55,6 +57,8 @@ public class DistanceThresholdSelector extends JTextField {
     setEditable(true);
     setEnabled(true);
     final Action a = new AbstractAction() {
+
+      private static final long serialVersionUID = -4019313644858997850L;
 
       @Override
       public void actionPerformed(final ActionEvent e) {
@@ -117,4 +121,5 @@ public class DistanceThresholdSelector extends JTextField {
     distanceInMeters = dist;
     updateText();
   }
+
 }

@@ -1,15 +1,15 @@
 package gis.gui.color_map;
 
 import gis.gui.GisPanel;
-import gis.gui.overlay.IOverlayComponent;
+import gis.gui.overlay.Overlay;
 
 import java.awt.Color;
 
 public class ColorMap extends AbstractColorMapping {
 
-  private IOverlayComponent colorMapOverlayComponent;
+  private Overlay colorMapOverlayComponent;
 
-  public ColorMap(final IIntensityMapping intensityMapping, final Color[] colors,
+  public ColorMap(final IntensityMapping intensityMapping, final Color[] colors,
       final double[] vals) {
     super(intensityMapping, colors, vals);
   }
@@ -36,7 +36,7 @@ public class ColorMap extends AbstractColorMapping {
     gisPanel.registerOverlayComponent(colorMapOverlayComponent);
   }
 
-  public IOverlayComponent getColorMapOverlayComponent() {
+  public Overlay getColorMapOverlayComponent() {
     return colorMapOverlayComponent;
   }
 

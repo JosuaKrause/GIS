@@ -26,11 +26,14 @@ import javax.swing.event.PopupMenuListener;
 
 public class GisControlPanel extends JPanel {
 
+  private static final long serialVersionUID = -54745563278130023L;
+
   private final List<QueryCheckBox> checkBoxes = new ArrayList<>();
   private final GisPanel gisPanel;
   private final SelectionManager selectionManager;
 
   public GisControlPanel(final GisPanel gisPanel) {
+    this.gisPanel = Objects.requireNonNull(gisPanel);
     selectionManager = new SelectionManager();
     setFocusable(true);
     final SelectionManagerOverlayComponent smoc =
@@ -38,21 +41,22 @@ public class GisControlPanel extends JPanel {
     selectionManager.setSelector(smoc);
     gisPanel.registerOverlayComponent(smoc);
     smoc.setVisible(true);
-    this.gisPanel = Objects.requireNonNull(gisPanel);
     addQuery(new BrandenburgQuery(1000, "Brandenburger"));
     addQuery(new BrandenburgTorQuery("Tor"));
     add(new FlickrChloroplethQueryCheckbox(gisPanel));
     addTableSelectionCheckBox(gisPanel, Table.FLICKR, "All Flickr Photos");
     add(new CommercialRatioQueryCheckbox(gisPanel));
-    addQuery(new Query<Object>(
+    addQuery(new Query(
         "select distinct b.gid as gid,  b.geom as geom, b.name as name " +
             "from berlin_administrative as a, buildings as b " +
             "where b.type = 'commercial'",
-        Table.BUILDINGS, "All Commercial") {
+        Table.BUILDINGS, "All Commercial", null) {
 
       @Override
-      protected void addFlavour(final GeoMarker m, final Object o) {
-        m.setColor(new Color(55, 126, 184));
+      protected void finishLoading(final List<GeoMarker> ms) {
+        for(final GeoMarker m : ms) {
+          m.setColor(new Color(55, 126, 184));
+        }
       }
 
     });
@@ -69,8 +73,17 @@ public class GisControlPanel extends JPanel {
     add(QueryCheckBox.createTableQuery(gisPanel, table, name));
   }
 
-  private void addQuery(final Query<?> query) {
-    add(new QueryCheckBox(gisPanel, query));
+  private void addQuery(final Query query) {
+    add(new QueryCheckBox(gisPanel, query) {
+
+      private static final long serialVersionUID = -7224411421806801827L;
+
+      @Override
+      public void onAction(final GisPanel gisPanel) {
+        // nothing to do
+      }
+
+    });
   }
 
   public Component add(final QueryCheckBox box) {
@@ -85,6 +98,8 @@ public class GisControlPanel extends JPanel {
     gisPanel.addMouseMotionListener(l);
     final Action d = new AbstractAction() {
 
+      private static final long serialVersionUID = -8298142767434938419L;
+
       @Override
       public void actionPerformed(final ActionEvent e) {
         sm.deselectAll();
@@ -96,6 +111,8 @@ public class GisControlPanel extends JPanel {
     getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), d);
     getActionMap().put(d, d);
     final Action q = new AbstractAction() {
+
+      private static final long serialVersionUID = -8020987881253926797L;
 
       @Override
       public void actionPerformed(final ActionEvent e) {

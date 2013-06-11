@@ -4,7 +4,7 @@ import gis.data.datatypes.GeoMarker;
 import gis.data.db.Query;
 import gis.gui.overlay.AbstractOverlayComponent;
 import gis.gui.overlay.DistanceThresholdSelector;
-import gis.gui.overlay.IOverlayComponent;
+import gis.gui.overlay.Overlay;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -27,10 +27,11 @@ import org.openstreetmap.gui.jmapviewer.JMapViewer;
 
 public class GisPanel extends JMapViewer {
 
+  private static final long serialVersionUID = 1674766826613294344L;
   boolean drawImage = false;
   private BufferedImage image;
 
-  private final List<IOverlayComponent> overlayComponents = new ArrayList<>();
+  private final List<Overlay> overlayComponents = new ArrayList<>();
   private DistanceThresholdSelector distanceThresholdSelector;
 
   public GisPanel() {
@@ -51,16 +52,17 @@ public class GisPanel extends JMapViewer {
 
   private Image curHover;
 
-  private final List<Query<?>> queries = new ArrayList<>();
+  private final List<Query> queries = new ArrayList<>();
   private Point centerPosition;
   private int zoomValue;
 
-  public void addQuery(final Query<?> q) {
+  public void addQuery(final Query q) {
     queries.add(q);
+    q.getResult(); // force loading :)
     repaint();
   }
 
-  public void removeQuery(final Query<?> q) {
+  public void removeQuery(final Query q) {
     queries.remove(q);
     q.clearCache();
     repaint();
@@ -80,7 +82,7 @@ public class GisPanel extends JMapViewer {
     } else {
       latLonVP = null;
     }
-    for(final Query<?> q : queries) {
+    for(final Query q : queries) {
       for(final GeoMarker m : q.getResult()) {
         if(latLonVP == null) {
           // we're too small anyway and nowhere near the border of the map
@@ -128,7 +130,7 @@ public class GisPanel extends JMapViewer {
       } else {
         latLonVP = null;
       }
-      for(final Query<?> q : queries) {
+      for(final Query q : queries) {
         for(final GeoMarker m : q.getResult()) {
           if(latLonVP == null) {
             // we're too small anyway and nowhere near the border of the map
@@ -185,9 +187,11 @@ public class GisPanel extends JMapViewer {
     // slider is drawn with the same graphics object
 
     // draw overlayComponents
-    for(final IOverlayComponent c : overlayComponents) {
+    for(final Overlay c : overlayComponents) {
       if(c.isVisible()) {
-        c.paint(g2);
+        final Graphics2D g = (Graphics2D) g2.create();
+        c.paint(g);
+        g.dispose();
       }
     }
     // draw distance selector for "parks near water" task
@@ -252,7 +256,7 @@ public class GisPanel extends JMapViewer {
     }
   }
 
-  public void registerOverlayComponent(final IOverlayComponent overlayComponent) {
+  public void registerOverlayComponent(final Overlay overlayComponent) {
     overlayComponents.add(overlayComponent);
     if(overlayComponent.isVisible()) {
       alignOverlayComponents();
@@ -266,7 +270,7 @@ public class GisPanel extends JMapViewer {
     final Insets insets = getInsets();
     // TODO
     // supports only one left and one right component, for now
-    for(final IOverlayComponent c : overlayComponents) {
+    for(final Overlay c : overlayComponents) {
       final Dimension dim = c.getDimension();
       int x;
       final int y = height - insets.bottom - dim.height
@@ -280,8 +284,8 @@ public class GisPanel extends JMapViewer {
     }
   }
 
-  public void openDistanceThresholdSelector(final Query<?> query,
-      final double distanceInMeters) {
+  public void openDistanceThresholdSelector(
+      final Query query, final double distanceInMeters) {
     if(distanceThresholdSelector == null) {
       distanceThresholdSelector = new DistanceThresholdSelector(query, distanceInMeters);
       add(distanceThresholdSelector);

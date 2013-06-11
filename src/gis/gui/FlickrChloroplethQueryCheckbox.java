@@ -1,43 +1,35 @@
 package gis.gui;
 
 import gis.data.db.FlickrChloroplethQuery;
-import gis.data.db.Query;
 import gis.gui.color_map.ColorMap;
-import gis.gui.overlay.IOverlayComponent;
+import gis.gui.overlay.Overlay;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Objects;
 
 public class FlickrChloroplethQueryCheckbox extends QueryCheckBox {
 
+  private static final long serialVersionUID = -6635608292308665608L;
+  private final FlickrChloroplethQuery q;
+
   public FlickrChloroplethQueryCheckbox(final GisPanel gisPanel) {
-    super(Objects.requireNonNull(gisPanel), new FlickrChloroplethQuery(
-        "Flickr Ratio"));
-    for(final ActionListener al : getActionListeners()) {
-      removeActionListener(al);
+    this(gisPanel, new FlickrChloroplethQuery("Flickr Ratio"));
+  }
+
+  public FlickrChloroplethQueryCheckbox(
+      final GisPanel gisPanel, final FlickrChloroplethQuery q) {
+    super(Objects.requireNonNull(gisPanel), q);
+    this.q = q;
+  }
+
+  @Override
+  public void onAction(final GisPanel gisPanel) {
+    final ColorMap colorMap = q.getColorCode();
+    if(colorMap == null) return;
+    if(colorMap.getColorMapOverlayComponent() == null) {
+      colorMap.initOverlayComponent(gisPanel);
     }
-    addActionListener(new ActionListener() {
-
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        final Query<?> q = getQuery();
-        if(isSelected()) {
-          gisPanel.addQuery(q);
-          q.getResult();
-        } else {
-          gisPanel.removeQuery(q);
-        }
-        final ColorMap colorMap = ((FlickrChloroplethQuery) q).getColorCode();
-        if(colorMap.getColorMapOverlayComponent() == null) {
-          colorMap.initOverlayComponent(gisPanel);
-        }
-        final IOverlayComponent hmoc = colorMap.getColorMapOverlayComponent();
-        hmoc.setVisible(isSelected());
-        gisPanel.repaint();
-      }
-
-    });
+    final Overlay hmoc = colorMap.getColorMapOverlayComponent();
+    hmoc.setVisible(isSelected());
   }
 
 }

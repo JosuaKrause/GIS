@@ -4,22 +4,22 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 
-public interface IOverlayComponent {
+public interface Overlay {
 
-  public Dimension getDimension();
+  Dimension getDimension();
 
-  public boolean isVisible();
+  boolean isVisible();
 
-  public void setVisible(boolean visible);
+  void setVisible(boolean visible);
 
-  public void paint(Graphics2D g);
+  void paint(Graphics2D g);
 
   /**
    * Assigns the components top left bounding box position.
    * 
    * @param position top left corner of the bounding box.
    */
-  public void setPosition(Point position);
+  void setPosition(Point position);
 
   /**
    * A weight specifying a preference regarding the horizontal position of the
@@ -31,5 +31,6 @@ public interface IOverlayComponent {
    * @return a weigth specifying a preference regarding the horizontal postion
    *         of the overlay component
    */
-  public int getHorizontalAlignmentWeight();
+  int getHorizontalAlignmentWeight();
+
 }

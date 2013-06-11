@@ -9,6 +9,8 @@ import javax.swing.JFrame;
 
 public class TestColorMappingFrame extends JFrame {
 
+  private static final long serialVersionUID = 1134514145861266874L;
+
   private final IColorMapping colorMapping;
 
   public TestColorMappingFrame(final IColorMapping colorMapping) {
