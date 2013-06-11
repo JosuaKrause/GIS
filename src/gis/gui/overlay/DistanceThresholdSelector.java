@@ -30,7 +30,7 @@ public class DistanceThresholdSelector extends JTextField {
   private final String labelRight = "meters";
   private double distanceInMeters;
 
-  public DistanceThresholdSelector(final Query<?> query, final double distanceInMeters) {
+  public DistanceThresholdSelector(final Query query, final double distanceInMeters) {
     super(Double.toString(distanceInMeters));
     this.distanceInMeters = distanceInMeters;
     setSize(TEXT_FIELD_WIDTH, TEXT_FIELD_HEIGHT);

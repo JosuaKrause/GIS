@@ -17,7 +17,7 @@ public class ElementId implements Serializable {
   /** The id in the table. */
   private final String id;
   /** The query. */
-  private transient Query<?> query;
+  private transient Query query;
 
   /**
    * Creates an element id.
@@ -25,7 +25,7 @@ public class ElementId implements Serializable {
    * @param query The query.
    * @param id The id.
    */
-  public ElementId(final Query<?> query, final String id) {
+  public ElementId(final Query query, final String id) {
     this.query = Objects.requireNonNull(query);
     this.id = Objects.requireNonNull(id);
   }
@@ -35,7 +35,7 @@ public class ElementId implements Serializable {
    * 
    * @return The query of the element.
    */
-  public Query<?> getQuery() {
+  public Query getQuery() {
     return query;
   }
 
@@ -48,7 +48,7 @@ public class ElementId implements Serializable {
     return id;
   }
 
-  public void setQuery(final Query<?> query) {
+  public void setQuery(final Query query) {
     this.query = Objects.requireNonNull(query);
   }
 

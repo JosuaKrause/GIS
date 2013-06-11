@@ -129,7 +129,7 @@ public final class Database {
     return file;
   }
 
-  public static File getQueryCacheFileFor(final Query<?> query) {
+  public static File getQueryCacheFileFor(final Query query) {
     final File file = new File(
         "cache/query/" + query.uniqueHash() + ".res");
     ensureFile(file.getParentFile());

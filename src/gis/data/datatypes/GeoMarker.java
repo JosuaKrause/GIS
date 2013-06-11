@@ -19,7 +19,7 @@ import java.util.Objects;
  * @author Joschi <josua.krause@gmail.com>
  */
 public abstract class GeoMarker implements Serializable {
-  private static final long serialVersionUID = -7294866106094044834L;
+  private static final long serialVersionUID = -2944014885595019785L;
   /** The reference. */
   private final ElementId id;
   /** The element info. */
@@ -32,6 +32,8 @@ public abstract class GeoMarker implements Serializable {
   private float alphaSelected = 0.7f;
   /** alpha value used for drawing if the geo marker is not selected */
   private float alphaNotSelected = 0.45f;
+
+  private double queryValue = Double.NaN;
   /**
    * The color of the used for drawing the geo markers outline. If this variable
    * is <code>null</code>, then no outline will be drawn.
@@ -48,6 +50,14 @@ public abstract class GeoMarker implements Serializable {
     this.id = Objects.requireNonNull(id);
     selected = false;
     this.info = Objects.requireNonNull(info);
+  }
+
+  public double getQueryValue() {
+    return queryValue;
+  }
+
+  public void setQueryValue(final double queryValue) {
+    this.queryValue = queryValue;
   }
 
   /**

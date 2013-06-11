@@ -39,9 +39,9 @@ public abstract class AbstractOverlayComponent implements IOverlayComponent {
   @Override
   public void setVisible(final boolean visible) {
     if(this.visible != visible) {
-      this.visible = visible;
       gisPanel.alignOverlayComponents();
     }
+    this.visible = visible;
   }
 
   @Override

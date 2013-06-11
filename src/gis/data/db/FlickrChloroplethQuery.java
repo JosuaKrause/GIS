@@ -6,10 +6,9 @@ import gis.gui.color_map.ColorMap;
 import gis.gui.color_map.IntervalIntensityMapping;
 
 import java.awt.Color;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.List;
 
-public class FlickrChloroplethQuery extends Query<Double> {
+public class FlickrChloroplethQuery extends Query {
 
   private static final String query() {
     final Table t = Table.BERLIN_ADMINISTRATIVE;
@@ -40,39 +39,34 @@ public class FlickrChloroplethQuery extends Query<Double> {
   }
 
   public FlickrChloroplethQuery(final String name) {
-    super(queryWNulls(), Table.BERLIN_ADMINISTRATIVE, name);
+    super(queryWNulls(), Table.BERLIN_ADMINISTRATIVE, name, "num");
   }
-
-  private double maxNum = Double.NEGATIVE_INFINITY;
 
   private ColorMap colorCode;
 
   @Override
-  protected Double getFlavour(final ResultSet r) throws SQLException {
-    Double num = r.getDouble("num");
-    // InfoFrame.getInstance().addText("" + num);
-    if(num == null) {
-      num = 0.0;
+  protected void finishLoading(final List<GeoMarker> ms) {
+    double maxNum = Double.NEGATIVE_INFINITY;
+    for(final GeoMarker m : ms) {
+      final double v = m.getQueryValue();
+      if(v > maxNum) {
+        maxNum = v;
+      }
     }
-    if(num > maxNum) {
-      maxNum = num;
-    }
-    return num;
-  }
-
-  @Override
-  protected void addFlavour(final GeoMarker m, final Double f) {
     if(maxNum > 0) {
       colorCode = new ColorMap(new IntervalIntensityMapping(0, 0, maxNum, 1),
           new Color[] { new Color(67, 162, 202),
               new Color(168, 221, 181), new Color(224, 243, 219)},
           new double[] { 0, 0.5, 1});
-      maxNum = Double.NEGATIVE_INFINITY;
     }
-    m.setColor(colorCode.getColor(f));
-    m.setAlphaSelected(0.6f);
-    m.setAlphaNotSelected(.8f);
-    m.setOutlineColor(Color.BLACK);
+    for(final GeoMarker m : ms) {
+      if(colorCode != null) {
+        m.setColor(colorCode.getColor(m.getQueryValue()));
+      }
+      m.setAlphaSelected(0.6f);
+      m.setAlphaNotSelected(.8f);
+      m.setOutlineColor(Color.BLACK);
+    }
   }
 
   public ColorMap getColorCode() {

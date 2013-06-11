@@ -28,15 +28,16 @@ import org.postgis.PGgeometry;
  * A query holds the results of an SQL query.
  * 
  * @author Joschi <josua.krause@gmail.com>
- * @param <T> The type of flavour.
  */
-public class Query<T> {
+public abstract class Query {
   /** The actual SQL query. */
   private final String query;
   /** The table. */
   private final Table table;
   /** The name of the query. */
   private final String name;
+  /** The value column if any. */
+  private final String valueCol;
 
   /**
    * Creates a query.
@@ -46,11 +47,14 @@ public class Query<T> {
    * @param table The table whose elements are returned. (At least for which the
    *          ids count)
    * @param name The name of the query.
+   * @param valueCol The column of the extra value. May be <code>null</code>.
    */
-  public Query(final String query, final Table table, final String name) {
+  public Query(final String query, final Table table, final String name,
+      final String valueCol) {
     this.name = Objects.requireNonNull(name);
     this.table = Objects.requireNonNull(table);
     this.query = Objects.requireNonNull(query);
+    this.valueCol = valueCol;
   }
 
   public String uniqueHash() {
@@ -101,16 +105,20 @@ public class Query<T> {
    * @return Fetches the result of the query.
    */
   public synchronized List<GeoMarker> getResult() {
-    if(hasContent) return markers;
-    final long start = System.currentTimeMillis();
-    final File cacheFile = Database.getQueryCacheFileFor(this);
-    if(cacheFile.exists()) {
-      loadFromCache(cacheFile);
-    } else {
-      fetchDatabase();
-      writeToCache(cacheFile);
+    if(!hasContent) {
+      final long start = System.currentTimeMillis();
+      final File cacheFile = Database.getQueryCacheFileFor(this);
+      if(cacheFile.exists()) {
+        loadFromCache(cacheFile);
+      } else {
+        fetchDatabase();
+        writeToCache(cacheFile);
+      }
+      System.out.println("query took: " + (System.currentTimeMillis() - start) + "ms");
     }
-    System.out.println("query took: " + (System.currentTimeMillis() - start) + "ms");
+    if(hasContent) {
+      finishLoading(markers);
+    }
     return markers;
   }
 
@@ -142,7 +150,6 @@ public class Query<T> {
       for(final GeoMarker m : markers) {
         out.writeObject(m);
       }
-      hasContent = true;
     } catch(final IOException e) {
       throw new IllegalStateException(e);
     }
@@ -156,13 +163,16 @@ public class Query<T> {
       final List<PGgeometry> geom = new ArrayList<>();
       final List<String> ids = new ArrayList<>();
       final List<String> infos = new ArrayList<>();
-      final List<T> flavour = new ArrayList<>();
+      final List<Double> flavour = new ArrayList<>();
       try (Statement s = conn.createStatement(); ResultSet r = s.executeQuery(query)) {
         while(r.next()) {
           ids.add(r.getString(table.idColumnName));
           geom.add((PGgeometry) r.getObject(table.geomColumnName));
           infos.add(r.getString(table.infoColumnName));
-          flavour.add(getFlavour(r));
+          if(valueCol != null) {
+            final Double d = r.getDouble(valueCol);
+            flavour.add(d != null ? d : 0.0);
+          }
         }
       }
       for(int i = 0; i < geom.size(); ++i) {
@@ -170,7 +180,9 @@ public class Query<T> {
         final GeoMarker m = GeometryConverter.convert(
             new ElementId(this, ids.get(i)), geom.get(i),
             info == null ? "" + ids.get(i) : info);
-        addFlavour(m, flavour.get(i));
+        if(valueCol != null) {
+          m.setQueryValue(flavour.get(i));
+        }
         markers.add(m);
       }
       hasContent = true;
@@ -179,28 +191,7 @@ public class Query<T> {
     }
   }
 
-  /**
-   * Retrieves the flavour of the query.
-   * 
-   * @param r The current row.
-   * @return The flavour for the row.
-   * @throws SQLException If an exception occurs.
-   */
-  @SuppressWarnings("unused")
-  protected T getFlavour(final ResultSet r) throws SQLException {
-    return null;
-  }
-
-  /**
-   * Adds flavour to the geo marker.
-   * 
-   * @param m The marker.
-   * @param f The flavour.
-   */
-  protected void addFlavour(@SuppressWarnings("unused") final GeoMarker m,
-      @SuppressWarnings("unused") final T f) {
-    // nothing here
-  }
+  protected abstract void finishLoading(final List<GeoMarker> ms);
 
   /** Clears the query cache. */
   public void clearCache() {

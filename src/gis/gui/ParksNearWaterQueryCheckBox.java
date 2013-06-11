@@ -5,15 +5,13 @@ import gis.data.datatypes.Table;
 import gis.data.db.Query;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.List;
 
 public class ParksNearWaterQueryCheckBox extends QueryCheckBox {
 
   private static final long serialVersionUID = -7695687735225875092L;
   private static final double DEFAULT_DISTANCE_THRESHOLD_IN_METERS = 50;
+  private final Query q;
 
   // -- Table: park
   //
@@ -55,46 +53,45 @@ public class ParksNearWaterQueryCheckBox extends QueryCheckBox {
   // group by p.gid, p.name, p.geom;
 
   public ParksNearWaterQueryCheckBox(final GisPanel gisPanel) {
-    super(
+    this(
         gisPanel,
-        new Query<Double>(
+        new Query(
             "select gid, name, water_dist, geom from park"
-            , Table.PARK, "Parks near Water") {
+            , Table.PARK, "Parks near Water", "water_dist") {
 
           @Override
-          protected Double getFlavour(final ResultSet r) throws SQLException {
-
-            return r.getDouble("water_dist");
-          }
-
-          @Override
-          protected void addFlavour(final GeoMarker m, final Double waterDist) {
+          protected void finishLoading(final List<GeoMarker> ms) {
             final double threshold = GisFrame.getInstance().getGisPanel().getThresholdDistanceInMeters();
-            if(waterDist < threshold) {
-              m.setColor(new Color(90, 180, 172));
-            } else {
-              m.setColor(new Color(216, 179, 101));
+            for(final GeoMarker m : ms) {
+              if(m.getQueryValue() < threshold) {
+                m.setColor(new Color(90, 180, 172));
+              } else {
+                m.setColor(new Color(216, 179, 101));
+              }
+              m.setFixedSize(true);
+              m.setRadius(8);
+              m.setOutlineColor(Color.BLACK);
+              m.setAlphaNotSelected(0.9f);
+              m.setAlphaSelected(0.6f);
             }
-            m.setFixedSize(true);
-            m.setRadius(8);
-            m.setOutlineColor(Color.BLACK);
-            m.setAlphaNotSelected(0.9f);
-            m.setAlphaSelected(0.6f);
           }
 
         });
-    addActionListener(new ActionListener() {
+  }
 
-      @Override
-      public void actionPerformed(final ActionEvent arg0) {
-        if(isSelected()) {
-          GisFrame.getInstance().getGisPanel().openDistanceThresholdSelector(
-              getQuery(), DEFAULT_DISTANCE_THRESHOLD_IN_METERS);
-        } else {
-          GisFrame.getInstance().getGisPanel().closeDistanceThresholdSelector();
-        }
-      }
-    });
+  private ParksNearWaterQueryCheckBox(final GisPanel gisPanel, final Query q) {
+    super(gisPanel, q);
+    this.q = q;
+  }
+
+  @Override
+  public void onAction(final GisPanel gisPanel) {
+    if(isSelected()) {
+      GisFrame.getInstance().getGisPanel().openDistanceThresholdSelector(
+          q, DEFAULT_DISTANCE_THRESHOLD_IN_METERS);
+    } else {
+      GisFrame.getInstance().getGisPanel().closeDistanceThresholdSelector();
+    }
   }
 
 }

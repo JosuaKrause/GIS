@@ -52,16 +52,17 @@ public class GisPanel extends JMapViewer {
 
   private Image curHover;
 
-  private final List<Query<?>> queries = new ArrayList<>();
+  private final List<Query> queries = new ArrayList<>();
   private Point centerPosition;
   private int zoomValue;
 
-  public void addQuery(final Query<?> q) {
+  public void addQuery(final Query q) {
     queries.add(q);
+    q.getResult(); // force loading :)
     repaint();
   }
 
-  public void removeQuery(final Query<?> q) {
+  public void removeQuery(final Query q) {
     queries.remove(q);
     q.clearCache();
     repaint();
@@ -81,7 +82,7 @@ public class GisPanel extends JMapViewer {
     } else {
       latLonVP = null;
     }
-    for(final Query<?> q : queries) {
+    for(final Query q : queries) {
       for(final GeoMarker m : q.getResult()) {
         if(latLonVP == null) {
           // we're too small anyway and nowhere near the border of the map
@@ -129,7 +130,7 @@ public class GisPanel extends JMapViewer {
       } else {
         latLonVP = null;
       }
-      for(final Query<?> q : queries) {
+      for(final Query q : queries) {
         for(final GeoMarker m : q.getResult()) {
           if(latLonVP == null) {
             // we're too small anyway and nowhere near the border of the map
@@ -281,8 +282,8 @@ public class GisPanel extends JMapViewer {
     }
   }
 
-  public void openDistanceThresholdSelector(final Query<?> query,
-      final double distanceInMeters) {
+  public void openDistanceThresholdSelector(
+      final Query query, final double distanceInMeters) {
     if(distanceThresholdSelector == null) {
       distanceThresholdSelector = new DistanceThresholdSelector(query, distanceInMeters);
       add(distanceThresholdSelector);

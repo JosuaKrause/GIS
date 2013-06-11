@@ -6,33 +6,43 @@ import gis.data.db.Query;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.JCheckBox;
 
-public class QueryCheckBox extends JCheckBox {
+public abstract class QueryCheckBox extends JCheckBox {
 
-  private static final long serialVersionUID = -4959236437902656258L;
-  private final Query<?> q;
+  private static final long serialVersionUID = 8146119965206278027L;
 
   public static final QueryCheckBox createTableQuery(
       final GisPanel panel, final Table table, final String name) {
-    final Query<?> q = new Query<Object>(
+    final Query q = new Query(
         "SELECT " + table.idColumnName + ", " + table.geomColumnName + ", "
             + table.infoColumnName + " FROM " + table.name,
-        table, name) {
+        table, name, null) {
 
       @Override
-      protected void addFlavour(final GeoMarker m, final Object f) {
-        m.setColor(table.color);
+      protected void finishLoading(final List<GeoMarker> ms) {
+        for(final GeoMarker m : ms) {
+          m.setColor(table.color);
+        }
       }
 
     };
-    return new QueryCheckBox(panel, q);
+    return new QueryCheckBox(panel, q) {
+
+      private static final long serialVersionUID = 1009355284434125327L;
+
+      @Override
+      public void onAction(final GisPanel p) {
+        // nothing to do
+      }
+
+    };
   }
 
-  public QueryCheckBox(final GisPanel gisPanel, final Query<?> q) {
+  public QueryCheckBox(final GisPanel gisPanel, final Query q) {
     super(q.getName());
-    this.q = q;
     addActionListener(new ActionListener() {
 
       @Override
@@ -42,14 +52,13 @@ public class QueryCheckBox extends JCheckBox {
         } else {
           gisPanel.removeQuery(q);
         }
+        onAction(gisPanel);
         gisPanel.repaint();
       }
 
     });
   }
 
-  public Query<?> getQuery() {
-    return q;
-  }
+  public abstract void onAction(GisPanel gisPanel);
 
 }

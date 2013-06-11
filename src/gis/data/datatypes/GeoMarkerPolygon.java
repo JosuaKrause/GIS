@@ -17,8 +17,7 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
  * @author Joschi <josua.krause@googlemail.com>
  */
 public class GeoMarkerPolygon extends GeoMarker {
-
-  private static final long serialVersionUID = -6166480726226719333L;
+  private static final long serialVersionUID = 1728186524753876834L;
   /** The polygon. */
   private final Coordinate[] polygon;
   /** The world coordinate bounding box. */

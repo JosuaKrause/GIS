@@ -46,15 +46,17 @@ public class GisControlPanel extends JPanel {
     add(new FlickrChloroplethQueryCheckbox(gisPanel));
     addTableSelectionCheckBox(gisPanel, Table.FLICKR, "All Flickr Photos");
     add(new CommercialRatioQueryCheckbox(gisPanel));
-    addQuery(new Query<Object>(
+    addQuery(new Query(
         "select distinct b.gid as gid,  b.geom as geom, b.name as name " +
             "from berlin_administrative as a, buildings as b " +
             "where b.type = 'commercial'",
-        Table.BUILDINGS, "All Commercial") {
+        Table.BUILDINGS, "All Commercial", null) {
 
       @Override
-      protected void addFlavour(final GeoMarker m, final Object o) {
-        m.setColor(new Color(55, 126, 184));
+      protected void finishLoading(final List<GeoMarker> ms) {
+        for(final GeoMarker m : ms) {
+          m.setColor(new Color(55, 126, 184));
+        }
       }
 
     });
@@ -71,8 +73,17 @@ public class GisControlPanel extends JPanel {
     add(QueryCheckBox.createTableQuery(gisPanel, table, name));
   }
 
-  private void addQuery(final Query<?> query) {
-    add(new QueryCheckBox(gisPanel, query));
+  private void addQuery(final Query query) {
+    add(new QueryCheckBox(gisPanel, query) {
+
+      private static final long serialVersionUID = -7224411421806801827L;
+
+      @Override
+      public void onAction(final GisPanel gisPanel) {
+        // nothing to do
+      }
+
+    });
   }
 
   public Component add(final QueryCheckBox box) {
