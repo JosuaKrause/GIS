@@ -4,11 +4,11 @@ import java.awt.Color;
 
 public abstract class AbstractColorMapping implements IColorMapping {
 
-  protected final IIntensityMapping intensityMapping;
+  protected final IntensityMapping intensityMapping;
   protected final Color[] colors;
   protected final double[] intensities;
 
-  public AbstractColorMapping(final IIntensityMapping intensityMapping,
+  public AbstractColorMapping(final IntensityMapping intensityMapping,
       final Color[] colors, final double[] intensities) {
     this.intensityMapping = intensityMapping;
     this.colors = colors;

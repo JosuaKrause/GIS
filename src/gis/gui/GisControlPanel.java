@@ -33,6 +33,7 @@ public class GisControlPanel extends JPanel {
   private final SelectionManager selectionManager;
 
   public GisControlPanel(final GisPanel gisPanel) {
+    this.gisPanel = Objects.requireNonNull(gisPanel);
     selectionManager = new SelectionManager();
     setFocusable(true);
     final SelectionManagerOverlayComponent smoc =
@@ -40,7 +41,6 @@ public class GisControlPanel extends JPanel {
     selectionManager.setSelector(smoc);
     gisPanel.registerOverlayComponent(smoc);
     smoc.setVisible(true);
-    this.gisPanel = Objects.requireNonNull(gisPanel);
     addQuery(new BrandenburgQuery(1000, "Brandenburger"));
     addQuery(new BrandenburgTorQuery("Tor"));
     add(new FlickrChloroplethQueryCheckbox(gisPanel));

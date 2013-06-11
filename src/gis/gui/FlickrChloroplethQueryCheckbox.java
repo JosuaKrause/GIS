@@ -2,7 +2,7 @@ package gis.gui;
 
 import gis.data.db.FlickrChloroplethQuery;
 import gis.gui.color_map.ColorMap;
-import gis.gui.overlay.IOverlayComponent;
+import gis.gui.overlay.Overlay;
 
 import java.util.Objects;
 
@@ -28,7 +28,7 @@ public class FlickrChloroplethQueryCheckbox extends QueryCheckBox {
     if(colorMap.getColorMapOverlayComponent() == null) {
       colorMap.initOverlayComponent(gisPanel);
     }
-    final IOverlayComponent hmoc = colorMap.getColorMapOverlayComponent();
+    final Overlay hmoc = colorMap.getColorMapOverlayComponent();
     hmoc.setVisible(isSelected());
   }
 

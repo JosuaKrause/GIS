@@ -4,7 +4,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 
-public interface IOverlayComponent {
+public interface Overlay {
 
   Dimension getDimension();
 

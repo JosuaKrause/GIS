@@ -4,9 +4,8 @@ import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 import gis.data.db.Query;
 import gis.gui.color_map.ColorMap;
-import gis.gui.color_map.IIntensityMapping;
 import gis.gui.color_map.IntervalIntensityMapping;
-import gis.gui.overlay.IOverlayComponent;
+import gis.gui.overlay.Overlay;
 
 import java.awt.Color;
 import java.util.List;
@@ -34,7 +33,7 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
     if(colorMap.getColorMapOverlayComponent() == null) {
       colorMap.initOverlayComponent(gisPanel);
     }
-    final IOverlayComponent hmoc = colorMap.getColorMapOverlayComponent();
+    final Overlay hmoc = colorMap.getColorMapOverlayComponent();
     hmoc.setVisible(isSelected());
   }
 
@@ -56,7 +55,20 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
           Table.BERLIN_ADMINISTRATIVE, "Commercial Ratio", "ratio");
     }
 
-    private ColorMap colorCode;
+    private final IntervalIntensityMapping intensityMapping =
+        new IntervalIntensityMapping(0, 0, 1, 1);
+
+    private final ColorMap colorCode = new ColorMap(intensityMapping, new Color[] {
+        new Color(240, 59, 32), new Color(254, 178, 76), new Color(255, 237,
+            160)},
+        new double[] { 0, 0.5, 1}) {
+
+      @Override
+      public String formatValue(final double value) {
+        return String.format("%.3f\u2030", value * 1000);
+      }
+
+    };
 
     @Override
     protected void finishLoading(final List<GeoMarker> ms) {
@@ -68,23 +80,10 @@ public class CommercialRatioQueryCheckbox extends QueryCheckBox {
         }
       }
       if(maxRatio > 0) {
-        final IIntensityMapping intensityMapping =
-            new IntervalIntensityMapping(0, 0, maxRatio, 1);
-        colorCode = new ColorMap(intensityMapping, new Color[] {
-            new Color(240, 59, 32), new Color(254, 178, 76), new Color(255, 237, 160)},
-            new double[] { 0, 0.5, 1}) {
-
-          @Override
-          public String formatValue(final double value) {
-            return String.format("%.3f\u2030", value * 1000);
-          }
-
-        };
+        intensityMapping.setMapping(0, 0, maxRatio, 1);
       }
       for(final GeoMarker m : ms) {
-        if(colorCode != null) {
-          m.setColor(colorCode.getColor(m.getQueryValue()));
-        }
+        m.setColor(colorCode.getColor(m.getQueryValue()));
         m.setAlphaSelected(0.6f);
         m.setAlphaNotSelected(0.8f);
         m.setOutlineColor(Color.BLACK);

@@ -42,7 +42,13 @@ public class FlickrChloroplethQuery extends Query {
     super(queryWNulls(), Table.BERLIN_ADMINISTRATIVE, name, "num");
   }
 
-  private ColorMap colorCode;
+  private final IntervalIntensityMapping mapping =
+      new IntervalIntensityMapping(0, 0, 1, 1);
+
+  private final ColorMap colorCode = new ColorMap(mapping,
+      new Color[] { new Color(67, 162, 202),
+          new Color(168, 221, 181), new Color(224, 243, 219)},
+      new double[] { 0, 0.5, 1});
 
   @Override
   protected void finishLoading(final List<GeoMarker> ms) {
@@ -54,15 +60,10 @@ public class FlickrChloroplethQuery extends Query {
       }
     }
     if(maxNum > 0) {
-      colorCode = new ColorMap(new IntervalIntensityMapping(0, 0, maxNum, 1),
-          new Color[] { new Color(67, 162, 202),
-              new Color(168, 221, 181), new Color(224, 243, 219)},
-          new double[] { 0, 0.5, 1});
+      mapping.setMapping(0, 0, maxNum, 1);
     }
     for(final GeoMarker m : ms) {
-      if(colorCode != null) {
-        m.setColor(colorCode.getColor(m.getQueryValue()));
-      }
+      m.setColor(colorCode.getColor(m.getQueryValue()));
       m.setAlphaSelected(0.6f);
       m.setAlphaNotSelected(.8f);
       m.setOutlineColor(Color.BLACK);

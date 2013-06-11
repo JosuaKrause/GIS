@@ -121,4 +121,5 @@ public class DistanceThresholdSelector extends JTextField {
     distanceInMeters = dist;
     updateText();
   }
+
 }
