@@ -5,6 +5,5 @@
 	<classpathentry kind="lib" path="lib/josm-tested.jar" sourcepath="/josm/src"/>
 	<classpathentry kind="lib" path="lib/postgis-jdbc-2.1.0SVN.jar"/>
 	<classpathentry kind="lib" path="lib/postgresql-9.2-1002.jdbc4.jar"/>
-	<classpathentry kind="lib" path="lib/opencsv-2.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
