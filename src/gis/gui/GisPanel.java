@@ -19,11 +19,15 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
+import org.openstreetmap.gui.jmapviewer.OsmFileCacheTileLoader;
+import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
 
 public class GisPanel extends JMapViewer {
 
@@ -35,6 +39,13 @@ public class GisPanel extends JMapViewer {
   private DistanceThresholdSelector distanceThresholdSelector;
 
   public GisPanel() {
+    final TileLoader old = getTileController().getTileLoader();
+    try {
+      setTileLoader(new OsmFileCacheTileLoader(this, new File("cache/tile/")));
+    } catch(final IOException e) {
+      e.printStackTrace();
+      setTileLoader(old);
+    }
     setFocusable(true);
     updateImage();
     addComponentListener(new ComponentAdapter() {
