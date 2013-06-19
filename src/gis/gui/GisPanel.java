@@ -5,6 +5,7 @@ import gis.data.db.Query;
 import gis.gui.overlay.AbstractOverlayComponent;
 import gis.gui.overlay.DistanceThresholdSelector;
 import gis.gui.overlay.Overlay;
+import gis.tiles.SimpleTileLoader;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -46,6 +47,7 @@ public class GisPanel extends JMapViewer {
       e.printStackTrace();
       setTileLoader(old);
     }
+    setTileLoader(new SimpleTileLoader(this, getTileController().getTileLoader()));
     setFocusable(true);
     updateImage();
     addComponentListener(new ComponentAdapter() {
