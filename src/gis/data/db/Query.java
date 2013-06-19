@@ -30,6 +30,8 @@ public class Query<T> {
   private final Table table;
   /** The name of the query. */
   private final String name;
+  /** */
+  private final boolean paintMarkers;
 
   /**
    * Creates a query.
@@ -41,9 +43,15 @@ public class Query<T> {
    * @param name The name of the query.
    */
   public Query(final String query, final Table table, final String name) {
+    this(query, table, name, true);
+  }
+
+  public Query(final String query, final Table table, final String name,
+      final boolean paintMarkers) {
     this.name = Objects.requireNonNull(name);
     this.table = Objects.requireNonNull(table);
     this.query = Objects.requireNonNull(query);
+    this.paintMarkers = paintMarkers;
   }
 
   /** The lookup for ids. */
@@ -150,6 +158,10 @@ public class Query<T> {
    */
   public GeoMarker get(final ElementId id) {
     return map.get(id);
+  }
+
+  public boolean getPaintMarkers() {
+    return paintMarkers;
   }
 
 }

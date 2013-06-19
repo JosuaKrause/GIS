@@ -2,9 +2,8 @@ package gis.gui;
 
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
-import gis.data.db.BrandenburgQuery;
-import gis.data.db.BrandenburgTorQuery;
 import gis.data.db.Query;
+import gis.gui.dist_transform.DistanceTransformationQueryCheckbox;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -39,8 +38,8 @@ public class GisControlPanel extends JPanel {
     gisPanel.registerOverlayComponent(smoc);
     smoc.setVisible(true);
     this.gisPanel = Objects.requireNonNull(gisPanel);
-    addQuery(new BrandenburgQuery(1000, "Brandenburger"));
-    addQuery(new BrandenburgTorQuery("Tor"));
+    // addQuery(new BrandenburgQuery(1000, "Brandenburger"));
+    // addQuery(new BrandenburgTorQuery("Tor"));
     add(new FlickrChloroplethQueryCheckbox(gisPanel));
     addTableSelectionCheckBox(gisPanel, Table.FLICKR, "All Flickr Photos");
     add(new CommercialRatioQueryCheckbox(gisPanel));
@@ -58,8 +57,10 @@ public class GisControlPanel extends JPanel {
     });
     add(new ParksNearWaterQueryCheckBox(gisPanel));
     addTableSelectionCheckBox(gisPanel, Table.BERLIN_WATER, "Water");
-    addTableSelectionCheckBox(gisPanel, Table.BERLIN_POI, "All Points of Interest");
-    addTableSelectionCheckBox(gisPanel, Table.BUILDINGS, "All Buildings");
+    // addTableSelectionCheckBox(gisPanel, Table.BERLIN_POI,
+    // "All Points of Interest");
+    // addTableSelectionCheckBox(gisPanel, Table.BUILDINGS, "All Buildings");
+    add(new DistanceTransformationQueryCheckbox(gisPanel));
     setSize(getMinimumSize());
     addForeignListeners(gisPanel);
   }

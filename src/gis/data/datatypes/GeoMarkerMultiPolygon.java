@@ -77,7 +77,7 @@ public class GeoMarkerMultiPolygon extends GeoMarker {
     g.draw(path);
   }
 
-  private Path2D computeGeometry(final GisPanel panel) {
+  public Path2D computeGeometry(final GisPanel panel) {
     final Path2D path = new Path2D.Double();
     for(final Coordinate[] coords : polygons) {
       boolean first = true;
