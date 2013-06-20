@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
@@ -60,7 +59,7 @@ public abstract class FBOTileLoader extends ImageTileLoader {
           fbo.dispose();
         }
         Display.destroy();
-      } catch(final LWJGLException e) {
+      } catch(final Exception e) {
         e.printStackTrace();
       }
     }
@@ -86,7 +85,7 @@ public abstract class FBOTileLoader extends ImageTileLoader {
     }
   }
 
-  protected abstract void init();
+  protected abstract void init() throws Exception;
 
   protected abstract void render(TileInfo info);
 
