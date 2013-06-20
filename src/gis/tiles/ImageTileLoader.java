@@ -79,6 +79,14 @@ public abstract class ImageTileLoader implements TileLoader {
       source = tile.getSource();
     }
 
+    public int getWidth() {
+      return source.getTileSize();
+    }
+
+    public int getHeight() {
+      return source.getTileSize();
+    }
+
     /**
      * Getter.
      * 
@@ -169,20 +177,25 @@ public abstract class ImageTileLoader implements TileLoader {
       }
       try {
         final BufferedImage img = createImageFor(new TileInfo(tile));
-        if(p == null) {
-          tile.setImage(img);
+        if(img == null) {
+          tile.setError("image is null");
+          getListener().tileLoadingFinished(tile, false);
         } else {
-          // image of tile is set
-          final BufferedImage tileImg = tile.getImage();
-          final BufferedImage real = new BufferedImage(tileImg.getWidth(),
-              tileImg.getHeight(), BufferedImage.TYPE_INT_ARGB);
-          final Graphics g = real.getGraphics();
-          g.drawImage(tileImg, 0, 0, null);
-          g.drawImage(img, 0, 0, null);
-          g.dispose();
-          tile.setImage(real);
+          if(p == null) {
+            tile.setImage(img);
+          } else {
+            // image of tile is set
+            final BufferedImage tileImg = tile.getImage();
+            final BufferedImage real = new BufferedImage(tileImg.getWidth(),
+                tileImg.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            final Graphics g = real.getGraphics();
+            g.drawImage(tileImg, 0, 0, null);
+            g.drawImage(img, 0, 0, null);
+            g.dispose();
+            tile.setImage(real);
+          }
+          getListener().tileLoadingFinished(tile, true);
         }
-        getListener().tileLoadingFinished(tile, true);
       } catch(final IOException e) {
         tile.setError(e.getMessage());
         getListener().tileLoadingFinished(tile, false);

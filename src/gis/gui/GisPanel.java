@@ -1,11 +1,12 @@
 package gis.gui;
 
+import static org.lwjgl.opengl.GL11.*;
 import gis.data.datatypes.GeoMarker;
 import gis.data.db.Query;
 import gis.gui.overlay.AbstractOverlayComponent;
 import gis.gui.overlay.DistanceThresholdSelector;
 import gis.gui.overlay.Overlay;
-import gis.tiles.SimpleTileLoader;
+import gis.tiles.FBOTileLoader;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.opengl.GL11;
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 import org.openstreetmap.gui.jmapviewer.OsmFileCacheTileLoader;
@@ -47,7 +49,25 @@ public class GisPanel extends JMapViewer {
       e.printStackTrace();
       setTileLoader(old);
     }
-    setTileLoader(new SimpleTileLoader(this, getTileController().getTileLoader()));
+    setTileLoader(new FBOTileLoader(this, getTileController().getTileLoader()) {
+
+      @Override
+      protected void init() {
+        // nothing to do here
+      }
+
+      @Override
+      protected void render(final TileInfo info) {
+        glColor4d(1, 0, 0, 1);
+        glBegin(GL11.GL_QUADS);
+        glVertex2d(0, 0);
+        glVertex2d(info.getWidth() * 0.5, 0);
+        glVertex2d(info.getWidth() * 0.5, info.getHeight() * 0.5);
+        glVertex2d(0, info.getHeight() * 0.5);
+        glEnd();
+      }
+
+    });
     setFocusable(true);
     updateImage();
     addComponentListener(new ComponentAdapter() {
