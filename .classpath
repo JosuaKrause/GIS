@@ -6,5 +6,11 @@
 	<classpathentry kind="lib" path="lib/postgis-jdbc-2.1.0SVN.jar"/>
 	<classpathentry kind="lib" path="lib/postgresql-9.2-1002.jdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/opencsv-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl-2.9.0/jar/lwjgl.jar" sourcepath="lib/lwjgl-2.9.0/doc/lwjgl-source-2.9.0.zip">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="GIS/lib/lwjgl-2.9.0/native"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/lwjgl-2.9.0/jar/lwjgl_util.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
