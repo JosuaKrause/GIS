@@ -19,6 +19,8 @@ public final class FBO {
   private final int fboID;
   private final int colID;
 
+  private boolean disposed;
+
   public FBO(final int width, final int height) {
     this.width = width;
     this.height = height;
@@ -43,7 +45,12 @@ public final class FBO {
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
   }
 
+  private void checkDisposed() {
+    if(disposed) throw new IllegalStateException("already disposed");
+  }
+
   public void renderInit() {
+    checkDisposed();
     glViewport(0, 0, width, height);
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboID);
@@ -53,9 +60,20 @@ public final class FBO {
   }
 
   public void beforeOut() {
+    checkDisposed();
     glEnable(GL_TEXTURE_2D);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     glBindTexture(GL_TEXTURE_2D, colID);
+  }
+
+  public void dispose() {
+    checkDisposed();
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+    glDeleteFramebuffersEXT(fboID);
+    glDeleteTextures(colID);
+    disposed = true;
   }
 
   /**
@@ -64,6 +82,7 @@ public final class FBO {
    * @return The image.
    */
   public BufferedImage getFBOImage() {
+    checkDisposed();
     final ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     final BufferedImage image = new BufferedImage(width, height,

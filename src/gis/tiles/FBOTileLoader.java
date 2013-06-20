@@ -30,6 +30,7 @@ public abstract class FBOTileLoader extends ImageTileLoader {
     @Override
     public void run() {
       try {
+        Display.setVSyncEnabled(false);
         Display.setDisplayMode(new DisplayMode(1, 1));
         Display.create();
         init();
@@ -56,6 +57,7 @@ public abstract class FBOTileLoader extends ImageTileLoader {
           synchronized(info) {
             info.notifyAll();
           }
+          fbo.dispose();
         }
         Display.destroy();
       } catch(final LWJGLException e) {
