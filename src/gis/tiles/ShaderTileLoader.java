@@ -14,7 +14,7 @@ import org.lwjgl.opengl.GL11;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
 
-public class ShaderTileLoader extends FBOTileLoader {
+public abstract class ShaderTileLoader extends FBOTileLoader {
 
   private final File vs;
   private final File fs;
@@ -68,6 +68,7 @@ public class ShaderTileLoader extends FBOTileLoader {
     final int w = info.getWidth();
     final int h = info.getHeight();
     ARBShaderObjects.glUseProgramObjectARB(program);
+    settingVariables(info);
     glBegin(GL_QUADS);
     glVertex2d(0, 0);
     glVertex2d(w, 0);
@@ -75,6 +76,12 @@ public class ShaderTileLoader extends FBOTileLoader {
     glVertex2d(0, h);
     glEnd();
     ARBShaderObjects.glUseProgramObjectARB(0);
+  }
+
+  protected abstract void settingVariables(TileInfo info);
+
+  protected int attr(final String name) {
+    return ARBShaderObjects.glGetUniformLocationARB(program, name);
   }
 
   private static int createShader(final String src, final int type) throws Exception {

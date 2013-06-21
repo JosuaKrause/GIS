@@ -90,6 +90,18 @@ public abstract class ImageTileLoader implements TileLoader {
       return source.getTileSize();
     }
 
+    public int tileX() {
+      return tile.getXtile();
+    }
+
+    public int tileY() {
+      return tile.getYtile();
+    }
+
+    public int zoom() {
+      return tile.getZoom();
+    }
+
     /**
      * Getter.
      * 

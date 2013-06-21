@@ -5,7 +5,7 @@ import gis.data.db.Query;
 import gis.gui.overlay.AbstractOverlayComponent;
 import gis.gui.overlay.DistanceThresholdSelector;
 import gis.gui.overlay.Overlay;
-import gis.tiles.ShaderTileLoader;
+import gis.tiles.GISTileLoader;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -52,9 +52,8 @@ public class GisPanel extends JMapViewer {
       e.printStackTrace();
       setTileLoader(old);
     }
-    final ShaderTileLoader stl = new ShaderTileLoader(this,
-        getTileController().getTileLoader(),
-        new File("shaders/screen.vert"), new File("shaders/screen.frag"));
+    final GISTileLoader stl = new GISTileLoader(this,
+        getTileController().getTileLoader());
     setTileLoader(stl);
     getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), stl);
     getActionMap().put(stl, new AbstractAction() {
