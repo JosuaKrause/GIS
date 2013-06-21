@@ -2,6 +2,8 @@ package gis.tiles;
 
 import static org.lwjgl.opengl.GL11.*;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
@@ -14,18 +16,19 @@ import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
 
 public class ShaderTileLoader extends FBOTileLoader {
 
-  private String vs;
-  private String fs;
+  private final File vs;
+  private final File fs;
   private int program = 0;
 
   public ShaderTileLoader(final TileLoaderListener listener, final TileLoader parent,
-      final Reader vertShader, final Reader fragShader) throws IOException {
+      final File vertShader, final File fragShader) {
     super(listener, parent);
-    vs = drain(vertShader);
-    fs = drain(fragShader);
+    vs = vertShader;
+    fs = fragShader;
   }
 
-  private static String drain(final Reader r) throws IOException {
+  private static String drain(final File f) throws IOException {
+    final Reader r = new FileReader(f);
     final StringBuilder sb = new StringBuilder();
     final char[] buf = new char[1024];
     for(;;) {
@@ -41,14 +44,10 @@ public class ShaderTileLoader extends FBOTileLoader {
   @Override
   protected void init() throws Exception {
     int vertShader = 0, fragShader = 0;
-    try {
-      vertShader = createShader(vs, ARBVertexShader.GL_VERTEX_SHADER_ARB);
-      fragShader = createShader(fs, ARBFragmentShader.GL_FRAGMENT_SHADER_ARB);
-      vs = null;
-      fs = null;
-    } finally {
-      if(vertShader == 0 || fragShader == 0) throw new Exception("error loading shader");
-    }
+    vertShader = createShader(drain(vs), ARBVertexShader.GL_VERTEX_SHADER_ARB);
+    fragShader = createShader(drain(fs), ARBFragmentShader.GL_FRAGMENT_SHADER_ARB);
+    if(vertShader == 0) throw new Exception("error loading vertex shader");
+    if(fragShader == 0) throw new Exception("error loading fragment shader");
     program = ARBShaderObjects.glCreateProgramObjectARB();
     if(program == 0) throw new Exception("cannot create program");
     ARBShaderObjects.glAttachObjectARB(program, vertShader);
@@ -85,9 +84,9 @@ public class ShaderTileLoader extends FBOTileLoader {
       if(shader == 0) return 0;
       ARBShaderObjects.glShaderSourceARB(shader, src);
       ARBShaderObjects.glCompileShaderARB(shader);
-      final int param = ARBShaderObjects.glGetObjectParameteriARB(shader,
+      final int loaded = ARBShaderObjects.glGetObjectParameteriARB(shader,
           ARBShaderObjects.GL_OBJECT_COMPILE_STATUS_ARB);
-      if(param == GL_FALSE) throw new Exception(
+      if(loaded == GL_FALSE) throw new Exception(
           "Error creating shader: " + getLogInfo(shader));
       return shader;
     } catch(final Exception e) {

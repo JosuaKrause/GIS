@@ -15,16 +15,20 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.AbstractAction;
+import javax.swing.KeyStroke;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
@@ -44,12 +48,25 @@ public class GisPanel extends JMapViewer {
     final TileLoader old = getTileController().getTileLoader();
     try {
       setTileLoader(new OsmFileCacheTileLoader(this, new File("cache/tile/")));
-      setTileLoader(new ShaderTileLoader(this, getTileController().getTileLoader(),
-          new FileReader("shaders/screen.vert"), new FileReader("shaders/screen.frag")));
     } catch(final IOException e) {
       e.printStackTrace();
       setTileLoader(old);
     }
+    final ShaderTileLoader stl = new ShaderTileLoader(this,
+        getTileController().getTileLoader(),
+        new File("shaders/screen.vert"), new File("shaders/screen.frag"));
+    setTileLoader(stl);
+    getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), stl);
+    getActionMap().put(stl, new AbstractAction() {
+
+      private static final long serialVersionUID = 6208392790909997764L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        stl.reloadTiles();
+      }
+
+    });
     setFocusable(true);
     updateImage();
     addComponentListener(new ComponentAdapter() {

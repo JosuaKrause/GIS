@@ -2,7 +2,9 @@ package gis.tiles;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +26,8 @@ public abstract class FBOTileLoader extends ImageTileLoader {
 
   Map<TileInfo, BufferedImage> imgs = new ConcurrentHashMap<>();
 
+  volatile boolean init = true;
+
   private final Thread painter = new Thread() {
 
     @Override
@@ -32,11 +36,14 @@ public abstract class FBOTileLoader extends ImageTileLoader {
         Display.setVSyncEnabled(false);
         Display.setDisplayMode(new DisplayMode(1, 1));
         Display.create();
-        init();
         out: while(!isInterrupted()) {
           TileInfo info;
           synchronized(this) {
             while((info = infos.poll()) == null) {
+              if(init) {
+                init();
+                init = false;
+              }
               try {
                 wait();
               } catch(final InterruptedException e) {
@@ -61,6 +68,7 @@ public abstract class FBOTileLoader extends ImageTileLoader {
         Display.destroy();
       } catch(final Exception e) {
         e.printStackTrace();
+        System.exit(1);
       }
     }
 
@@ -68,10 +76,18 @@ public abstract class FBOTileLoader extends ImageTileLoader {
 
   @Override
   protected BufferedImage createImageFor(final TileInfo info) throws IOException {
+    enqueue(info);
+    return getImage(info);
+  }
+
+  private void enqueue(final TileInfo info) {
     synchronized(painter) {
       infos.add(info);
       painter.notifyAll();
     }
+  }
+
+  private BufferedImage getImage(final TileInfo info) {
     synchronized(info) {
       for(;;) {
         final BufferedImage res = imgs.get(info);
@@ -88,5 +104,24 @@ public abstract class FBOTileLoader extends ImageTileLoader {
   protected abstract void init() throws Exception;
 
   protected abstract void render(TileInfo info);
+
+  public void reloadTiles() {
+    synchronized(painter) {
+      init = true;
+      painter.notifyAll();
+    }
+    final TileLoader p = getParent();
+    final List<TileInfo> keys = new ArrayList<>(imgs.keySet());
+    for(final TileInfo info : keys) {
+      imgs.remove(info);
+      enqueue(info);
+    }
+    final TileLoaderListener listener = getListener();
+    for(final TileInfo info : keys) {
+      info.prepareTile(p);
+      final BufferedImage img = getImage(info);
+      info.setImage(img, listener, p);
+    }
+  }
 
 }

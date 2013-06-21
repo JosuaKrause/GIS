@@ -35,9 +35,8 @@ public abstract class ImageTileLoader implements TileLoader {
    *          May be <code>null</code>.
    */
   public ImageTileLoader(final TileLoaderListener listener, final TileLoader parent) {
-    this.parent = parent;
-
     this.listener = Objects.requireNonNull(listener);
+    this.parent = parent;
   }
 
   @Override
@@ -56,6 +55,10 @@ public abstract class ImageTileLoader implements TileLoader {
 
   protected TileLoaderListener getListener() {
     return listener;
+  }
+
+  public TileLoader getParent() {
+    return parent;
   }
 
   /**
@@ -138,6 +141,36 @@ public abstract class ImageTileLoader implements TileLoader {
       return source.tileYToLat(tile.getYtile() + y, tile.getZoom());
     }
 
+    public void prepareTile(final TileLoader parent) {
+      if(parent == null) return;
+      tile.initLoading();
+      final TileJob job = parent.createTileLoaderJob(tile);
+      job.run();
+    }
+
+    public void setImage(final BufferedImage img,
+        final TileLoaderListener listener, final TileLoader parent) {
+      if(img == null) {
+        tile.setError("image is null");
+        listener.tileLoadingFinished(tile, false);
+      } else {
+        if(parent == null) {
+          tile.setImage(img);
+        } else {
+          // image of tile is set
+          final BufferedImage tileImg = tile.getImage();
+          final BufferedImage real = new BufferedImage(tileImg.getWidth(),
+              tileImg.getHeight(), BufferedImage.TYPE_INT_ARGB);
+          final Graphics g = real.getGraphics();
+          g.drawImage(tileImg, 0, 0, null);
+          g.drawImage(img, 0, 0, null);
+          g.dispose();
+          tile.setImage(real);
+        }
+        listener.tileLoadingFinished(tile, true);
+      }
+    }
+
   } // TileInfo
 
   /**
@@ -176,26 +209,9 @@ public abstract class ImageTileLoader implements TileLoader {
         if(!tile.isLoaded()) return;
       }
       try {
-        final BufferedImage img = createImageFor(new TileInfo(tile));
-        if(img == null) {
-          tile.setError("image is null");
-          getListener().tileLoadingFinished(tile, false);
-        } else {
-          if(p == null) {
-            tile.setImage(img);
-          } else {
-            // image of tile is set
-            final BufferedImage tileImg = tile.getImage();
-            final BufferedImage real = new BufferedImage(tileImg.getWidth(),
-                tileImg.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            final Graphics g = real.getGraphics();
-            g.drawImage(tileImg, 0, 0, null);
-            g.drawImage(img, 0, 0, null);
-            g.dispose();
-            tile.setImage(real);
-          }
-          getListener().tileLoadingFinished(tile, true);
-        }
+        final TileInfo info = new TileInfo(tile);
+        final BufferedImage img = createImageFor(info);
+        info.setImage(img, getListener(), p);
       } catch(final IOException e) {
         tile.setError(e.getMessage());
         getListener().tileLoadingFinished(tile, false);
