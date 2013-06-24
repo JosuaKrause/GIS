@@ -47,6 +47,7 @@ public class MouseSelectionListener extends MouseAdapter {
   public void mouseMoved(final MouseEvent e) {
     final Point2D pos = e.getPoint();
     final GisPanel gisPanel = this.gisPanel;
+    gisPanel.setToolTipText(gisPanel.getPositionToolTip(pos));
     final List<GeoMarker> picks = new ArrayList<>();
     gisPanel.pick(pos, picks);
     for(final GeoMarker m : picks) {

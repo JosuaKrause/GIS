@@ -52,6 +52,10 @@ public class GisPanel extends JMapViewer {
       e.printStackTrace();
       setTileLoader(old);
     }
+    // simple tile loader
+    // setTileLoader(new SimpleTileLoader(this,
+    // getTileController().getTileLoader()));
+    // shader tile loader
     final GISTileLoader stl = new GISTileLoader(this,
         getTileController().getTileLoader());
     setTileLoader(stl);
@@ -334,4 +338,10 @@ public class GisPanel extends JMapViewer {
     if(distanceThresholdSelector != null) return distanceThresholdSelector.getDistanceInMeters();
     return -1;
   }
+
+  public String getPositionToolTip(final Point2D pos) {
+    final Coordinate p = getPosition((int) pos.getX(), (int) pos.getY());
+    return String.format("Lon: %.2f Lat: %.2f", p.getLon(), p.getLat());
+  }
+
 }
