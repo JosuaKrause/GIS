@@ -118,7 +118,7 @@ public class DistanceTransformationPainter implements IImagePainter {
     }
     for(int y = 1; y < h - 1; ++y) {
       for(int x = 1; x < w - 1; ++x) {
-        dist[w * y + x] = getEightNeighbourhoodDistance(x, y, w, h, mpp, mpdp);
+        dist[w * y + x] = getTopLeftNeighbourhoodDistance(x, y, w, h, mpp, mpdp);
       }
     }
     // apply 8-neighbourhood distance calculations bottom-top, right-left
@@ -132,7 +132,7 @@ public class DistanceTransformationPainter implements IImagePainter {
     }
     for(int y = h - 2; y > 0; --y) {
       for(int x = w - 2; x > 0; --x) {
-        dist[w * y + x] = getEightNeighbourhoodDistance(x, y, w, h, mpp, mpdp);
+        dist[w * y + x] = getBottomRightNeighbourhoodDistance(x, y, w, h, mpp, mpdp);
       }
     }
 
@@ -158,6 +158,28 @@ public class DistanceTransformationPainter implements IImagePainter {
 
     g.drawImage(img, 0, 0, null);
 
+  }
+
+  private final float getTopLeftNeighbourhoodDistance(final int x, final int y,
+      final int w, final int h, final float mpp, final float mpdp) {
+    // ###
+    // #XO
+    // OOO
+    final float d = Math.min(dist[w * (y - 1) + x - 1], dist[w * (y - 1) + x + 1]) + mpdp;
+    final float o = Math.min(dist[w * y + x - 1], dist[w * (y - 1) + x]) + mpp;
+    final float n = Math.min(d, o);
+    return Math.min(dist[w * y + x], n);
+  }
+
+  private final float getBottomRightNeighbourhoodDistance(final int x, final int y,
+      final int w, final int h, final float mpp, final float mpdp) {
+    // OOO
+    // OX#
+    // ###
+    final float d = Math.min(dist[w * (y + 1) + x - 1], dist[w * (y + 1) + x + 1]) + mpdp;
+    final float o = Math.min(dist[w * y + x + 1], dist[w * (y + 1) + x]) + mpp;
+    final float n = Math.min(d, o);
+    return Math.min(dist[w * y + x], n);
   }
 
   private final float getEightNeighbourhoodDistance(final int x, final int y,
