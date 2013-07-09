@@ -19,7 +19,9 @@ public class DistanceTransformationQueryCheckbox extends QueryCheckBox {
         "Museum Distances", false) {
       // nothing here, yet
     });
-    imagePainter = new DistanceTransformationPainter(gisPanel, getQuery());
+    // imagePainter = new DistanceTransformationPainter(gisPanel,
+    // getQuery());//TODO
+    imagePainter = new ErgisDistanceTransformationPainter(gisPanel, getQuery());// TODO
     addActionListener(new ActionListener() {
 
       @Override

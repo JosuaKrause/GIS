@@ -321,7 +321,6 @@ public class GisPanel extends JMapViewer {
       final int width = Math.max(dim.width - insets.left - insets.right, 1);
       final int height = Math.max(dim.height - insets.top - insets.bottom, 1);
       image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-      final IImagePainter imagePainter = this.imagePainter;
       imagePainter.paint(image);
     }
   }

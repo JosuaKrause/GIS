@@ -105,6 +105,9 @@ public class DistanceTransformationPainter implements IImagePainter {
       }
     }
 
+    // TODO this is actually slighly flawed, last calculation in each line takes
+    // accesses pixel from wrong line
+
     // apply 8-neighbourhood distance calculations top-bottom, left-right
     float d;// for distances
     final float e;
@@ -147,11 +150,9 @@ public class DistanceTransformationPainter implements IImagePainter {
     // }
     // }
 
-    // TODO
-
     // convert distances to pixel color in image
-    for(int y = 1; y < h; ++y) {
-      for(int x = 1; x < w; ++x) {
+    for(int y = 0; y < h; ++y) {
+      for(int x = 0; x < w; ++x) {
         img.setRGB(x, y, distanceToColor(dist[y * w + x]));
       }
     }
@@ -182,6 +183,7 @@ public class DistanceTransformationPainter implements IImagePainter {
     return Math.min(dist[w * y + x], n);
   }
 
+  @Deprecated
   private final float getEightNeighbourhoodDistance(final int x, final int y,
       final int w, final int h, final float mpp, final float mpdp) {
     // diagonal distances
