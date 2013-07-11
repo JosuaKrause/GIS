@@ -71,7 +71,7 @@ public class GeoMarkerPolygon extends GeoMarker {
     g.draw(path);
   }
 
-  private Path2D computeGeometry(final GisPanel panel) {
+  public Path2D computeGeometry(final GisPanel panel) {
     final Path2D path = new Path2D.Double();
     boolean first = true;
     for(final Coordinate coord : polygon) {
