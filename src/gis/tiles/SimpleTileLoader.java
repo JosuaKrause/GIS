@@ -7,7 +7,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
 
 /**
  * A simple custom tile loader to show its use.
@@ -16,7 +15,7 @@ import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
  */
 public class SimpleTileLoader extends ImageTileLoader {
 
-  public SimpleTileLoader(final TileLoaderListener listener, final TileLoader parent) {
+  public SimpleTileLoader(final ResetableTileListener listener, final TileLoader parent) {
     super(listener, parent);
   }
 

@@ -6,6 +6,8 @@ import gis.gui.overlay.AbstractOverlayComponent;
 import gis.gui.overlay.DistanceThresholdSelector;
 import gis.gui.overlay.Overlay;
 import gis.tiles.GISTileLoader;
+import gis.tiles.ImageTileLoader;
+import gis.tiles.ResetableTileListener;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -32,10 +34,12 @@ import javax.swing.KeyStroke;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
+import org.openstreetmap.gui.jmapviewer.MemoryTileCache;
 import org.openstreetmap.gui.jmapviewer.OsmFileCacheTileLoader;
+import org.openstreetmap.gui.jmapviewer.interfaces.TileCache;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
 
-public class GisPanel extends JMapViewer {
+public class GisPanel extends JMapViewer implements ResetableTileListener {
 
   private static final long serialVersionUID = 1674766826613294344L;
   boolean drawImage = false;
@@ -56,7 +60,7 @@ public class GisPanel extends JMapViewer {
     // setTileLoader(new SimpleTileLoader(this,
     // getTileController().getTileLoader()));
     // shader tile loader
-    final GISTileLoader stl = new GISTileLoader(this,
+    final ImageTileLoader stl = new GISTileLoader(this,
         getTileController().getTileLoader());
     setTileLoader(stl);
     getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), stl);
@@ -66,7 +70,7 @@ public class GisPanel extends JMapViewer {
 
       @Override
       public void actionPerformed(final ActionEvent e) {
-        stl.reloadTiles();
+        stl.reloadAll();
       }
 
     });
@@ -342,6 +346,20 @@ public class GisPanel extends JMapViewer {
   public String getPositionToolTip(final Point2D pos) {
     final Coordinate p = getPosition((int) pos.getX(), (int) pos.getY());
     return String.format("Lon: %.2f Lat: %.2f", p.getLon(), p.getLat());
+  }
+
+  @Override
+  public void clear() {
+    final TileCache cache = getTileCache();
+    if(cache instanceof MemoryTileCache) {
+      final MemoryTileCache mc = (MemoryTileCache) cache;
+      mc.clear();
+    } else {
+      getTileController().setTileCache(new MemoryTileCache());
+      System.err.println("setting tile cache to "
+          + getTileCache().getClass().getSimpleName());
+    }
+    repaint();
   }
 
 }

@@ -22,7 +22,7 @@ import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
  */
 public abstract class ImageTileLoader implements TileLoader {
   /** The listener to be notified when finished loading. */
-  private final TileLoaderListener listener;
+  private final ResetableTileListener listener;
   /** The optional parent loader. */
   private final TileLoader parent;
 
@@ -34,7 +34,7 @@ public abstract class ImageTileLoader implements TileLoader {
    * @param parent The optional parent tile loader on which the image is drawn.
    *          May be <code>null</code>.
    */
-  public ImageTileLoader(final TileLoaderListener listener, final TileLoader parent) {
+  public ImageTileLoader(final ResetableTileListener listener, final TileLoader parent) {
     this.listener = Objects.requireNonNull(listener);
     this.parent = parent;
   }
@@ -59,6 +59,21 @@ public abstract class ImageTileLoader implements TileLoader {
 
   public TileLoader getParent() {
     return parent;
+  }
+
+  /** Reloads all tiles. */
+  public void reloadAll() {
+    listener.clear();
+  }
+
+  private boolean isActive = true;
+
+  public void setActive(final boolean isActive) {
+    this.isActive = isActive;
+  }
+
+  public boolean isActive() {
+    return isActive;
   }
 
   /**
@@ -165,22 +180,22 @@ public abstract class ImageTileLoader implements TileLoader {
       if(img == null) {
         tile.setError("image is null");
         listener.tileLoadingFinished(tile, false);
-      } else {
-        if(parent == null) {
-          tile.setImage(img);
-        } else {
-          // image of tile is set
-          final BufferedImage tileImg = tile.getImage();
-          final BufferedImage real = new BufferedImage(tileImg.getWidth(),
-              tileImg.getHeight(), BufferedImage.TYPE_INT_ARGB);
-          final Graphics g = real.getGraphics();
-          g.drawImage(tileImg, 0, 0, null);
-          g.drawImage(img, 0, 0, null);
-          g.dispose();
-          tile.setImage(real);
-        }
-        listener.tileLoadingFinished(tile, true);
+        return;
       }
+      if(parent == null) {
+        tile.setImage(img);
+      } else {
+        // image of tile is set
+        final BufferedImage tileImg = tile.getImage();
+        final BufferedImage real = new BufferedImage(tileImg.getWidth(),
+            tileImg.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        final Graphics g = real.getGraphics();
+        g.drawImage(tileImg, 0, 0, null);
+        g.drawImage(img, 0, 0, null);
+        g.dispose();
+        tile.setImage(real);
+      }
+      listener.tileLoadingFinished(tile, true);
     }
 
   } // TileInfo
@@ -221,9 +236,11 @@ public abstract class ImageTileLoader implements TileLoader {
         if(!tile.isLoaded()) return;
       }
       try {
-        final TileInfo info = new TileInfo(tile);
-        final BufferedImage img = createImageFor(info);
-        info.setImage(img, getListener(), p);
+        if(isActive()) {
+          final TileInfo info = new TileInfo(tile);
+          final BufferedImage img = createImageFor(info);
+          info.setImage(img, getListener(), p);
+        }
       } catch(final IOException e) {
         tile.setError(e.getMessage());
         getListener().tileLoadingFinished(tile, false);

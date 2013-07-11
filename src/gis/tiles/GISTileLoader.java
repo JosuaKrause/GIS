@@ -4,11 +4,10 @@ import java.io.File;
 
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
 
 public class GISTileLoader extends ShaderTileLoader {
 
-  public GISTileLoader(final TileLoaderListener listener, final TileLoader parent) {
+  public GISTileLoader(final ResetableTileListener listener, final TileLoader parent) {
     super(listener, parent, new File("shaders/screen.vert"),
         new File("shaders/screen.frag"));
   }
