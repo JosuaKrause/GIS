@@ -168,13 +168,6 @@ public abstract class ImageTileLoader implements TileLoader {
       return source.tileYToLat(tile.getYtile() + y, tile.getZoom());
     }
 
-    public void prepareTile(final TileLoader parent) {
-      if(parent == null) return;
-      tile.initLoading();
-      final TileJob job = parent.createTileLoaderJob(tile);
-      job.run();
-    }
-
     public void setImage(final BufferedImage img,
         final TileLoaderListener listener, final TileLoader parent) {
       if(img == null) {
@@ -230,10 +223,18 @@ public abstract class ImageTileLoader implements TileLoader {
           tile.initLoading();
         }
       } else {
-        if((tile.isLoaded() && !tile.hasError()) || tile.isLoading()) return;
+        synchronized(tile) {
+          if((tile.isLoaded() && !tile.hasError()) || tile.isLoading()) return;
+        }
         final TileJob job = p.createTileLoaderJob(tile);
         job.run();
-        if(!tile.isLoaded()) return;
+        if(!tile.isLoaded()) {
+          synchronized(tile) {
+            tile.finishLoading();
+            tile.setLoaded(false);
+            return;
+          }
+        }
       }
       try {
         if(isActive()) {

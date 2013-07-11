@@ -2,9 +2,7 @@ package gis.tiles;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
 
 public abstract class FBOTileLoader extends ImageTileLoader {
 
@@ -128,26 +125,6 @@ public abstract class FBOTileLoader extends ImageTileLoader {
       painter.notifyAll();
     }
     super.reloadAll();
-  }
-
-  @Deprecated
-  public void reloadTiles() {
-    synchronized(painter) {
-      init = true;
-      painter.notifyAll();
-    }
-    final TileLoader p = getParent();
-    final List<TileInfo> keys = new ArrayList<>(imgs.keySet());
-    for(final TileInfo info : keys) {
-      imgs.remove(info);
-      enqueue(info);
-    }
-    final TileLoaderListener listener = getListener();
-    for(final TileInfo info : keys) {
-      info.prepareTile(p);
-      final BufferedImage img = getImage(info);
-      info.setImage(img, listener, p);
-    }
   }
 
 }
