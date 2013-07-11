@@ -208,7 +208,7 @@ public abstract class Query {
     markers.clear();
   }
 
-  public boolean getPaintMarkers() {
+  public boolean doDrawPaintMarkers() {
     return paintMarkers;
   }
 

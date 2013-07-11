@@ -11,7 +11,6 @@ import org.lwjgl.opengl.ARBFragmentShader;
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.ARBVertexShader;
 import org.lwjgl.opengl.GL11;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
 
 public abstract class ShaderTileLoader extends FBOTileLoader {
 
@@ -19,9 +18,9 @@ public abstract class ShaderTileLoader extends FBOTileLoader {
   private final File fs;
   private int program = 0;
 
-  public ShaderTileLoader(final ResetableTileListener listener, final TileLoader parent,
+  public ShaderTileLoader(final ResetableTileListener listener,
       final File vertShader, final File fragShader) {
-    super(listener, parent);
+    super(listener);
     vs = vertShader;
     fs = fragShader;
   }

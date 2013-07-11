@@ -5,7 +5,6 @@ import gis.data.db.Query;
 import gis.gui.overlay.AbstractOverlayComponent;
 import gis.gui.overlay.DistanceThresholdSelector;
 import gis.gui.overlay.Overlay;
-import gis.tiles.GISTileLoader;
 import gis.tiles.ImageTileLoader;
 import gis.tiles.ResetableTileListener;
 
@@ -57,20 +56,16 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
       e.printStackTrace();
       setTileLoader(old);
     }
-    // simple tile loader
-    // setTileLoader(new SimpleTileLoader(this,
-    // getTileController().getTileLoader()));
-    // shader tile loader
-    final ImageTileLoader stl = new GISTileLoader(this,
-        getTileController().getTileLoader());
-    setTileLoader(stl);
     addAction(KeyEvent.VK_R, new AbstractAction() {
 
       private static final long serialVersionUID = 6208392790909997764L;
 
       @Override
       public void actionPerformed(final ActionEvent e) {
-        stl.reloadAll();
+        final TileLoader tl = getTileController().getTileLoader();
+        if(tl instanceof ImageTileLoader) {
+          ((ImageTileLoader) tl).reloadAll();
+        }
       }
 
     });
@@ -208,7 +203,7 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
     { // draw elements
       final Rectangle2D latLonVP = getLatLonViewPort();
       for(final Query q : queries) {
-        if(!q.getPaintMarkers()) {
+        if(!q.doDrawPaintMarkers()) {
           // skip markers from this query
           continue;
         }

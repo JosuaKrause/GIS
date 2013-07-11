@@ -9,12 +9,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
 
 public abstract class FBOTileLoader extends ImageTileLoader {
 
-  public FBOTileLoader(final ResetableTileListener listener, final TileLoader parent) {
-    super(listener, parent);
+  public FBOTileLoader(final ResetableTileListener listener) {
+    super(listener);
     painter.setDaemon(true);
     painter.start();
   }

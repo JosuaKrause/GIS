@@ -24,18 +24,25 @@ public abstract class ImageTileLoader implements TileLoader {
   /** The listener to be notified when finished loading. */
   private final ResetableTileListener listener;
   /** The optional parent loader. */
-  private final TileLoader parent;
+  private TileLoader parent;
 
   /**
    * Creates a custom image tile loader.
    * 
    * @param listener The listener that is notified when the tile has been
    *          loaded.
+   */
+  public ImageTileLoader(final ResetableTileListener listener) {
+    this.listener = Objects.requireNonNull(listener);
+  }
+
+  /**
+   * Setter.
+   * 
    * @param parent The optional parent tile loader on which the image is drawn.
    *          May be <code>null</code>.
    */
-  public ImageTileLoader(final ResetableTileListener listener, final TileLoader parent) {
-    this.listener = Objects.requireNonNull(listener);
+  public void setParent(final TileLoader parent) {
     this.parent = parent;
   }
 
@@ -64,12 +71,16 @@ public abstract class ImageTileLoader implements TileLoader {
   /** Reloads all tiles. */
   public void reloadAll() {
     listener.clear();
+    if(parent != null && parent instanceof ImageTileLoader) {
+      ((ImageTileLoader) parent).reloadAll();
+    }
   }
 
-  private boolean isActive = true;
+  private boolean isActive;
 
   public void setActive(final boolean isActive) {
     this.isActive = isActive;
+    reloadAll();
   }
 
   public boolean isActive() {

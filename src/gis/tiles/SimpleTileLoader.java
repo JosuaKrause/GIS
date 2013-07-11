@@ -6,8 +6,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
-
 /**
  * A simple custom tile loader to show its use.
  * 
@@ -15,8 +13,8 @@ import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
  */
 public class SimpleTileLoader extends ImageTileLoader {
 
-  public SimpleTileLoader(final ResetableTileListener listener, final TileLoader parent) {
-    super(listener, parent);
+  public SimpleTileLoader(final ResetableTileListener listener) {
+    super(listener);
   }
 
   @Override
