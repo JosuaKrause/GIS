@@ -75,28 +75,17 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
 
     });
     setFocusable(true);
-    // requestImageUpdate();
     addComponentListener(new ComponentAdapter() {
 
       @Override
       public void componentResized(final ComponentEvent e) {
         alignOverlayComponents();
-        // requestImageUpdate();
       }
 
     });
-
-    // addMouseMotionListener(new MouseMotionAdapter() {
-    //
-    // @Override
-    // public void mouseDragged(final MouseEvent arg0) {
-    // if(imagePainter != null) {
-    // updateImage();
-    // }
-    // }
-    //
-    // });
     addAction(KeyEvent.VK_K, new AbstractAction() {
+
+      private static final long serialVersionUID = 285395964021013544L;
 
       @Override
       public void actionPerformed(final ActionEvent e) {
@@ -106,6 +95,8 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
     });
     final BusyPainter busyPainter = new BusyPainter(this);
     addAction(KeyEvent.VK_L, new AbstractAction() {
+
+      private static final long serialVersionUID = 8752696610246079031L;
 
       @Override
       public void actionPerformed(final ActionEvent e) {
