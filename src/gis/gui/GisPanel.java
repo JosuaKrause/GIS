@@ -21,7 +21,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -31,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.KeyStroke;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
@@ -49,8 +49,6 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
   private final List<Overlay> overlayComponents = new ArrayList<>();
   private DistanceThresholdSelector distanceThresholdSelector;
 
-  private final BusyPainter busyPainter;
-
   public GisPanel() {
     final TileLoader old = getTileController().getTileLoader();
     try {
@@ -66,8 +64,7 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
     final ImageTileLoader stl = new GISTileLoader(this,
         getTileController().getTileLoader());
     setTileLoader(stl);
-    getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), stl);
-    getActionMap().put(stl, new AbstractAction() {
+    addAction(KeyEvent.VK_R, new AbstractAction() {
 
       private static final long serialVersionUID = 6208392790909997764L;
 
@@ -99,40 +96,40 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
     // }
     //
     // });
-
-    addKeyListener(new KeyListener() {
-
-      @Override
-      public void keyTyped(final KeyEvent e) {
-        System.out.println(e.getKeyChar());
-        if(e.getKeyChar() == 'k') {
-          imageUpdateRequested = true;
-          repaint();
-        } else if(e.getKeyChar() == 'l') {
-          if(busyPainter.isRunning()) {
-            busyPainter.stop();
-          } else {
-            busyPainter.start();
-          }
-          System.out.println(getMeterPerPixel());
-          System.out.println("x" + 92.80207052971653 / 0.36375105061146223);
-        }
-      }
+    addAction(KeyEvent.VK_K, new AbstractAction() {
 
       @Override
-      public void keyReleased(final KeyEvent e) {
-        // TODO Auto-generated method stub
-
+      public void actionPerformed(final ActionEvent e) {
+        requestImageUpdate();
       }
 
-      @Override
-      public void keyPressed(final KeyEvent arg0) {
-        // TODO Auto-generated method stub
-
-      }
     });
+    final BusyPainter busyPainter = new BusyPainter(this);
+    addAction(KeyEvent.VK_L, new AbstractAction() {
 
-    busyPainter = new BusyPainter(this);
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        if(busyPainter.isRunning()) {
+          busyPainter.stop();
+        } else {
+          busyPainter.start();
+        }
+        System.out.println(getMeterPerPixel());
+        System.out.println("x" + 92.80207052971653 / 0.36375105061146223);
+      }
+
+    });
+  }
+
+  public void requestImageUpdate() {
+    imageUpdateRequested = true;
+    repaint();
+  }
+
+  public void addAction(final int vk, final Action a) {
+    final Object key = new Object();
+    getInputMap().put(KeyStroke.getKeyStroke(vk, 0), key);
+    getActionMap().put(key, a);
   }
 
   private double imgPosX, imgPosY;
@@ -247,12 +244,12 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
     }
     { // draw overlay image
       if(imagePainter != null && imageUpdateRequested) {
-        imageUpdateRequested = false;
         updateImage();
         final Graphics2D g = (Graphics2D) g2.create();
         paintImage(g);
         imagePainter.paint(g);
         g.dispose();
+        imageUpdateRequested = false;
       }
     }
     { // draw hover image
@@ -296,26 +293,6 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
     }
   }
 
-  // @Override
-  // public void zoomIn(final Point p) {
-  // super.zoomIn(p);
-  // requestImageUpdate();
-  // }
-  //
-  // @Override
-  // public void zoomOut(final Point p) {
-  // super.zoomOut(p);
-  // requestImageUpdate();
-  // }
-
-  // @Override
-  // public void setDisplayPosition(final Point mapPoint, final int x, final int
-  // y,
-  // final int zoom) {
-  // super.setDisplayPosition(mapPoint, x, y, zoom);
-  // requestImageUpdate();
-  // }
-
   public static final void drawText(final Graphics2D g,
       final String text, final float x, final float y) {
     g.setColor(Color.WHITE);
@@ -348,11 +325,6 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
   }
 
   private volatile boolean imageUpdateRequested = false;
-
-  //
-  // void requestImageUpdate() {
-  // imageUpdateRequested = true;
-  // }
 
   private void updateImage() {
     if(imagePainter != null) {
