@@ -5,6 +5,7 @@ import gis.data.db.Query;
 import gis.gui.overlay.AbstractOverlayComponent;
 import gis.gui.overlay.DistanceThresholdSelector;
 import gis.gui.overlay.Overlay;
+import gis.tiles.GISTileLoader;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -14,8 +15,10 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -23,6 +26,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.AbstractAction;
+import javax.swing.KeyStroke;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
@@ -46,6 +52,24 @@ public class GisPanel extends JMapViewer {
       e.printStackTrace();
       setTileLoader(old);
     }
+    // simple tile loader
+    // setTileLoader(new SimpleTileLoader(this,
+    // getTileController().getTileLoader()));
+    // shader tile loader
+    final GISTileLoader stl = new GISTileLoader(this,
+        getTileController().getTileLoader());
+    setTileLoader(stl);
+    getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), stl);
+    getActionMap().put(stl, new AbstractAction() {
+
+      private static final long serialVersionUID = 6208392790909997764L;
+
+      @Override
+      public void actionPerformed(final ActionEvent e) {
+        stl.reloadTiles();
+      }
+
+    });
     setFocusable(true);
     updateImage();
     addComponentListener(new ComponentAdapter() {
@@ -314,4 +338,10 @@ public class GisPanel extends JMapViewer {
     if(distanceThresholdSelector != null) return distanceThresholdSelector.getDistanceInMeters();
     return -1;
   }
+
+  public String getPositionToolTip(final Point2D pos) {
+    final Coordinate p = getPosition((int) pos.getX(), (int) pos.getY());
+    return String.format("Lon: %.2f Lat: %.2f", p.getLon(), p.getLat());
+  }
+
 }
