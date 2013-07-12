@@ -2,6 +2,7 @@ package gis.gui;
 
 import gis.data.datatypes.GeoMarker;
 import gis.data.db.Query;
+import gis.gui.dist_transform.IImagePainter;
 import gis.gui.overlay.AbstractOverlayComponent;
 import gis.gui.overlay.DistanceThresholdSelector;
 import gis.gui.overlay.Overlay;
@@ -319,7 +320,7 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
       final Dimension dim = getSize();
       final int width = Math.max(dim.width - insets.left - insets.right, 1);
       final int height = Math.max(dim.height - insets.top - insets.bottom, 1);
-      image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+      image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
       imagePainter.paint(image);
     }
   }
@@ -336,8 +337,7 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
     final int width = getWidth();
     final int height = getHeight();
     final Insets insets = getInsets();
-    // TODO
-    // supports only one left and one right component, for now
+    // TODO supports only one left and one right component, for now
     for(final Overlay c : overlayComponents) {
       final Dimension dim = c.getDimension();
       int x;

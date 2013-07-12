@@ -4,7 +4,6 @@ import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.GeoMarkerPolygon;
 import gis.data.db.Query;
 import gis.gui.GisPanel;
-import gis.gui.IImagePainter;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

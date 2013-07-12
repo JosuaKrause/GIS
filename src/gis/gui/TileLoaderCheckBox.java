@@ -7,6 +7,8 @@ import java.util.Objects;
 
 public class TileLoaderCheckBox extends QueryCheckBox {
 
+  private static final long serialVersionUID = -2332610101951652353L;
+
   private final ImageTileLoader loader;
 
   public TileLoaderCheckBox(final GisPanel gisPanel, final Query q,

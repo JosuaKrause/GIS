@@ -1,6 +1,5 @@
 package gis.gui.dist_transform;
 
-import gis.gui.IImagePainter;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;

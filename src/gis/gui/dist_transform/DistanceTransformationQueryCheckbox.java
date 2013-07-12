@@ -4,7 +4,6 @@ import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 import gis.data.db.Query;
 import gis.gui.GisPanel;
-import gis.gui.IImagePainter;
 import gis.gui.QueryCheckBox;
 
 import java.awt.event.ActionEvent;
