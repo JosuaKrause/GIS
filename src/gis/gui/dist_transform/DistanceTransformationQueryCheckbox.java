@@ -4,20 +4,17 @@ import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 import gis.data.db.Query;
 import gis.gui.GisPanel;
-import gis.gui.QueryCheckBox;
+import gis.gui.TileLoaderCheckBox;
+import gis.tiles.PainterTileLoader;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
-public class DistanceTransformationQueryCheckbox extends QueryCheckBox {
+public class DistanceTransformationQueryCheckbox extends TileLoaderCheckBox {
 
-  private static final long serialVersionUID = -8643774480736311524L;
-
-  final IImagePainter imagePainter;
+  private static final long serialVersionUID = -7175701018571538127L;
 
   public DistanceTransformationQueryCheckbox(final GisPanel gisPanel) {
-    super(gisPanel, new Query(
+    this(gisPanel, new Query(
         "select gid, name, geom from buildings where type = 'museum';", Table.BUILDINGS,
         "Museum Distances", null, false) {
 
@@ -27,27 +24,11 @@ public class DistanceTransformationQueryCheckbox extends QueryCheckBox {
       }
 
     });
-    // imagePainter = new DistanceTransformationPainter(gisPanel,
-    // getQuery());//TODO
-    imagePainter = new ErgisDistanceTransformationPainter(gisPanel, getQuery());// TODO
-    addActionListener(new ActionListener() {
-
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        if(isSelected()) {
-          gisPanel.setImagePainter(imagePainter);
-        } else {
-          gisPanel.setImagePainter(null);
-        }
-      }
-
-    });
-
   }
 
-  @Override
-  public void onAction(final GisPanel gisPanel) {
-    // nothing to do
+  private DistanceTransformationQueryCheckbox(final GisPanel gisPanel, final Query q) {
+    super(gisPanel, q, new PainterTileLoader(gisPanel,
+        new ErgisDistanceTransformationPainter(gisPanel, q)));
   }
 
 }

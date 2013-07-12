@@ -4,6 +4,8 @@ import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.GeoMarkerPolygon;
 import gis.data.db.Query;
 import gis.gui.GisPanel;
+import gis.tiles.ImageTileLoader.TileInfo;
+import gis.tiles.TilePainter;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -15,13 +17,10 @@ import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
-public class ErgisDistanceTransformationPainter implements IImagePainter {
+public class ErgisDistanceTransformationPainter implements TilePainter {
 
   private final GisPanel gisPanel;
   private final Query query;
-
-  private float[] dist = new float[0];
-  private Point[] targets = new Point[0];
 
   public ErgisDistanceTransformationPainter(final GisPanel gisPanel, final Query query) {
     this.gisPanel = gisPanel;
@@ -29,35 +28,22 @@ public class ErgisDistanceTransformationPainter implements IImagePainter {
   }
 
   @Override
-  public void paint(final BufferedImage image) {
-    // TODO do nothing
-  }
-
-  @Override
-  public void paint(final Graphics2D g) {
+  public void paintTile(final BufferedImage img, final TileInfo info) {
     final List<GeoMarker> markers = query.getResult();
     if(markers.size() == 0) return;
-    final Rectangle2D vpLatLon = gisPanel.getLatLonViewPort();
-    final int w = gisPanel.getWidth();
-    final int h = gisPanel.getHeight();
-    final float mpp = (float) gisPanel.getMeterPerPixel();
-
-    final BufferedImage img = new BufferedImage(w, h,
-        BufferedImage.TYPE_INT_ARGB);
+    final int w = img.getWidth();
+    final int h = img.getHeight();
     final Graphics2D imgG = img.createGraphics();
-
-    if(w * h != dist.length) {
-      dist = new float[w * h];
-      targets = new Point[w * h];
-    }
-
+    final double[] dist = new double[w * h];
+    final Point[] targets = new Point[w * h];
     imgG.setColor(Color.WHITE);
     for(final GeoMarker marker : markers) {
       final GeoMarkerPolygon m = (GeoMarkerPolygon) marker;
       final Rectangle2D mLatLonBBox = m.getLatLonBBox();
-      if(!vpLatLon.intersects(mLatLonBBox)) {
-        continue;
-      }
+      // FIXME compute important boxes
+      // if(!vpLatLon.intersects(mLatLonBBox)) {
+      // continue;
+      // }
       // set polygon pixels as target pixels
       final Path2D path = m.computeGeometry(gisPanel);
       imgG.draw(path);
@@ -100,7 +86,7 @@ public class ErgisDistanceTransformationPainter implements IImagePainter {
         if(dist[x] == 0) {
           targetHalfCoordinate = x;
         } else {
-          dist[x] = dist[x - 1] + mpp;
+          dist[x] = dist[x - 1] + info.distance(x, 0, x - 1, 0);
           targets[x] = new Point(targetHalfCoordinate, 0);
         }
       }
@@ -118,7 +104,7 @@ public class ErgisDistanceTransformationPainter implements IImagePainter {
         if(dist[w * y] == 0) {
           targetHalfCoordinate = y;
         } else {
-          dist[y * w] = dist[(y - 1) * w] + mpp;
+          dist[y * w] = dist[(y - 1) * w] + info.distance(0, y, 0, y - 1);
           targets[y * w] = new Point(0, targetHalfCoordinate);
         }
       }
@@ -132,12 +118,12 @@ public class ErgisDistanceTransformationPainter implements IImagePainter {
           final Point tct = targets[index - w];
           final Point trt = targets[index - w + 1];
           final Point lt = targets[index - 1];
-          final float tltDist = distFromTarget(x, y, tlt, mpp);
-          final float ltDist = distFromTarget(x, y, lt, mpp);
-          final float tctDist = distFromTarget(x, y, tct, mpp);
-          final float trtDist = distFromTarget(x, y, trt, mpp);
-          Point target1;
-          float dist1;
+          final double tltDist = distFromTarget(x, y, tlt, info);
+          final double ltDist = distFromTarget(x, y, lt, info);
+          final double tctDist = distFromTarget(x, y, tct, info);
+          final double trtDist = distFromTarget(x, y, trt, info);
+          final Point target1;
+          final double dist1;
           if(tltDist < ltDist) {
             target1 = tlt;
             dist1 = tltDist;
@@ -145,8 +131,8 @@ public class ErgisDistanceTransformationPainter implements IImagePainter {
             target1 = lt;
             dist1 = ltDist;
           }
-          Point target2;
-          float dist2;
+          final Point target2;
+          final double dist2;
           if(tctDist < trtDist) {
             target2 = tct;
             dist2 = tctDist;
@@ -169,11 +155,11 @@ public class ErgisDistanceTransformationPainter implements IImagePainter {
       final Point tlt = targets[index - w - 1];
       final Point tct = targets[index - w];
       final Point lt = targets[index - 1];
-      final float tltDist = distFromTarget(x, y, tlt, mpp);
-      final float ltDist = distFromTarget(x, y, lt, mpp);
-      final float tctDist = distFromTarget(x, y, tct, mpp);
+      final double tltDist = distFromTarget(x, y, tlt, info);
+      final double ltDist = distFromTarget(x, y, lt, info);
+      final double tctDist = distFromTarget(x, y, tct, info);
       Point target1;// will reference closest neighbouring target
-      float dist1;
+      double dist1;
       if(tltDist < ltDist) {
         target1 = tlt;
         dist1 = tltDist;
@@ -197,7 +183,7 @@ public class ErgisDistanceTransformationPainter implements IImagePainter {
         final int index = (h - 1) * w + x;
         final Point rnTarget = targets[index + 1];
         if(dist[index + 1] != Float.MAX_VALUE) {
-          final float rnTargetDist = euclidian(x, h - 1, rnTarget.x, rnTarget.y, mpp);
+          final double rnTargetDist = distFromTarget(x, h - 1, rnTarget, info);
           if(rnTargetDist < dist[index]) {
             dist[index] = rnTargetDist;
             targets[index] = rnTarget;
@@ -209,7 +195,7 @@ public class ErgisDistanceTransformationPainter implements IImagePainter {
         final int index = (y + 1) * w - 1;
         final Point bnTarget = targets[index + w];
         if(dist[index + w] != Float.MAX_VALUE) {
-          final float bnTargetDist = euclidian(w - 1, y, bnTarget.x, bnTarget.y, mpp);
+          final double bnTargetDist = distFromTarget(w - 1, y, bnTarget, info);
           if(bnTargetDist < dist[index]) {
             dist[index] = bnTargetDist;
             targets[index] = bnTarget;
@@ -226,12 +212,12 @@ public class ErgisDistanceTransformationPainter implements IImagePainter {
           final Point bct = targets[index + w];
           final Point brt = targets[index + w + 1];
           final Point rt = targets[index + 1];
-          final float bltDist = distFromTarget(x, y, blt, mpp);
-          final float bctDist = distFromTarget(x, y, bct, mpp);
-          final float brtDist = distFromTarget(x, y, brt, mpp);
-          final float rtDist = distFromTarget(x, y, rt, mpp);
+          final double bltDist = distFromTarget(x, y, blt, info);
+          final double bctDist = distFromTarget(x, y, bct, info);
+          final double brtDist = distFromTarget(x, y, brt, info);
+          final double rtDist = distFromTarget(x, y, rt, info);
           Point target1;
-          float dist1;
+          double dist1;
           if(bltDist < bctDist) {
             target1 = blt;
             dist1 = bltDist;
@@ -239,8 +225,8 @@ public class ErgisDistanceTransformationPainter implements IImagePainter {
             target1 = bct;
             dist1 = bctDist;
           }
-          Point target2;
-          float dist2;
+          final Point target2;
+          final double dist2;
           if(brtDist < rtDist) {
             target2 = brt;
             dist2 = brtDist;
@@ -265,11 +251,11 @@ public class ErgisDistanceTransformationPainter implements IImagePainter {
         final Point bct = targets[index + w];
         final Point brt = targets[index + w + 1];
         final Point rt = targets[index + 1];
-        final float bctDist = distFromTarget(0, y, bct, mpp);
-        final float brtDist = distFromTarget(0, y, brt, mpp);
-        final float rtDist = distFromTarget(0, y, rt, mpp);
+        final double bctDist = distFromTarget(0, y, bct, info);
+        final double brtDist = distFromTarget(0, y, brt, info);
+        final double rtDist = distFromTarget(0, y, rt, info);
         Point target1;// will reference closest neighbouring target
-        float dist1;
+        double dist1;
         if(bctDist < brtDist) {
           target1 = bct;
           dist1 = bctDist;
@@ -287,35 +273,24 @@ public class ErgisDistanceTransformationPainter implements IImagePainter {
         }
       }
     }
-
-    // ////// again old code
     // convert distances to pixel color in image
     for(int y = 0; y < h; ++y) {
       for(int x = 0; x < w; ++x) {
         img.setRGB(x, y, distanceToColor(dist[y * w + x]));
       }
     }
-
-    g.drawImage(img, 0, 0, null);
   }
 
-  private static float distFromTarget(final int x, final int y, final Point target,
-      final float metersPerPixel) {
+  private static double distFromTarget(final int x, final int y,
+      final Point target, final TileInfo info) {
     if(target == null) return Float.MAX_VALUE;
-    return euclidian(target.x, target.y, x, y, metersPerPixel);
+    return info.distance(x, y, target.x, target.y);
   }
 
-  private static final float euclidian(final int x1, final int y1, final int x2,
-      final int y2, final float metersPerPixel) {
-    final float dx = x1 - x2;
-    final float xx = dx * dx;
-    final float dy = y1 - y2;
-    final float yy = dy * dy;
-    return ((float) Math.sqrt(xx + yy)) * metersPerPixel;
-  }
+  public static final double MAX_DIST = 3000;
 
-  private final static int distanceToColor(final float distance) {
-    int i = Math.round(255 * distance / 3000);
+  private final static int distanceToColor(final double distance) {
+    int i = (int) Math.round(255 * distance / MAX_DIST);
     i = Math.min(i, 255);
     // i = Math.max(i, 0);
     i = 255 - i;

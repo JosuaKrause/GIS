@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Objects;
 
+import org.openstreetmap.gui.jmapviewer.OsmMercator;
 import org.openstreetmap.gui.jmapviewer.Tile;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileJob;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
@@ -177,6 +178,21 @@ public abstract class ImageTileLoader implements TileLoader {
      */
     public double getLatForY(final int y) {
       return source.tileYToLat(tile.getYtile() + y, tile.getZoom());
+    }
+
+    /**
+     * Computes the distance of two pixels.
+     * 
+     * @param x1 The first x coordinate.
+     * @param y1 The first y coordinate.
+     * @param x2 The second x coordinate.
+     * @param y2 The second y coordinate.
+     * @return The distance in meters.
+     */
+    public double distance(final int x1, final int y1, final int x2, final int y2) {
+      return OsmMercator.getDistance(
+          tile.getXtile() + x1, tile.getYtile() + y1,
+          tile.getXtile() + x2, tile.getYtile() + y2, tile.getZoom());
     }
 
     public void setImage(final BufferedImage img,
