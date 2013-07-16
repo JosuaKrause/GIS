@@ -11,6 +11,53 @@ public final class GeomUtil {
     throw new AssertionError();
   }
 
+  public static double distance(final Point2D p, final Shape s, final double eps) {
+    if(s.contains(p)) return 0;
+    final PathIterator pi = s.getPathIterator(null, eps);
+    final Line2D line = new Line2D.Double();
+    double bestDistSq = Double.POSITIVE_INFINITY;
+    double firstX = Double.NaN;
+    double firstY = Double.NaN;
+    double lastX = Double.NaN;
+    double lastY = Double.NaN;
+    final double coords[] = new double[6];
+    while(!pi.isDone()) {
+      final boolean validLine;
+      switch(pi.currentSegment(coords)) {
+        case PathIterator.SEG_MOVETO:
+          lastX = coords[0];
+          lastY = coords[1];
+          firstX = lastX;
+          firstY = lastY;
+          validLine = false;
+          break;
+        case PathIterator.SEG_LINETO: {
+          final double x = coords[0];
+          final double y = coords[1];
+          line.setLine(lastX, lastY, x, y);
+          lastX = x;
+          lastY = y;
+          validLine = true;
+          break;
+        }
+        case PathIterator.SEG_CLOSE:
+          line.setLine(lastX, lastY, firstX, firstY);
+          validLine = true;
+          break;
+        default:
+          throw new AssertionError();
+      }
+      if(validLine) {
+        final double distSq = line.ptSegDistSq(p);
+        if(distSq < bestDistSq) {
+          bestDistSq = distSq;
+        }
+      }
+      pi.next();
+    }
+    return Math.sqrt(bestDistSq);
+  }
+
   public static Point2D closestPoint(final Point2D p, final Line2D l) {
     final double lx = l.getX1();
     final double dx = l.getX2() - lx;

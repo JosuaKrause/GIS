@@ -5,6 +5,8 @@ import gis.data.db.Query;
 import gis.tiles.ImageTileLoader.TileInfo;
 import gis.tiles.TilePainter;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -40,31 +42,33 @@ public class ExactDistanceTransformationPainter implements TilePainter {
     for(final GeoMarker marker : markers) {
       shapes.add(marker.convert(info));
     }
+    final int raster = 10;
+    final Graphics g = img.getGraphics();
     final Point2D pos = new Point2D.Double();
-    for(int y = 0; y < info.getHeight(); ++y) {
-      for(int x = 0; x < info.getWidth(); ++x) {
+    for(int y = 0; y < info.getHeight(); y += raster) {
+      for(int x = 0; x < info.getWidth(); x += raster) {
         pos.setLocation(x, y);
         double m = Double.POSITIVE_INFINITY;
         for(final Shape s : shapes) {
-          final Point2D test = GeomUtil.closestPointWithin(pos, s.getBounds2D(), EPS);
-          final double tm = info.distance((int) test.getX(), (int) test.getY(), x, y);
+          final double tm = GeomUtil.distance(pos, s.getBounds2D(), EPS);
           if(tm >= MAX_DIST) {
             continue;
           }
-          final Point2D best = GeomUtil.closestPointWithin(pos, s, EPS);
-          final double meters = info.distance((int) best.getX(), (int) best.getY(), x, y);
-          if(meters < m) {
-            m = meters;
+          final double pxls = GeomUtil.distance(pos, s, EPS);
+          if(pxls < m) {
+            m = pxls;
           }
         }
-        img.setRGB(x, y, distanceToColor(m));
+        g.setColor(new Color(distanceToColor(m), true));
+        g.fillRect(x, y, raster, raster);
       }
     }
+    g.dispose();
   }
 
   public static final double EPS = 1e-3;
 
-  public static final double MAX_DIST = 10;
+  public static final double MAX_DIST = 50;
 
   private final static int distanceToColor(final double distance) {
     int i = (int) Math.round(255 * distance / MAX_DIST);
