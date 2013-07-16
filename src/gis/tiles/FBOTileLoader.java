@@ -7,40 +7,40 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
-public abstract class FBOTileLoader extends ImageTileLoader {
+public abstract class FBOTileLoader extends ImageTileLoader<FBOTileLoader> {
 
   public FBOTileLoader(final ResetableTileListener listener) {
     super(listener);
-    painter.setDaemon(true);
-    painter.start();
   }
 
-  Queue<TileInfo> infos = new LinkedList<>();
+  static Queue<TileInfo<FBOTileLoader>> infos = new LinkedList<>();
 
-  Map<TileInfo, BufferedImage> imgs = new ConcurrentHashMap<>();
+  static Map<TileInfo<FBOTileLoader>, BufferedImage> imgs = new ConcurrentHashMap<>();
 
-  volatile boolean init = true;
+  static volatile boolean init = true;
 
-  private final Thread painter = new Thread() {
+  private static final Thread painter = new Thread() {
 
     @Override
     public void run() {
+      Display.setVSyncEnabled(false);
+      try {
+        Display.setDisplayMode(new DisplayMode(1, 1));
+        Display.create();
+      } catch(final LWJGLException e) {
+        e.printStackTrace();
+        return;
+      }
       while(true) {
         try {
-          Display.setVSyncEnabled(false);
-          Display.setDisplayMode(new DisplayMode(1, 1));
-          Display.create();
           out: while(!isInterrupted()) {
-            TileInfo info;
+            TileInfo<FBOTileLoader> info;
             synchronized(this) {
               while((info = infos.poll()) == null) {
-                if(init) {
-                  init();
-                  init = false;
-                }
                 try {
                   wait();
                 } catch(final InterruptedException e) {
@@ -49,11 +49,16 @@ public abstract class FBOTileLoader extends ImageTileLoader {
                 }
               }
             }
+            final FBOTileLoader tl = info.getTileLoader();
+            if(init) {
+              tl.init();
+              init = false;
+            }
             final int width = info.getWidth();
             final int height = info.getHeight();
             final FBO fbo = new FBO(width, height);
             fbo.renderInit();
-            render(info);
+            tl.render(info);
             fbo.beforeOut();
             final BufferedImage res = fbo.getFBOImage();
             imgs.put(info, res);
@@ -84,20 +89,26 @@ public abstract class FBOTileLoader extends ImageTileLoader {
 
   };
 
+  static {
+    painter.setDaemon(true);
+    painter.start();
+  }
+
   @Override
-  protected BufferedImage createImageFor(final TileInfo info) throws IOException {
+  protected BufferedImage createImageFor(final TileInfo<FBOTileLoader> info)
+      throws IOException {
     enqueue(info);
     return getImage(info);
   }
 
-  private void enqueue(final TileInfo info) {
+  private static void enqueue(final TileInfo<FBOTileLoader> info) {
     synchronized(painter) {
       infos.add(info);
       painter.notifyAll();
     }
   }
 
-  private BufferedImage getImage(final TileInfo info) {
+  private static BufferedImage getImage(final TileInfo<FBOTileLoader> info) {
     synchronized(info) {
       for(;;) {
         final BufferedImage res = imgs.get(info);
@@ -113,7 +124,7 @@ public abstract class FBOTileLoader extends ImageTileLoader {
 
   protected abstract void init() throws Exception;
 
-  protected abstract void render(TileInfo info);
+  protected abstract void render(TileInfo<FBOTileLoader> info);
 
   @Override
   public void reloadAll() {

@@ -62,7 +62,7 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, Trans
       public void actionPerformed(final ActionEvent e) {
         final TileLoader tl = getTileController().getTileLoader();
         if(tl instanceof ImageTileLoader) {
-          ((ImageTileLoader) tl).reloadAll();
+          ((ImageTileLoader<?>) tl).reloadAll();
         }
       }
 

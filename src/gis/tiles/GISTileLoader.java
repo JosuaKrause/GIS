@@ -12,7 +12,7 @@ public class GISTileLoader extends ShaderTileLoader {
   }
 
   @Override
-  protected void settingVariables(final TileInfo info) {
+  protected void settingVariables(final TileInfo<FBOTileLoader> info) {
     ARBShaderObjects.glUniform2fARB(attr("size"), info.getWidth(), info.getHeight());
     ARBShaderObjects.glUniform2fARB(attr("tile"), info.tileX(), info.tileY());
     ARBShaderObjects.glUniform1fARB(attr("zoom"), info.zoom());

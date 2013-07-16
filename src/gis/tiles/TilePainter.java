@@ -6,6 +6,6 @@ import java.awt.image.BufferedImage;
 
 public interface TilePainter {
 
-  void paintTile(BufferedImage img, TileInfo info);
+  void paintTile(BufferedImage img, TileInfo<?> info);
 
 }

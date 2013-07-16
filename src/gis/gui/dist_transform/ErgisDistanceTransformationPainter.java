@@ -22,7 +22,7 @@ public class ErgisDistanceTransformationPainter implements TilePainter {
   }
 
   @Override
-  public void paintTile(final BufferedImage img, final TileInfo info) {
+  public void paintTile(final BufferedImage img, final TileInfo<?> info) {
     final List<GeoMarker> markers = query.getResult();
     if(markers.size() == 0) return;
     final int w = img.getWidth();
@@ -263,7 +263,7 @@ public class ErgisDistanceTransformationPainter implements TilePainter {
   }
 
   private static double distFromTarget(final int x, final int y,
-      final Point target, final TileInfo info) {
+      final Point target, final TileInfo<?> info) {
     if(target == null) return Float.MAX_VALUE;
     return info.distance(x, y, target.x, target.y);
   }

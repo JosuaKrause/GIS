@@ -9,10 +9,10 @@ public class TileLoaderCheckBox extends QueryCheckBox {
 
   private static final long serialVersionUID = -2332610101951652353L;
 
-  private final ImageTileLoader loader;
+  private final ImageTileLoader<?> loader;
 
   public TileLoaderCheckBox(final GisPanel gisPanel, final Query q,
-      final ImageTileLoader loader) {
+      final ImageTileLoader<?> loader) {
     super(gisPanel, q);
     this.loader = Objects.requireNonNull(loader);
     loader.setParent(gisPanel.getTileController().getTileLoader());

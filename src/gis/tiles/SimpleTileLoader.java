@@ -11,14 +11,15 @@ import java.io.IOException;
  * 
  * @author Joschi <josua.krause@googlemail.com>
  */
-public class SimpleTileLoader extends ImageTileLoader {
+public class SimpleTileLoader extends ImageTileLoader<SimpleTileLoader> {
 
   public SimpleTileLoader(final ResetableTileListener listener) {
     super(listener);
   }
 
   @Override
-  protected BufferedImage createImageFor(final TileInfo tile) throws IOException {
+  protected BufferedImage createImageFor(final TileInfo<SimpleTileLoader> tile)
+      throws IOException {
     // create image with size of tile
     final BufferedImage img = tile.createImage();
     final Graphics2D g = (Graphics2D) img.getGraphics();

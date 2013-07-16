@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Objects;
 
-public class PainterTileLoader extends ImageTileLoader {
+public class PainterTileLoader extends ImageTileLoader<PainterTileLoader> {
 
   private final TilePainter painter;
 
@@ -14,7 +14,8 @@ public class PainterTileLoader extends ImageTileLoader {
   }
 
   @Override
-  protected BufferedImage createImageFor(final TileInfo info) throws IOException {
+  protected BufferedImage createImageFor(final TileInfo<PainterTileLoader> info)
+      throws IOException {
     final BufferedImage img = info.createImage();
     painter.paintTile(img, info);
     return img;

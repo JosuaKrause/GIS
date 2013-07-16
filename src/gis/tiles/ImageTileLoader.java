@@ -24,8 +24,9 @@ import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
  * unexpected behavior.
  * 
  * @author Joschi <josua.krause@googlemail.com>
+ * @param <T> The tile loader type.
  */
-public abstract class ImageTileLoader implements TileLoader {
+public abstract class ImageTileLoader<T extends ImageTileLoader<?>> implements TileLoader {
   /** The listener to be notified when finished loading. */
   private final ResetableTileListener listener;
   /** The optional parent loader. */
@@ -63,7 +64,7 @@ public abstract class ImageTileLoader implements TileLoader {
    * @return The image.
    * @throws IOException I/O Exception.
    */
-  protected abstract BufferedImage createImageFor(TileInfo info) throws IOException;
+  protected abstract BufferedImage createImageFor(TileInfo<T> info) throws IOException;
 
   protected TileLoaderListener getListener() {
     return listener;
@@ -77,7 +78,7 @@ public abstract class ImageTileLoader implements TileLoader {
   public void reloadAll() {
     listener.clear();
     if(parent != null && parent instanceof ImageTileLoader) {
-      ((ImageTileLoader) parent).reloadAll();
+      ((ImageTileLoader<?>) parent).reloadAll();
     }
   }
 
@@ -96,21 +97,31 @@ public abstract class ImageTileLoader implements TileLoader {
    * Provides information about tiles.
    * 
    * @author Joschi <josua.krause@googlemail.com>
+   * @param <T> The tile loader type.
    */
-  public static final class TileInfo implements Transformation {
+  public static final class TileInfo<T extends ImageTileLoader<?>> implements
+      Transformation {
     /** The tile. */
     private final Tile tile;
     /** The source. */
     private final TileSource source;
+    /** The loader. */
+    private final T tileLoader;
 
     /**
      * Creates a tile info.
      * 
+     * @param tileLoader The tile loader.
      * @param tile The tile.
      */
-    public TileInfo(final Tile tile) {
+    public TileInfo(final T tileLoader, final Tile tile) {
+      this.tileLoader = tileLoader;
       this.tile = tile;
       source = tile.getSource();
+    }
+
+    public T getTileLoader() {
+      return tileLoader;
     }
 
     public int getWidth() {
@@ -275,7 +286,9 @@ public abstract class ImageTileLoader implements TileLoader {
       }
       try {
         if(isActive()) {
-          final TileInfo info = new TileInfo(tile);
+          @SuppressWarnings("unchecked")
+          final TileInfo<T> info = (TileInfo<T>) new TileInfo<>(
+              ImageTileLoader.this, tile);
           final BufferedImage img = createImageFor(info);
           info.setImage(img, getListener(), p);
         }

@@ -22,7 +22,7 @@ public class ExactDistanceTransformationPainter implements TilePainter {
   }
 
   @Override
-  public void paintTile(final BufferedImage img, final TileInfo info) {
+  public void paintTile(final BufferedImage img, final TileInfo<?> info) {
     final List<GeoMarker> markers = query.getResult();
     if(markers.isEmpty()) return;
     // final Graphics2D imgG = img.createGraphics();

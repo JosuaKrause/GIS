@@ -62,7 +62,7 @@ public abstract class ShaderTileLoader extends FBOTileLoader {
   }
 
   @Override
-  protected void render(final TileInfo info) {
+  protected void render(final TileInfo<FBOTileLoader> info) {
     final int w = info.getWidth();
     final int h = info.getHeight();
     ARBShaderObjects.glUseProgramObjectARB(program);
@@ -76,7 +76,7 @@ public abstract class ShaderTileLoader extends FBOTileLoader {
     ARBShaderObjects.glUseProgramObjectARB(0);
   }
 
-  protected abstract void settingVariables(TileInfo info);
+  protected abstract void settingVariables(TileInfo<FBOTileLoader> info);
 
   protected int attr(final String name) {
     return ARBShaderObjects.glGetUniformLocationARB(program, name);
