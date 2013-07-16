@@ -7,7 +7,7 @@ import gis.gui.GisPanel;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.Path2D;
+import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -38,7 +38,7 @@ public class DistanceTransformationPainter implements IImagePainter {
       if(!vpLatLon.intersects(mLatLonBBox)) {
         continue;
       }
-      final Path2D path = m.computeGeometry(gisPanel);
+      final Shape path = m.convert(gisPanel);
       for(int y = 0; y < h; ++y) {
         for(int x = 0; x < w; ++x) {
           if(path.contains(x, y)) {
@@ -80,7 +80,7 @@ public class DistanceTransformationPainter implements IImagePainter {
       if(!vpLatLon.intersects(mLatLonBBox)) {
         continue;
       }
-      final Path2D path = m.computeGeometry(gisPanel);
+      final Shape path = m.convert(gisPanel);
       g.setColor(Color.WHITE);
       imgG.setColor(Color.WHITE);
       imgG.draw(path);

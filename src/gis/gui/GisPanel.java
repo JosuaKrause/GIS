@@ -1,6 +1,7 @@
 package gis.gui;
 
 import gis.data.datatypes.GeoMarker;
+import gis.data.datatypes.Transformation;
 import gis.data.db.Query;
 import gis.gui.overlay.AbstractOverlayComponent;
 import gis.gui.overlay.DistanceThresholdSelector;
@@ -38,7 +39,7 @@ import org.openstreetmap.gui.jmapviewer.OsmFileCacheTileLoader;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileCache;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
 
-public class GisPanel extends JMapViewer implements ResetableTileListener {
+public class GisPanel extends JMapViewer implements ResetableTileListener, Transformation {
 
   private static final long serialVersionUID = 1674766826613294344L;
 
@@ -323,6 +324,11 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
           + getTileCache().getClass().getSimpleName());
     }
     repaint();
+  }
+
+  @Override
+  public Point2D convert(final Coordinate c) {
+    return getMapPosition(c, false);
   }
 
 }

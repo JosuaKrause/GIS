@@ -4,6 +4,7 @@ import gis.gui.GisPanel;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -71,11 +72,16 @@ public class GeoMarkerPolygon extends GeoMarker {
     g.draw(path);
   }
 
-  public Path2D computeGeometry(final GisPanel panel) {
+  @Override
+  public Shape convert(final Transformation t) {
+    return computeGeometry(t);
+  }
+
+  private Path2D computeGeometry(final Transformation t) {
     final Path2D path = new Path2D.Double();
     boolean first = true;
     for(final Coordinate coord : polygon) {
-      final Point2D pos = panel.getMapPosition(coord, false);
+      final Point2D pos = t.convert(coord);
       if(first) {
         path.moveTo(pos.getX(), pos.getY());
         first = false;

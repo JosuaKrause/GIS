@@ -1,10 +1,14 @@
 package gis.tiles;
 
+import gis.data.datatypes.Transformation;
+
 import java.awt.Graphics;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Objects;
 
+import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.OsmMercator;
 import org.openstreetmap.gui.jmapviewer.Tile;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileJob;
@@ -93,7 +97,7 @@ public abstract class ImageTileLoader implements TileLoader {
    * 
    * @author Joschi <josua.krause@googlemail.com>
    */
-  public static final class TileInfo {
+  public static final class TileInfo implements Transformation {
     /** The tile. */
     private final Tile tile;
     /** The source. */
@@ -147,7 +151,7 @@ public abstract class ImageTileLoader implements TileLoader {
      * @return The x coordinate of the longitude in tile image coordinates.
      */
     public double getXForLon(final double lon) {
-      return source.lonToTileX(lon, tile.getZoom()) - tile.getXtile();
+      return (source.lonToTileX(lon, tile.getZoom()) - tile.getXtile()) * getWidth();
     }
 
     /**
@@ -157,7 +161,7 @@ public abstract class ImageTileLoader implements TileLoader {
      * @return The y coordinate of the latitude in tile image coordinates.
      */
     public double getYForLat(final double lat) {
-      return source.latToTileY(lat, tile.getZoom()) - tile.getYtile();
+      return (source.latToTileY(lat, tile.getZoom()) - tile.getYtile()) * getHeight();
     }
 
     /**
@@ -167,7 +171,7 @@ public abstract class ImageTileLoader implements TileLoader {
      * @return The corresponding longitude.
      */
     public double getLonForX(final int x) {
-      return source.tileXToLon(tile.getXtile() + x, tile.getZoom());
+      return source.tileXToLon(tile.getXtile() + x / getWidth(), tile.getZoom());
     }
 
     /**
@@ -177,7 +181,7 @@ public abstract class ImageTileLoader implements TileLoader {
      * @return The corresponding latitude.
      */
     public double getLatForY(final int y) {
-      return source.tileYToLat(tile.getYtile() + y, tile.getZoom());
+      return source.tileYToLat(tile.getYtile() + y / getHeight(), tile.getZoom());
     }
 
     /**
@@ -191,8 +195,14 @@ public abstract class ImageTileLoader implements TileLoader {
      */
     public double distance(final int x1, final int y1, final int x2, final int y2) {
       return OsmMercator.getDistance(
-          tile.getXtile() + x1, tile.getYtile() + y1,
-          tile.getXtile() + x2, tile.getYtile() + y2, tile.getZoom());
+          getLatForY(y1), getLonForX(x1), getLatForY(y2), getLonForX(x2));
+    }
+
+    @Override
+    public Point2D convert(final Coordinate c) {
+      return new Point2D.Double(
+          getXForLon(c.getLon()),
+          getYForLat(c.getLat()));
     }
 
     public void setImage(final BufferedImage img,

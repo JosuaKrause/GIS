@@ -74,12 +74,17 @@ public class GeoMarkerPoint extends GeoMarker {
     g.draw(e);
   }
 
-  private Shape computeGeometry(final GisPanel panel) {
-    final Point2D pos = panel.getMapPosition(coord, false);
+  @Override
+  public Shape convert(final Transformation t) {
+    return computeGeometry(t);
+  }
+
+  private Shape computeGeometry(final Transformation t) {
+    final Point2D pos = t.convert(coord);
     if(fixedSize) return new Ellipse2D.Double(
         pos.getX() - radius, pos.getY() - radius, radius * 2, radius * 2);
-    final Point2D other = panel.getMapPosition(
-        new Coordinate(coord.getLat(), coord.getLon() + radius), false);
+    final Point2D other = t.convert(
+        new Coordinate(coord.getLat(), coord.getLon() + radius));
     final double r = other.getX() - pos.getX();
     final Shape e = new Ellipse2D.Double(pos.getX() - r, pos.getY() - r, 2 * r, 2 * r);
     return e;

@@ -28,7 +28,7 @@ public class DistanceTransformationQueryCheckbox extends TileLoaderCheckBox {
 
   private DistanceTransformationQueryCheckbox(final GisPanel gisPanel, final Query q) {
     super(gisPanel, q, new PainterTileLoader(gisPanel,
-        new ErgisDistanceTransformationPainter(gisPanel, q)));
+        new ExactDistanceTransformationPainter(q)));
   }
 
 }
