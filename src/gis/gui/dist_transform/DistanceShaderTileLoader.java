@@ -31,14 +31,14 @@ public class DistanceShaderTileLoader extends ShaderTileLoader {
 
   private static int createTexture(final ByteBuffer buff, final int size) {
     final int tex = GL11.glGenTextures();
-    GL11.glBindTexture(GL11.GL_TEXTURE_1D, tex);
-    GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL30.GL_RGBA32F, size, 0,
+    GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
+    GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA32F, size, 1, 0,
         GL30.GL_RGBA32F, GL11.GL_FLOAT, buff);
-    GL11.glTexParameteri(GL11.GL_TEXTURE_1D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-    GL11.glTexParameteri(GL11.GL_TEXTURE_1D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+    GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+    GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
     GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
-    GL11.glTexParameterf(GL11.GL_TEXTURE_1D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
-    GL11.glTexParameterf(GL11.GL_TEXTURE_1D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
+    GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
+    GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
     return tex;
   }
 
@@ -55,8 +55,11 @@ public class DistanceShaderTileLoader extends ShaderTileLoader {
     for(final GeoMarker gm : markers) {
       addLines(lines, gm.convert(info), EPS);
     }
+
+    GL11.glEnable(GL11.GL_TEXTURE_2D);
+
     final int linesTex = createTexture(wrap(lines), lines.size() / 4);
-    GL11.glBindTexture(GL11.GL_TEXTURE_1D, linesTex);
+    GL11.glBindTexture(GL11.GL_TEXTURE_2D, linesTex);
     GL13.glActiveTexture(GL13.GL_TEXTURE0);
 
     ARBShaderObjects.glUniform1fARB(attr("lines_length"), lines.size() / 4);

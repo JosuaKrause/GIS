@@ -1,4 +1,4 @@
-uniform sampler1D lines;
+uniform sampler2D lines;
 uniform vec2 size;
 uniform vec2 tile;
 uniform float zoom;
@@ -23,7 +23,7 @@ float tileXToLon(float x) {
 }
 
 vec4 getLine(int pos) {
-    return texture1D(lines, float(pos) / float(lines_length));
+    return texture2D(lines, vec2(float(pos) / float(lines_length), 0));
 }
 
 int pointCrossingsForLine(float px, float py, vec4 line) {
