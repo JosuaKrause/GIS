@@ -23,7 +23,7 @@ float tileXToLon(float x) {
 }
 
 vec4 getLine(int pos) {
-    return texture2D(lines, vec2(float(pos) / float(lines_length), 0));
+    return texture2D(lines, vec2(float(pos) / 4.0 / float(lines_length), 0));
 }
 
 int pointCrossingsForLine(float px, float py, vec4 line) {
@@ -44,6 +44,23 @@ int mod(int x, int y) {
     return x - y*int(x / y);
 }
 
+float nearest(float x, float y) {
+    vec2 pos = vec2(x, y);
+    float d = 100.0;
+    for(int p = 0;p < 100;p += 1) {
+        vec4 line = getLine(p);
+        float d1 = length(pos - line.xy);
+        if(d1 < d) {
+            d = d1;
+        }
+        float d2 = length(pos - line.zw);
+        if(d2 < d) {
+            d = d2;
+        }
+    }
+    return (100.0 - d) / 100.0;
+}
+
 bool contains(float x, float y) {
     int numCross = 0;
     for(int p = 0;p < lines_length;++p) {
@@ -59,11 +76,15 @@ void main() {
     float x = pos.x * size.x;
     float y = pos.y * size.y;
     vec4 vertColor = vec4(0, 0, 0, 1);
+    /*
     bool within = contains(x, y);
     if(within) {
         vertColor = vec4(0, 0, 0, 1);
     } else {
-        vertColor = vec4(1, 0, 0, 1);
+        vertColor = vec4(0, 0, 1, 1);
     }
+    */
+    vertColor.x  = nearest(x, y);
+    //vertColor.xy = pos.xy;
     gl_FragColor = vertColor;
 }

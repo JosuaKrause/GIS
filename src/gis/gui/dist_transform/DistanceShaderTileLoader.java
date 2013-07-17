@@ -49,6 +49,14 @@ public class DistanceShaderTileLoader extends ShaderTileLoader {
   protected void settingVariables(final TileInfo<FBOTileLoader> info) {
     final List<GeoMarker> markers = q.getResult();
     final List<Float> lines = new ArrayList<>();
+    // lines.add(0f);
+    // lines.add(0f);
+    // lines.add((float) info.getWidth());
+    // lines.add((float) info.getHeight());
+    // lines.add(0f);
+    // lines.add((float) info.getHeight());
+    // lines.add((float) info.getWidth());
+    // lines.add(0f);
     for(final GeoMarker gm : markers) {
       addLines(lines, gm.convert(info), EPS);
     }
