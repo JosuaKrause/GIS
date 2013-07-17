@@ -11,6 +11,7 @@ import org.lwjgl.opengl.ARBFragmentShader;
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.ARBVertexShader;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.GLU;
 
 public abstract class ShaderTileLoader extends FBOTileLoader {
 
@@ -65,6 +66,8 @@ public abstract class ShaderTileLoader extends FBOTileLoader {
   protected void render(final TileInfo<FBOTileLoader> info) {
     final int w = info.getWidth();
     final int h = info.getHeight();
+    GLU.gluOrtho2D(0, w, h, 0);
+    glViewport(0, 0, w, h);
     ARBShaderObjects.glUseProgramObjectARB(program);
     settingVariables(info);
     glBegin(GL_QUADS);

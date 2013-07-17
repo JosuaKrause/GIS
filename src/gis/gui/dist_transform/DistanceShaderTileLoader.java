@@ -29,10 +29,10 @@ public class DistanceShaderTileLoader extends ShaderTileLoader {
     this.q = q;
   }
 
-  private static int createTexture(final ByteBuffer buff) {
+  private static int createTexture(final ByteBuffer buff, final int size) {
     final int tex = GL11.glGenTextures();
     GL11.glBindTexture(GL11.GL_TEXTURE_1D, tex);
-    GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL30.GL_RGBA32F, buff.position(), 0,
+    GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL30.GL_RGBA32F, size, 0,
         GL30.GL_RGBA32F, GL11.GL_FLOAT, buff);
     GL11.glTexParameteri(GL11.GL_TEXTURE_1D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
     GL11.glTexParameteri(GL11.GL_TEXTURE_1D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
@@ -48,14 +48,18 @@ public class DistanceShaderTileLoader extends ShaderTileLoader {
   protected void settingVariables(final TileInfo<FBOTileLoader> info) {
     final List<GeoMarker> markers = q.getResult();
     final List<Float> lines = new ArrayList<>();
+    lines.add(1f);
+    lines.add(1f);
+    lines.add(1f);
+    lines.add(1f);
     for(final GeoMarker gm : markers) {
       addLines(lines, gm.convert(info), EPS);
     }
-    final int linesTex = createTexture(wrap(lines));
+    final int linesTex = createTexture(wrap(lines), lines.size() / 4);
     GL11.glBindTexture(GL11.GL_TEXTURE_1D, linesTex);
     GL13.glActiveTexture(GL13.GL_TEXTURE0);
 
-    ARBShaderObjects.glUniform1fARB(attr("lines_length"), lines.size());
+    ARBShaderObjects.glUniform1fARB(attr("lines_length"), lines.size() / 4);
     ARBShaderObjects.glUniform1iARB(attr("lines"), 0);
     ARBShaderObjects.glUniform2fARB(attr("size"), info.getWidth(), info.getHeight());
     ARBShaderObjects.glUniform2fARB(attr("tile"), info.tileX(), info.tileY());
