@@ -1,6 +1,5 @@
 package gis.gui.dist_transform;
 
-import gis.data.datatypes.GeoMarker;
 import gis.data.db.Query;
 import gis.tiles.FBOTileLoader;
 import gis.tiles.ResetableTileListener;
@@ -17,7 +16,6 @@ import java.util.List;
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL30;
 
 public class DistanceShaderTileLoader extends ShaderTileLoader {
 
@@ -32,8 +30,8 @@ public class DistanceShaderTileLoader extends ShaderTileLoader {
   private static int createTexture(final ByteBuffer buff, final int size) {
     final int tex = GL11.glGenTextures();
     GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
-    GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_RGBA32F, size, 1, 0,
-        GL30.GL_RGBA32F, GL11.GL_FLOAT, buff);
+    GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, size, 1, 0,
+        GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buff);
     GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
     GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
     GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
@@ -46,15 +44,15 @@ public class DistanceShaderTileLoader extends ShaderTileLoader {
 
   @Override
   protected void settingVariables(final TileInfo<FBOTileLoader> info) {
-    final List<GeoMarker> markers = q.getResult();
-    final List<Float> lines = new ArrayList<>();
-    lines.add(1f);
-    lines.add(1f);
-    lines.add(1f);
-    lines.add(1f);
-    for(final GeoMarker gm : markers) {
-      addLines(lines, gm.convert(info), EPS);
-    }
+    // final List<GeoMarker> markers = q.getResult();
+    final List<Byte> lines = new ArrayList<>();
+    lines.add((byte) 255);
+    lines.add((byte) 255);
+    lines.add((byte) 255);
+    lines.add((byte) 255);
+    // for(final GeoMarker gm : markers) {
+    // addLines(lines, gm.convert(info), EPS);
+    // }
 
     GL11.glEnable(GL11.GL_TEXTURE_2D);
 
@@ -69,11 +67,12 @@ public class DistanceShaderTileLoader extends ShaderTileLoader {
     ARBShaderObjects.glUniform1fARB(attr("zoom"), info.zoom());
   }
 
-  private static ByteBuffer wrap(final List<Float> floats) {
-    final ByteBuffer buff = ByteBuffer.allocateDirect(floats.size() * 4);
-    for(final Float f : floats) {
-      buff.putFloat(f);
+  private static ByteBuffer wrap(final List<Byte> floats) {
+    final ByteBuffer buff = ByteBuffer.allocateDirect(floats.size());
+    for(final Byte f : floats) {
+      buff.put(f);
     }
+    buff.flip();
     return buff;
   }
 
