@@ -3,6 +3,8 @@ uniform sampler1D lines;
 uniform vec2 size;
 uniform vec2 tile;
 uniform float zoom;
+uniform int sizes_length;
+uniform int lines_length;
 
 #define M_PI 3.1415926535897932384626433832795
 
@@ -22,7 +24,19 @@ float tileXToLon(float x) {
     return x * 45.0 / exp2(zoom - 3.0) - 180.0;
 }
 
-int pointCrossingsForLine(float px, float py, float x1, float y1, float x2, float y2) {
+float getSize(int pos) {
+    return texture1D(sizes, float(pos) / float(4 * sizes_length)).x;
+}
+
+vec4 getLine(int pos) {
+    return texture1D(lines, float(pos) / float(4 * lines_length));
+}
+
+int pointCrossingsForLine(float px, float py, vec4 line) {
+    float x1 = line.x;
+    float y1 = line.y;
+    float x2 = line.z;
+    float y2 = line.w;
     if(py < y1 && py < y2) return 0;
     if(py >= y1 && py >= y2) return 0;
     if(px >= x1 && px >= x2) return 0;
@@ -32,34 +46,35 @@ int pointCrossingsForLine(float px, float py, float x1, float y1, float x2, floa
     return (y1 < y2) ? 1 : -1;
 }
 
+int mod(int x, int y) {
+    return x - y*int(x / y);
+}
+
 bool contains(int off, int size, float x, float y) {
     int numCross = 0;
     for(int p = off;p < off + size;p += 4) {
-        float x1 = lines[p];
-        float y1 = lines[p+1];
-        float x2 = lines[p+2];
-        float y2 = lines[p+3];
-        if(y1 != y2) {
-            numCross += pointCrossingsForLine(x, y, x1, y1, x2, y2);
+        vec4 line = getLine(p);
+        if(line.y != line.w) {
+            numCross += pointCrossingsForLine(x, y, line);
         }
     }
-    return (numCross % 2) == 0;
+    return mod(numCross, 2) == 0;
 }
 
 void main() {
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     float x = gl_Position.x;
     float y = gl_Position.y;
-    bool in = false;
-    int off = 0;
-    for(int i = 0;i < lines.length(); ++i) {
-        in = in || contains(off, sizes[i], x, y);
-        off += sizes[i];
+    bool within = false;
+    float off = 0.0;
+    for(int i = 0;i < lines_length; ++i) {
+        within = within || contains(int(off), int(getSize(i)), x, y);
+        off += getSize(i);
     }
-    if(in) {
-        vertColor = vec4(1, 0, 0, 0);
-    } else {
+    if(within) {
         vertColor = vec4(1, 1, 1, 1);
+    } else {
+        vertColor = vec4(0, 0, 0, 1);
     }
     //float lon = tileXToLon(x) + 180.0;
     //float lat = tileYToLat(y) + 90.0;

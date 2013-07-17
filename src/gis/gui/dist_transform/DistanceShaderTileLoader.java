@@ -10,12 +10,14 @@ import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.io.File;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.opengl.ARBShaderObjects;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL30;
 
 public class DistanceShaderTileLoader extends ShaderTileLoader {
 
@@ -27,29 +29,53 @@ public class DistanceShaderTileLoader extends ShaderTileLoader {
     this.q = q;
   }
 
+  private static int createTexture(final ByteBuffer buff) {
+    final int tex = GL11.glGenTextures();
+    GL11.glBindTexture(GL11.GL_TEXTURE_1D, tex);
+    GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL30.GL_RGBA32F, buff.position(), 0,
+        GL30.GL_RGBA32F, GL11.GL_FLOAT, buff);
+    GL11.glTexParameteri(GL11.GL_TEXTURE_1D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+    GL11.glTexParameteri(GL11.GL_TEXTURE_1D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+    GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
+    GL11.glTexParameterf(GL11.GL_TEXTURE_1D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
+    GL11.glTexParameterf(GL11.GL_TEXTURE_1D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
+    return tex;
+  }
+
   private static final double EPS = 1e-3;
 
   @Override
   protected void settingVariables(final TileInfo<FBOTileLoader> info) {
     final List<GeoMarker> markers = q.getResult();
-    final IntBuffer sizes = IntBuffer.allocate(markers.size());
+    final ByteBuffer sizes = ByteBuffer.allocateDirect(markers.size() * 4);
+    int length = 0;
     final List<Float> lines = new ArrayList<>();
     for(final GeoMarker gm : markers) {
-      sizes.put(addLines(lines, gm.convert(info), EPS));
+      sizes.putFloat(addLines(lines, gm.convert(info), EPS));
+      ++length;
     }
-    ARBShaderObjects.glUniform1ARB(attr("sizes"), sizes);
-    ARBShaderObjects.glUniform1ARB(attr("lines"), wrap(lines));
+    final int sizesTex = createTexture(sizes);
+    final int linesTex = createTexture(wrap(lines));
+    GL11.glBindTexture(GL11.GL_TEXTURE_1D, sizesTex);
+    GL13.glActiveTexture(GL13.GL_TEXTURE0);
+    GL11.glBindTexture(GL11.GL_TEXTURE_1D, linesTex);
+    GL13.glActiveTexture(GL13.GL_TEXTURE1);
+
+    ARBShaderObjects.glUniform1fARB(attr("sizes_length"), length);
+    ARBShaderObjects.glUniform1fARB(attr("lines_length"), lines.size());
+    ARBShaderObjects.glUniform1iARB(attr("sizes"), 0);
+    ARBShaderObjects.glUniform1iARB(attr("lines"), 1);
     ARBShaderObjects.glUniform2fARB(attr("size"), info.getWidth(), info.getHeight());
     ARBShaderObjects.glUniform2fARB(attr("tile"), info.tileX(), info.tileY());
     ARBShaderObjects.glUniform1fARB(attr("zoom"), info.zoom());
   }
 
-  private static FloatBuffer wrap(final List<Float> floats) {
-    final float[] f = new float[floats.size()];
-    for(int i = 0; i < f.length; ++i) {
-      f[i] = floats.get(i);
+  private static ByteBuffer wrap(final List<Float> floats) {
+    final ByteBuffer buff = ByteBuffer.allocateDirect(floats.size() * 4);
+    for(final Float f : floats) {
+      buff.putFloat(f);
     }
-    return FloatBuffer.wrap(f);
+    return buff;
   }
 
   private static int addLines(final List<Float> lines, final Shape s, final double eps) {
