@@ -47,24 +47,16 @@ public class DistanceShaderTileLoader extends ShaderTileLoader {
   @Override
   protected void settingVariables(final TileInfo<FBOTileLoader> info) {
     final List<GeoMarker> markers = q.getResult();
-    final ByteBuffer sizes = ByteBuffer.allocateDirect(markers.size() * 4);
-    int length = 0;
     final List<Float> lines = new ArrayList<>();
     for(final GeoMarker gm : markers) {
-      sizes.putFloat(addLines(lines, gm.convert(info), EPS));
-      ++length;
+      addLines(lines, gm.convert(info), EPS);
     }
-    final int sizesTex = createTexture(sizes);
     final int linesTex = createTexture(wrap(lines));
-    GL11.glBindTexture(GL11.GL_TEXTURE_1D, sizesTex);
-    GL13.glActiveTexture(GL13.GL_TEXTURE0);
     GL11.glBindTexture(GL11.GL_TEXTURE_1D, linesTex);
-    GL13.glActiveTexture(GL13.GL_TEXTURE1);
+    GL13.glActiveTexture(GL13.GL_TEXTURE0);
 
-    ARBShaderObjects.glUniform1fARB(attr("sizes_length"), length);
     ARBShaderObjects.glUniform1fARB(attr("lines_length"), lines.size());
-    ARBShaderObjects.glUniform1iARB(attr("sizes"), 0);
-    ARBShaderObjects.glUniform1iARB(attr("lines"), 1);
+    ARBShaderObjects.glUniform1iARB(attr("lines"), 0);
     ARBShaderObjects.glUniform2fARB(attr("size"), info.getWidth(), info.getHeight());
     ARBShaderObjects.glUniform2fARB(attr("tile"), info.tileX(), info.tileY());
     ARBShaderObjects.glUniform1fARB(attr("zoom"), info.zoom());

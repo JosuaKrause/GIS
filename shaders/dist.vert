@@ -1,9 +1,7 @@
-uniform sampler1D sizes;
 uniform sampler1D lines;
 uniform vec2 size;
 uniform vec2 tile;
 uniform float zoom;
-uniform int sizes_length;
 uniform int lines_length;
 
 #define M_PI 3.1415926535897932384626433832795
@@ -22,10 +20,6 @@ float tileYToLat(float y) {
 float tileXToLon(float x) {
     x = x + tile.x * 2.0;
     return x * 45.0 / exp2(zoom - 3.0) - 180.0;
-}
-
-float getSize(int pos) {
-    return texture1D(sizes, float(pos) / float(4 * sizes_length)).x;
 }
 
 vec4 getLine(int pos) {
@@ -50,9 +44,9 @@ int mod(int x, int y) {
     return x - y*int(x / y);
 }
 
-bool contains(int off, int size, float x, float y) {
+bool contains(float x, float y) {
     int numCross = 0;
-    for(int p = off;p < off + size;p += 4) {
+    for(int p = 0;p < lines_length;++p) {
         vec4 line = getLine(p);
         if(line.y != line.w) {
             numCross += pointCrossingsForLine(x, y, line);
@@ -65,16 +59,18 @@ void main() {
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     float x = gl_Position.x;
     float y = gl_Position.y;
-    bool within = false;
-    float off = 0.0;
-    for(int i = 0;i < lines_length; ++i) {
-        within = within || contains(int(off), int(getSize(i)), x, y);
-        off += getSize(i);
-    }
+    bool within = contains(x, y);
     if(within) {
-        vertColor = vec4(1, 1, 1, 1);
+        vertColor = vec4(1, 0, 0, 1);
     } else {
         vertColor = vec4(0, 0, 0, 1);
+    }
+    vertColor = vec4(1, 0, 0, 1);
+    if(x < 0.5) {
+        vertColor.y = 1.0;
+    }
+    if(y < 0.5) {
+        vertColor.z = 1.0;
     }
     //float lon = tileXToLon(x) + 180.0;
     //float lat = tileYToLat(y) + 90.0;
