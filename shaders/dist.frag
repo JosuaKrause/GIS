@@ -65,6 +65,5 @@ void main() {
     } else {
         vertColor = vec4(1, 0, 0, 1);
     }
-    vertColor.xyz = getLine(0).xyz;
     gl_FragColor = vertColor;
 }
