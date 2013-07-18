@@ -23,22 +23,46 @@ public class ErgisDistanceTransformationPainter implements TilePainter {
 
   @Override
   public void paintTile(final BufferedImage img, final TileInfo<?> info) {
+    final int dx = info.getForXDistance(0, 0, -MAX_DIST);
+    final int dy = info.getForYDistance(0, 0, -MAX_DIST);
+    final int mx = info.getForXDistance(info.getWidth(), 0, MAX_DIST);
+    final int my = info.getForYDistance(0, info.getHeight(), MAX_DIST);
+    final BufferedImage i = new BufferedImage(mx - dx, my - dy,
+        BufferedImage.TYPE_INT_ARGB);
+    if(paintMarkers(i, dx, dy, info)) {
+      paint(i, dx, dy, info);
+      final Graphics2D g = (Graphics2D) img.getGraphics();
+      g.translate(dx, dy);
+      g.drawImage(i, 0, 0, null);
+      g.dispose();
+    }
+    i.flush();
+  }
+
+  private boolean paintMarkers(final BufferedImage img, final int dx, final int dy,
+      final TileInfo<?> info) {
     final List<GeoMarker> markers = query.getResult();
-    if(markers.size() == 0) return;
-    final int w = img.getWidth();
-    final int h = img.getHeight();
+    if(markers.isEmpty()) return false;
     final Graphics2D imgG = img.createGraphics();
     imgG.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
         RenderingHints.VALUE_ANTIALIAS_OFF);
-    final double[] dist = new double[w * h];
-    final Point[] targets = new Point[w * h];
     imgG.setColor(Color.WHITE);
+    imgG.translate(-dx, -dy);
     for(final GeoMarker marker : markers) {
       final Shape path = marker.convert(info);
       imgG.draw(path);
       imgG.fill(path);
     }
     imgG.dispose();
+    return true;
+  }
+
+  private static void paint(final BufferedImage img,
+      final int dx, final int dy, final TileInfo<?> info) {
+    final int w = img.getWidth();
+    final int h = img.getHeight();
+    final double[] dist = new double[w * h];
+    final Point[] targets = new Point[w * h];
 
     // initialize distances
     for(int y = 0; y < h; ++y) {
@@ -48,7 +72,7 @@ public class ErgisDistanceTransformationPainter implements TilePainter {
           dist[index] = 0;
           targets[index] = new Point(x, y);
         } else {
-          dist[index] = Float.MAX_VALUE;
+          dist[index] = Double.POSITIVE_INFINITY;
           targets[index] = null;// TODO
         }
       }
@@ -67,7 +91,7 @@ public class ErgisDistanceTransformationPainter implements TilePainter {
         if(dist[x] == 0) {
           targetHalfCoordinate = x;
         } else {
-          dist[x] = dist[x - 1] + info.distance(x, 0, x - 1, 0);
+          dist[x] = dist[x - 1] + info.distance(x + dx, 0, x - 1 + dx, 0);
           targets[x] = new Point(targetHalfCoordinate, 0);
         }
       }
@@ -85,7 +109,7 @@ public class ErgisDistanceTransformationPainter implements TilePainter {
         if(dist[w * y] == 0) {
           targetHalfCoordinate = y;
         } else {
-          dist[y * w] = dist[(y - 1) * w] + info.distance(0, y, 0, y - 1);
+          dist[y * w] = dist[(y - 1) * w] + info.distance(0, y + dy, 0, y - 1 + dy);
           targets[y * w] = new Point(0, targetHalfCoordinate);
         }
       }
@@ -99,10 +123,10 @@ public class ErgisDistanceTransformationPainter implements TilePainter {
           final Point tct = targets[index - w];
           final Point trt = targets[index - w + 1];
           final Point lt = targets[index - 1];
-          final double tltDist = distFromTarget(x, y, tlt, info);
-          final double ltDist = distFromTarget(x, y, lt, info);
-          final double tctDist = distFromTarget(x, y, tct, info);
-          final double trtDist = distFromTarget(x, y, trt, info);
+          final double tltDist = distFromTarget(x, y, dx, dy, tlt, info);
+          final double ltDist = distFromTarget(x, y, dx, dy, lt, info);
+          final double tctDist = distFromTarget(x, y, dx, dy, tct, info);
+          final double trtDist = distFromTarget(x, y, dx, dy, trt, info);
           final Point target1;
           final double dist1;
           if(tltDist < ltDist) {
@@ -136,9 +160,9 @@ public class ErgisDistanceTransformationPainter implements TilePainter {
       final Point tlt = targets[index - w - 1];
       final Point tct = targets[index - w];
       final Point lt = targets[index - 1];
-      final double tltDist = distFromTarget(x, y, tlt, info);
-      final double ltDist = distFromTarget(x, y, lt, info);
-      final double tctDist = distFromTarget(x, y, tct, info);
+      final double tltDist = distFromTarget(x, y, dx, dy, tlt, info);
+      final double ltDist = distFromTarget(x, y, dx, dy, lt, info);
+      final double tctDist = distFromTarget(x, y, dx, dy, tct, info);
       Point target1;// will reference closest neighbouring target
       double dist1;
       if(tltDist < ltDist) {
@@ -164,7 +188,7 @@ public class ErgisDistanceTransformationPainter implements TilePainter {
         final int index = (h - 1) * w + x;
         final Point rnTarget = targets[index + 1];
         if(dist[index + 1] != Float.MAX_VALUE) {
-          final double rnTargetDist = distFromTarget(x, h - 1, rnTarget, info);
+          final double rnTargetDist = distFromTarget(x, h - 1, dx, dy, rnTarget, info);
           if(rnTargetDist < dist[index]) {
             dist[index] = rnTargetDist;
             targets[index] = rnTarget;
@@ -176,7 +200,7 @@ public class ErgisDistanceTransformationPainter implements TilePainter {
         final int index = (y + 1) * w - 1;
         final Point bnTarget = targets[index + w];
         if(dist[index + w] != Float.MAX_VALUE) {
-          final double bnTargetDist = distFromTarget(w - 1, y, bnTarget, info);
+          final double bnTargetDist = distFromTarget(w - 1, y, dx, dy, bnTarget, info);
           if(bnTargetDist < dist[index]) {
             dist[index] = bnTargetDist;
             targets[index] = bnTarget;
@@ -193,10 +217,10 @@ public class ErgisDistanceTransformationPainter implements TilePainter {
           final Point bct = targets[index + w];
           final Point brt = targets[index + w + 1];
           final Point rt = targets[index + 1];
-          final double bltDist = distFromTarget(x, y, blt, info);
-          final double bctDist = distFromTarget(x, y, bct, info);
-          final double brtDist = distFromTarget(x, y, brt, info);
-          final double rtDist = distFromTarget(x, y, rt, info);
+          final double bltDist = distFromTarget(x, y, dx, dy, blt, info);
+          final double bctDist = distFromTarget(x, y, dx, dy, bct, info);
+          final double brtDist = distFromTarget(x, y, dx, dy, brt, info);
+          final double rtDist = distFromTarget(x, y, dx, dy, rt, info);
           Point target1;
           double dist1;
           if(bltDist < bctDist) {
@@ -232,9 +256,9 @@ public class ErgisDistanceTransformationPainter implements TilePainter {
         final Point bct = targets[index + w];
         final Point brt = targets[index + w + 1];
         final Point rt = targets[index + 1];
-        final double bctDist = distFromTarget(0, y, bct, info);
-        final double brtDist = distFromTarget(0, y, brt, info);
-        final double rtDist = distFromTarget(0, y, rt, info);
+        final double bctDist = distFromTarget(0, y, dx, dy, bct, info);
+        final double brtDist = distFromTarget(0, y, dx, dy, brt, info);
+        final double rtDist = distFromTarget(0, y, dx, dy, rt, info);
         Point target1;// will reference closest neighbouring target
         double dist1;
         if(bctDist < brtDist) {
@@ -262,13 +286,14 @@ public class ErgisDistanceTransformationPainter implements TilePainter {
     }
   }
 
-  private static double distFromTarget(final int x, final int y,
+  private static double distFromTarget(final int x, final int y, final int dx,
+      final int dy,
       final Point target, final TileInfo<?> info) {
-    if(target == null) return Float.MAX_VALUE;
-    return info.distance(x, y, target.x, target.y);
+    if(target == null) return Double.POSITIVE_INFINITY;
+    return info.distance(x + dx, y + dy, target.x + dx, target.y + dy);
   }
 
-  public static final double MAX_DIST = 3000;
+  public static final double MAX_DIST = 300;
 
   private final static int distanceToColor(final double distance) {
     int i = (int) Math.round(255 * distance / MAX_DIST);

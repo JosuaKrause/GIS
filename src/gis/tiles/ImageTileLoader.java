@@ -209,6 +209,42 @@ public abstract class ImageTileLoader<T extends ImageTileLoader<?>> implements T
           getLatForY(y1), getLonForX(x1), getLatForY(y2), getLonForX(x2));
     }
 
+    public int getForXDistance(final int x, final int y, final double distance) {
+      final int dir = (int) Math.signum(distance);
+      if(dir == 0) return x;
+      final double dist = Math.abs(distance);
+      final double lat = getLatForY(y);
+      final double lon = getLonForX(x);
+      final double lon1 = getLonForX(x + dir * getWidth());
+      int c = x + (int) (
+          distance * getWidth() / OsmMercator.getDistance(lat, lon, lat, lon1));
+      while(OsmMercator.getDistance(lat, lon, lat, getLonForX(c)) > dist) {
+        c -= dir;
+      }
+      while(OsmMercator.getDistance(lat, lon, lat, getLonForX(c)) < dist) {
+        c += dir;
+      }
+      return c;
+    }
+
+    public int getForYDistance(final int x, final int y, final double distance) {
+      final int dir = (int) Math.signum(distance);
+      if(dir == 0) return y;
+      final double dist = Math.abs(distance);
+      final double lon = getLonForX(x);
+      final double lat = getLatForY(y);
+      final double lat1 = getLatForY(y + dir * getHeight());
+      int c = y + (int) (
+          distance * getHeight() / OsmMercator.getDistance(lat, lon, lat1, lon));
+      while(OsmMercator.getDistance(lat, lon, getLatForY(c), lon) > dist) {
+        c -= dir;
+      }
+      while(OsmMercator.getDistance(lat, lon, getLatForY(c), lon) < dist) {
+        c += dir;
+      }
+      return c;
+    }
+
     @Override
     public Point2D convert(final Coordinate c) {
       return new Point2D.Double(
