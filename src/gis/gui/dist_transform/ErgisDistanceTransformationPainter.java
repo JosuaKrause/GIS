@@ -1,15 +1,14 @@
 package gis.gui.dist_transform;
 
 import gis.data.datatypes.GeoMarker;
-import gis.data.datatypes.GeoMarkerPolygon;
 import gis.data.db.Query;
-import gis.gui.GisPanel;
 import gis.gui.ImagePainter;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.geom.Path2D;
+import java.awt.Shape;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -18,22 +17,20 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
 
 public class ErgisDistanceTransformationPainter implements ImagePainter {
 
-  private final GisPanel gisPanel;
   private final Query query;
 
-  public ErgisDistanceTransformationPainter(final GisPanel gisPanel, final Query query) {
-    this.gisPanel = gisPanel;
+  public ErgisDistanceTransformationPainter(final Query query) {
     this.query = query;
   }
 
   @Override
-  public void paint(final Graphics2D g) {
+  public void paint(final Graphics2D g, final ViewInfo info) {
     final List<GeoMarker> markers = query.getResult();
     if(markers.size() == 0) return;
-    final Rectangle2D vpLatLon = gisPanel.getLatLonViewPort();
-    final int w = gisPanel.getWidth();
-    final int h = gisPanel.getHeight();
-    final double mpp = gisPanel.getMeterPerPixel();
+    final Rectangle2D vpLatLon = info.getLatLonViewPort();
+    final int w = info.getWidth();
+    final int h = info.getHeight();
+    final double mpp = info.getMeterPerPixel();
 
     final BufferedImage img = new BufferedImage(w, h,
         BufferedImage.TYPE_INT_ARGB);
@@ -43,23 +40,22 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
     final Point[] targets = new Point[w * h];
 
     imgG.setColor(Color.WHITE);
-    for(final GeoMarker marker : markers) {
-      final GeoMarkerPolygon m = (GeoMarkerPolygon) marker;
+    for(final GeoMarker m : markers) {
       final Rectangle2D mLatLonBBox = m.getLatLonBBox();
       if(!vpLatLon.intersects(mLatLonBBox)) {
         continue;
       }
       // set polygon pixels as target pixels
-      final Path2D path = m.computeGeometry(gisPanel);
+      final Shape path = m.convert(info);
       imgG.draw(path);
       imgG.fill(path);
       // make sure that at least one pixel per marker is set
 
       final double coordX = mLatLonBBox.getCenterX();
       final double coordY = mLatLonBBox.getCenterY();
-      final Point p = gisPanel.getMapPosition(new Coordinate(coordY, coordX));
+      final Point2D p = info.convert(new Coordinate(coordY, coordX));
       if(p != null) {
-        imgG.fillRect(p.x, p.y, 1, 1);
+        imgG.fill(new Rectangle2D.Double(p.getX(), p.getY(), 1, 1));
       }
     }
     imgG.dispose();

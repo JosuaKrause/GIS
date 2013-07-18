@@ -4,6 +4,7 @@ import gis.data.DedicatedLoader;
 import gis.data.DedicatedLoader.Loader;
 import gis.data.datatypes.GeoMarker;
 import gis.data.db.Query;
+import gis.gui.dist_transform.ViewInfo;
 import gis.gui.overlay.AbstractOverlayComponent;
 import gis.gui.overlay.DistanceThresholdSelector;
 import gis.gui.overlay.Overlay;
@@ -37,15 +38,17 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 import org.openstreetmap.gui.jmapviewer.MemoryTileCache;
 import org.openstreetmap.gui.jmapviewer.OsmFileCacheTileLoader;
+import org.openstreetmap.gui.jmapviewer.OsmMercator;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileCache;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
 
-public class GisPanel extends JMapViewer implements ResetableTileListener {
+public class GisPanel extends JMapViewer implements ResetableTileListener, ViewInfo {
 
   private static final long serialVersionUID = 1674766826613294344L;
   private final DedicatedLoader imageLoader = new DedicatedLoader();
   private ImagePainter imagePainter;
   private BufferedImage image;
+  private ViewInfo info;
 
   private final List<Overlay> overlayComponents = new ArrayList<>();
   private DistanceThresholdSelector distanceThresholdSelector;
@@ -148,6 +151,7 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
     }
   }
 
+  @Override
   public Rectangle2D getLatLonViewPort() {
     final Coordinate tl = getPosition(0, 0);
     final Coordinate br = getPosition(getWidth(), getHeight());
@@ -279,14 +283,28 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
 
   private void paintImage(final Graphics2D g) {
     if(image == null) return;
+    if(info.getZoom() != getZoom()) {
+      image = null;
+      requestImageUpdate();
+      return;
+    }
     final Insets insets = getInsets();
     g.translate((double) insets.left, (double) insets.top);
+    final Point ic = info.getCenter();
+    final Point c = getCenter();
+    final int dx = ic.x - c.x;
+    final int dy = ic.y - c.y;
+    g.translate(dx, dy);
     g.drawImage(image, 0, 0, null);
+    if(dx != 0 || dy != 0) {
+      requestImageUpdate();
+    }
   }
 
   private volatile boolean imageUpdateRequested = false;
 
-  public void setImage(final BufferedImage image) {
+  public void setImage(final BufferedImage image, final ViewInfo info) {
+    this.info = info;
     this.image = image;
     repaint();
   }
@@ -305,10 +323,63 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
         final BufferedImage image = new BufferedImage(
             width, height, BufferedImage.TYPE_4BYTE_ABGR);
         final Graphics2D g = image.createGraphics();
-        imagePainter.paint(g);
+        final Point center = new Point(getCenter());
+        final int zoom = getZoom();
+        final int w = getWidth();
+        final int h = getHeight();
+        final double mpp = getMeterPerPixel();
+        final Rectangle2D view = new Rectangle2D.Double();
+        view.setFrame(getLatLonViewPort());
+        final ViewInfo info = new ViewInfo() {
+
+          @Override
+          public int getWidth() {
+            return w;
+          }
+
+          @Override
+          public int getHeight() {
+            return h;
+          }
+
+          @Override
+          public double getMeterPerPixel() {
+            return mpp;
+          }
+
+          @Override
+          public Rectangle2D getLatLonViewPort() {
+            final Rectangle2D r = new Rectangle2D.Double();
+            r.setFrame(view);
+            return r;
+          }
+
+          @Override
+          public int getZoom() {
+            return zoom;
+          }
+
+          @Override
+          public Point getCenter() {
+            return new Point(center);
+          }
+
+          @Override
+          public Point2D convert(final Coordinate coord) {
+            final double lon = coord.getLon();
+            final double lat = coord.getLat();
+            int x = OsmMercator.LonToX(lon, zoom);
+            int y = OsmMercator.LatToY(lat, zoom);
+            x -= center.x - getWidth() / 2;
+            y -= center.y - getHeight() / 2;
+            return new Point(x, y);
+          }
+
+        };
+        imagePainter.paint(g, info);
         g.dispose();
         stillAlive();
-        setImage(image);
+        setImage(image, info);
       }
 
     });
@@ -384,6 +455,11 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
     this.imagePainter = imagePainter;
     requestImageUpdate();
     repaint();
+  }
+
+  @Override
+  public Point2D convert(final Coordinate c) {
+    return getMapPosition(c, false);
   }
 
 }
