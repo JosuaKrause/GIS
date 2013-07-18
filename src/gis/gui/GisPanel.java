@@ -55,23 +55,6 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
       e.printStackTrace();
       setTileLoader(old);
     }
-    // simple tile loader
-    // setTileLoader(new SimpleTileLoader(this,
-    // getTileController().getTileLoader()));
-    // shader tile loader
-    // final ImageTileLoader stl = new GISTileLoader(this,
-    // getTileController().getTileLoader());
-    // setTileLoader(stl);
-    // addAction(KeyEvent.VK_R, new AbstractAction() {
-    //
-    // private static final long serialVersionUID = 6208392790909997764L;
-    //
-    // @Override
-    // public void actionPerformed(final ActionEvent e) {
-    // stl.reloadAll();
-    // }
-    //
-    // });
     setFocusable(true);
     addComponentListener(new ComponentAdapter() {
 
@@ -88,23 +71,6 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
       @Override
       public void actionPerformed(final ActionEvent e) {
         requestImageUpdate();
-      }
-
-    });
-    final BusyPainter busyPainter = new BusyPainter(this);
-    addAction(KeyEvent.VK_L, new AbstractAction() {
-
-      private static final long serialVersionUID = 8752696610246079031L;
-
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        if(busyPainter.isRunning()) {
-          busyPainter.stop();
-        } else {
-          busyPainter.start();
-        }
-        System.out.println(getMeterPerPixel());
-        System.out.println("x" + 92.80207052971653 / 0.36375105061146223);
       }
 
     });
@@ -266,8 +232,6 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
       final float y = 16.5f;
       drawText(g2, hud, x, y);
     }
-    // note -- after this method returns the zoomValue
-    // slider is drawn with the same graphics object
 
     // draw overlayComponents
     for(final Overlay c : overlayComponents) {
@@ -281,6 +245,9 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
     if(distanceThresholdSelector != null) {
       distanceThresholdSelector.paint(g2, getWidth() - 5, 5);
     }
+
+    // note -- after this method returns the zoomValue
+    // slider is drawn with the same graphics object
   }
 
   public static final void drawText(final Graphics2D g,
