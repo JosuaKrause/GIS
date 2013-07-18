@@ -4,7 +4,7 @@ import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.GeoMarkerPolygon;
 import gis.data.db.Query;
 import gis.gui.GisPanel;
-import gis.gui.IImagePainter;
+import gis.gui.ImagePainter;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
-public class ErgisDistanceTransformationPainter implements IImagePainter {
+public class ErgisDistanceTransformationPainter implements ImagePainter {
 
   private final GisPanel gisPanel;
   private final Query query;
@@ -24,11 +24,6 @@ public class ErgisDistanceTransformationPainter implements IImagePainter {
   public ErgisDistanceTransformationPainter(final GisPanel gisPanel, final Query query) {
     this.gisPanel = gisPanel;
     this.query = query;
-  }
-
-  @Override
-  public void paint(final BufferedImage image) {
-    // do nothing
   }
 
   @Override

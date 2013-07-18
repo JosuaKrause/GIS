@@ -4,7 +4,7 @@ import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 import gis.data.db.Query;
 import gis.gui.GisPanel;
-import gis.gui.IImagePainter;
+import gis.gui.ImagePainter;
 import gis.gui.QueryCheckBox;
 
 import java.awt.event.ActionEvent;
@@ -15,7 +15,7 @@ public class DistanceTransformationQueryCheckbox extends QueryCheckBox {
 
   private static final long serialVersionUID = -8643774480736311524L;
 
-  final IImagePainter imagePainter;
+  final ImagePainter imagePainter;
 
   public DistanceTransformationQueryCheckbox(final GisPanel gisPanel) {
     super(gisPanel, new Query(

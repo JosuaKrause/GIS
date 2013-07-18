@@ -1,5 +1,7 @@
 package gis.gui;
 
+import gis.data.DedicatedLoader;
+import gis.data.DedicatedLoader.Loader;
 import gis.data.datatypes.GeoMarker;
 import gis.data.db.Query;
 import gis.gui.overlay.AbstractOverlayComponent;
@@ -41,7 +43,8 @@ import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
 public class GisPanel extends JMapViewer implements ResetableTileListener {
 
   private static final long serialVersionUID = 1674766826613294344L;
-  IImagePainter imagePainter;
+  private final DedicatedLoader imageLoader = new DedicatedLoader();
+  private ImagePainter imagePainter;
   private BufferedImage image;
 
   private final List<Overlay> overlayComponents = new ArrayList<>();
@@ -201,12 +204,11 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
     { // draw overlay image
       if(imagePainter != null && imageUpdateRequested) {
         updateImage();
-        final Graphics2D g = (Graphics2D) g2.create();
-        paintImage(g);
-        imagePainter.paint(g);
-        g.dispose();
         imageUpdateRequested = false;
       }
+      final Graphics2D g = (Graphics2D) g2.create();
+      paintImage(g);
+      g.dispose();
     }
     { // draw hover image
       if(curHover != null) {
@@ -276,6 +278,7 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
   }
 
   private void paintImage(final Graphics2D g) {
+    if(image == null) return;
     final Insets insets = getInsets();
     g.translate((double) insets.left, (double) insets.top);
     g.drawImage(image, 0, 0, null);
@@ -283,16 +286,32 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
 
   private volatile boolean imageUpdateRequested = false;
 
+  public void setImage(final BufferedImage image) {
+    this.image = image;
+    repaint();
+  }
+
   private void updateImage() {
-    if(imagePainter != null) {
-      System.out.println("*");// TODO
-      final Insets insets = getInsets();
-      final Dimension dim = getSize();
-      final int width = Math.max(dim.width - insets.left - insets.right, 1);
-      final int height = Math.max(dim.height - insets.top - insets.bottom, 1);
-      image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-      imagePainter.paint(image);
-    }
+    if(imagePainter == null) return;
+    final ImagePainter imagePainter = this.imagePainter;
+    imageLoader.load(new Loader() {
+
+      @Override
+      public void run() {
+        final Insets insets = getInsets();
+        final Dimension dim = getSize();
+        final int width = Math.max(dim.width - insets.left - insets.right, 1);
+        final int height = Math.max(dim.height - insets.top - insets.bottom, 1);
+        final BufferedImage image = new BufferedImage(
+            width, height, BufferedImage.TYPE_4BYTE_ABGR);
+        final Graphics2D g = image.createGraphics();
+        imagePainter.paint(g);
+        g.dispose();
+        stillAlive();
+        setImage(image);
+      }
+
+    });
   }
 
   public void registerOverlayComponent(final Overlay overlayComponent) {
@@ -307,8 +326,7 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
     final int width = getWidth();
     final int height = getHeight();
     final Insets insets = getInsets();
-    // TODO
-    // supports only one left and one right component, for now
+    // TODO supports only one left and one right component for now
     for(final Overlay c : overlayComponents) {
       final Dimension dim = c.getDimension();
       int x;
@@ -362,9 +380,9 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
     repaint();
   }
 
-  public void setImagePainter(final IImagePainter imagePainter) {
+  public void setImagePainter(final ImagePainter imagePainter) {
     this.imagePainter = imagePainter;
-    // requestImageUpdate();
+    requestImageUpdate();
     repaint();
   }
 
