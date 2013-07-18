@@ -5,8 +5,6 @@ import gis.data.db.Query;
 import gis.gui.overlay.AbstractOverlayComponent;
 import gis.gui.overlay.DistanceThresholdSelector;
 import gis.gui.overlay.Overlay;
-import gis.tiles.GISTileLoader;
-import gis.tiles.ImageTileLoader;
 import gis.tiles.ResetableTileListener;
 
 import java.awt.Color;
@@ -61,19 +59,19 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
     // setTileLoader(new SimpleTileLoader(this,
     // getTileController().getTileLoader()));
     // shader tile loader
-    final ImageTileLoader stl = new GISTileLoader(this,
-        getTileController().getTileLoader());
-    setTileLoader(stl);
-    addAction(KeyEvent.VK_R, new AbstractAction() {
-
-      private static final long serialVersionUID = 6208392790909997764L;
-
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        stl.reloadAll();
-      }
-
-    });
+    // final ImageTileLoader stl = new GISTileLoader(this,
+    // getTileController().getTileLoader());
+    // setTileLoader(stl);
+    // addAction(KeyEvent.VK_R, new AbstractAction() {
+    //
+    // private static final long serialVersionUID = 6208392790909997764L;
+    //
+    // @Override
+    // public void actionPerformed(final ActionEvent e) {
+    // stl.reloadAll();
+    // }
+    //
+    // });
     setFocusable(true);
     addComponentListener(new ComponentAdapter() {
 
@@ -115,6 +113,7 @@ public class GisPanel extends JMapViewer implements ResetableTileListener {
   public void requestImageUpdate() {
     imageUpdateRequested = true;
     repaint();
+    System.out.println("reload");
   }
 
   public void addAction(final int vk, final Action a) {

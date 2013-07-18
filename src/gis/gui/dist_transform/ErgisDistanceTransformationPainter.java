@@ -315,8 +315,10 @@ public class ErgisDistanceTransformationPainter implements IImagePainter {
     return ((float) Math.sqrt(xx + yy)) * metersPerPixel;
   }
 
-  private final static int distanceToColor(final float distance) {
-    int i = Math.round(255 * distance / 3000);
+  private static final float MAX_DIST = 100;
+
+  private static final int distanceToColor(final float distance) {
+    int i = Math.round(255 * distance / MAX_DIST);
     i = Math.min(i, 255);
     // i = Math.max(i, 0);
     i = 255 - i;

@@ -2,8 +2,6 @@ package gis.gui;
 
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
-import gis.data.db.BrandenburgQuery;
-import gis.data.db.BrandenburgTorQuery;
 import gis.data.db.Query;
 import gis.gui.dist_transform.DistanceTransformationQueryCheckbox;
 
@@ -42,8 +40,8 @@ public class GisControlPanel extends JPanel {
     selectionManager.setSelector(smoc);
     gisPanel.registerOverlayComponent(smoc);
     smoc.setVisible(true);
-    addQuery(new BrandenburgQuery(1000, "Brandenburger"));
-    addQuery(new BrandenburgTorQuery("Tor"));
+    // addQuery(new BrandenburgQuery(1000, "Brandenburger"));
+    // addQuery(new BrandenburgTorQuery("Tor"));
     add(new FlickrChloroplethQueryCheckbox(gisPanel));
     addTableSelectionCheckBox(gisPanel, Table.FLICKR, "All Flickr Photos");
     add(new CommercialRatioQueryCheckbox(gisPanel));
