@@ -1,5 +1,7 @@
 package gis.gui;
 
+import gis.data.DedicatedLoader;
+import gis.data.DedicatedLoader.Loader;
 import gis.data.datatypes.ElementId;
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
@@ -11,8 +13,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.swing.SwingUtilities;
 
@@ -20,6 +20,8 @@ public class MouseSelectionListener extends MouseAdapter {
 
   private final GisPanel gisPanel;
   private final GisControlPanel gisControlPanel;
+
+  private static final DedicatedLoader LOADER = new DedicatedLoader();
 
   public MouseSelectionListener(final GisPanel gisPanel,
       final GisControlPanel gisControlPanel) {
@@ -39,14 +41,11 @@ public class MouseSelectionListener extends MouseAdapter {
 
   private ElementId curHover;
 
-  private static final ExecutorService LOADER = Executors.newCachedThreadPool();
-
-  protected volatile Runnable cur;
-
   @Override
   public void mouseMoved(final MouseEvent e) {
     final Point2D pos = e.getPoint();
     final GisPanel gisPanel = this.gisPanel;
+    gisPanel.setToolTipText(gisPanel.getPositionToolTip(pos));
     final List<GeoMarker> picks = new ArrayList<>();
     gisPanel.pick(pos, picks);
     for(final GeoMarker m : picks) {
@@ -57,13 +56,12 @@ public class MouseSelectionListener extends MouseAdapter {
       }
     }
     if(!e.isShiftDown()) return;
-    final Runnable r = new Runnable() {
+    LOADER.load(new Loader() {
 
       @Override
       public void run() {
         for(final GeoMarker m : picks) {
-          if(Thread.currentThread().isInterrupted()) return;
-          if(cur != this) return;
+          if(!stillAlive()) return;
           if(m.getId().getQuery().getTable() != Table.FLICKR) {
             continue;
           }
@@ -73,9 +71,7 @@ public class MouseSelectionListener extends MouseAdapter {
         }
       }
 
-    };
-    cur = r;
-    LOADER.execute(r);
+    });
   }
 
   protected boolean setCurHover(final Point2D pos, final ElementId id) {

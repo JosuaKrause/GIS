@@ -1,11 +1,13 @@
 package gis.data.datatypes;
 
 import gis.gui.GisPanel;
+import gis.gui.dist_transform.ViewInfo;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
@@ -122,6 +124,8 @@ public abstract class GeoMarker implements Serializable {
   }
 
   public abstract boolean pick(Point2D pos, GisPanel panel, boolean simple);
+
+  public abstract Shape convert(ViewInfo t);
 
   /**
    * Paints the element.

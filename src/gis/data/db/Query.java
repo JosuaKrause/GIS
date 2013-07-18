@@ -39,6 +39,8 @@ public abstract class Query {
   /** The value column if any. */
   private final String valueCol;
 
+  private final boolean paintMarkers;
+
   /**
    * Creates a query.
    * 
@@ -48,13 +50,20 @@ public abstract class Query {
    *          ids count)
    * @param name The name of the query.
    * @param valueCol The column of the extra value. May be <code>null</code>.
+   * @param paintMarkers Whether this query will ever be painted.
    */
   public Query(final String query, final Table table, final String name,
-      final String valueCol) {
+      final String valueCol, final boolean paintMarkers) {
     this.name = Objects.requireNonNull(name);
     this.table = Objects.requireNonNull(table);
     this.query = Objects.requireNonNull(query);
     this.valueCol = valueCol;
+    this.paintMarkers = paintMarkers;
+  }
+
+  public Query(final String query, final Table table, final String name,
+      final String valueCol) {
+    this(query, table, name, valueCol, true);
   }
 
   public String uniqueHash() {
@@ -197,6 +206,10 @@ public abstract class Query {
   public void clearCache() {
     hasContent = false;
     markers.clear();
+  }
+
+  public boolean getPaintMarkers() {
+    return paintMarkers;
   }
 
 }
