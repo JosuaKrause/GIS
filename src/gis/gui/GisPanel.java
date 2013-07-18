@@ -304,6 +304,9 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
 
   public void setImage(final BufferedImage image, final ViewInfo info) {
     this.info = info;
+    if(this.image != null) {
+      this.image.flush();
+    }
     this.image = image;
     repaint();
   }
@@ -398,6 +401,11 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
             return new Coordinate(lat, lon);
           }
 
+          @Override
+          public void drawImage(final Graphics2D g, final BufferedImage img) {
+            g.drawImage(img, 0, 0, null);
+          }
+
         };
         imagePainter.paint(g, info);
         g.dispose();
@@ -476,6 +484,7 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
 
   public void setImagePainter(final ImagePainter imagePainter) {
     this.imagePainter = imagePainter;
+    image = null;
     requestImageUpdate();
     repaint();
   }
@@ -483,6 +492,11 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
   @Override
   public Point2D convert(final Coordinate c) {
     return getMapPosition(c, false);
+  }
+
+  @Override
+  public void drawImage(final Graphics2D g, final BufferedImage img) {
+    g.drawImage(img, 0, 0, null);
   }
 
 }

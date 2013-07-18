@@ -26,14 +26,14 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
   @Override
   public void paint(final Graphics2D g, final ViewInfo info) {
     final List<GeoMarker> markers = query.getResult();
-    if(markers.size() == 0) return;
+    if(markers.isEmpty()) return;
     final Rectangle2D vpLatLon = info.getLatLonViewPort();
     final int w = info.getWidth();
     final int h = info.getHeight();
     final double mpp = info.getMeterPerPixel();
 
-    final BufferedImage img = new BufferedImage(w, h,
-        BufferedImage.TYPE_INT_ARGB);
+    final BufferedImage img = new BufferedImage(
+        w, h, BufferedImage.TYPE_INT_ARGB);
     final Graphics2D imgG = img.createGraphics();
 
     final double[] dist = new double[w * h];
@@ -283,8 +283,25 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
       }
     }
 
-    g.drawImage(img, 0, 0, null);
+    info.drawImage(g, img);
+    img.flush();
+
+    if(DEBUG) {
+      g.setColor(Color.BLUE);
+      for(final GeoMarker m : markers) {
+        final Rectangle2D mLatLonBBox = m.getLatLonBBox();
+        if(!vpLatLon.intersects(mLatLonBBox)) {
+          continue;
+        }
+        // set polygon pixels as target pixels
+        final Shape path = m.convert(info);
+        g.draw(path);
+        g.fill(path);
+      }
+    }
   }
+
+  private static final boolean DEBUG = false;
 
   private static double distFromTarget(final int x, final int y,
       final Point target, final double metersPerPixel) {
