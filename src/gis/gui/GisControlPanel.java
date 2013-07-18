@@ -4,6 +4,7 @@ import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
 import gis.data.db.Query;
 import gis.gui.dist_transform.DistanceTransformationQueryCheckbox;
+import gis.gui.dist_transform.WiFiQueryCheckbox;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -42,6 +43,7 @@ public class GisControlPanel extends JPanel {
     smoc.setVisible(true);
     // addQuery(new BrandenburgQuery(1000, "Brandenburger"));
     // addQuery(new BrandenburgTorQuery("Tor"));
+    add(new WiFiQueryCheckbox(gisPanel));
     add(new FlickrChloroplethQueryCheckbox(gisPanel));
     addTableSelectionCheckBox(gisPanel, Table.FLICKR, "All Flickr Photos");
     add(new CommercialRatioQueryCheckbox(gisPanel));

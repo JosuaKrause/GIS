@@ -336,8 +336,8 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
         final Graphics2D g = image.createGraphics();
         final Point center = new Point(getCenter());
         final double mpp = getMeterPerPixel();
-        final int marginX = 100;
-        final int marginY = 100;
+        final int marginX = 0;// 100;
+        final int marginY = 0;// 100;
         final int zoom = getZoom();
         final int w = getWidth();
         final int h = getHeight();

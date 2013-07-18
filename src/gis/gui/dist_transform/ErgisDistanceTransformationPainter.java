@@ -12,6 +12,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Objects;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
@@ -19,8 +20,11 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
 
   private final Query query;
 
-  public ErgisDistanceTransformationPainter(final Query query) {
-    this.query = query;
+  private final Combiner combiner;
+
+  public ErgisDistanceTransformationPainter(final Query query, final Combiner combiner) {
+    this.query = Objects.requireNonNull(query);
+    this.combiner = Objects.requireNonNull(combiner);
   }
 
   @Override
@@ -279,7 +283,7 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
     // convert distances to pixel color in image
     for(int y = 0; y < h; ++y) {
       for(int x = 0; x < w; ++x) {
-        img.setRGB(x, y, distanceToColor(dist[y * w + x]));
+        img.setRGB(x, y, combiner.distanceToColor(dist[y * w + x]));
       }
     }
 
@@ -316,17 +320,6 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
     final double dy = y1 - y2;
     final double yy = dy * dy;
     return Math.sqrt(xx + yy) * metersPerPixel;
-  }
-
-  private static final double MAX_DIST = 100;
-
-  private static final int distanceToColor(final double distance) {
-    int i = (int) Math.round(255 * distance / MAX_DIST);
-    i = Math.min(i, 255);
-    // i = Math.max(i, 0);
-    i = 255 - i;
-    // ARGB
-    return ((255 - i) << 24) | (i << 16) | (i << 8) | i;
   }
 
 }
