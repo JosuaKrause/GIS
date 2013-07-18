@@ -332,22 +332,22 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
             width, height, BufferedImage.TYPE_4BYTE_ABGR);
         final Graphics2D g = image.createGraphics();
         final Point center = new Point(getCenter());
+        final double mpp = getMeterPerPixel();
+        final int marginX = 100;
+        final int marginY = 100;
         final int zoom = getZoom();
         final int w = getWidth();
         final int h = getHeight();
-        final double mpp = getMeterPerPixel();
-        final Rectangle2D view = new Rectangle2D.Double();
-        view.setFrame(getLatLonViewPort());
         final ViewInfo info = new ViewInfo() {
 
           @Override
           public int getWidth() {
-            return w;
+            return w + marginX * 2;
           }
 
           @Override
           public int getHeight() {
-            return h;
+            return h + marginY * 2;
           }
 
           @Override
@@ -357,9 +357,15 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
 
           @Override
           public Rectangle2D getLatLonViewPort() {
-            final Rectangle2D r = new Rectangle2D.Double();
-            r.setFrame(view);
-            return r;
+            final Coordinate tl = getPosition(0, 0);
+            final Coordinate br = getPosition(getWidth(), getHeight());
+            if(tl == null || br == null) return null;
+            final double minLon = Math.min(tl.getLon(), br.getLon());
+            final double maxLon = Math.max(tl.getLon(), br.getLon());
+            final double minLat = Math.min(tl.getLat(), br.getLat());
+            final double maxLat = Math.max(tl.getLat(), br.getLat());
+            return new Rectangle2D.Double(
+                minLon, minLat, maxLon - minLon, maxLat - minLat);
           }
 
           @Override
@@ -380,7 +386,16 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
             int y = OsmMercator.LatToY(lat, zoom);
             x -= center.x - getWidth() / 2;
             y -= center.y - getHeight() / 2;
-            return new Point(x, y);
+            return new Point(x - marginX, y - marginY);
+          }
+
+          @Override
+          public Coordinate getPosition(final int px, final int py) {
+            final int x = center.x + (px + marginX) - getWidth() / 2;
+            final int y = center.y + (py + marginY) - getHeight() / 2;
+            final double lon = OsmMercator.XToLon(x, zoom);
+            final double lat = OsmMercator.YToLat(y, zoom);
+            return new Coordinate(lat, lon);
           }
 
         };

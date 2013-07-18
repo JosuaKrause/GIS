@@ -22,4 +22,6 @@ public interface ViewInfo {
 
   int getZoom();
 
+  Coordinate getPosition(int x, int y);
+
 }

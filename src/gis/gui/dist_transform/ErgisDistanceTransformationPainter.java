@@ -178,12 +178,12 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
       }
     }
     // initialize bottom row and right column
-    if(dist[(h - 1) * w - 1] != Float.MAX_VALUE) {
+    if(dist[(h - 1) * w - 1] < Double.POSITIVE_INFINITY) {
       // bottom row
       for(int x = w - 2; x >= 0; --x) {
         final int index = (h - 1) * w + x;
         final Point rnTarget = targets[index + 1];
-        if(dist[index + 1] != Float.MAX_VALUE) {
+        if(dist[index + 1] < Double.POSITIVE_INFINITY) {
           final double rnTargetDist = euclidian(x, h - 1, rnTarget.x, rnTarget.y, mpp);
           if(rnTargetDist < dist[index]) {
             dist[index] = rnTargetDist;
@@ -195,7 +195,7 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
       for(int y = h - 2; y >= 0; --y) {
         final int index = (y + 1) * w - 1;
         final Point bnTarget = targets[index + w];
-        if(dist[index + w] != Float.MAX_VALUE) {
+        if(dist[index + w] < Double.POSITIVE_INFINITY) {
           final double bnTargetDist = euclidian(w - 1, y, bnTarget.x, bnTarget.y, mpp);
           if(bnTargetDist < dist[index]) {
             dist[index] = bnTargetDist;
