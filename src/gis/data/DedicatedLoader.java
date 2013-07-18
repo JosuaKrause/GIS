@@ -26,6 +26,11 @@ public class DedicatedLoader {
 
   public void load(final Loader l) {
     l.setLoader(this);
+    if(cur != null) {
+      synchronized(cur) {
+        cur.notifyAll();
+      }
+    }
     cur = l;
     LOADER.execute(l);
   }

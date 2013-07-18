@@ -85,7 +85,6 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
   public void requestImageUpdate() {
     imageUpdateRequested = true;
     repaint();
-    System.out.println("reload");
   }
 
   public void addAction(final int vk, final Action a) {
@@ -316,6 +315,15 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
 
       @Override
       public void run() {
+        try {
+          synchronized(this) {
+            wait(100);
+          }
+        } catch(final InterruptedException e) {
+          Thread.currentThread().interrupt();
+          return;
+        }
+        if(!stillAlive()) return;
         final Insets insets = getInsets();
         final Dimension dim = getSize();
         final int width = Math.max(dim.width - insets.left - insets.right, 1);
