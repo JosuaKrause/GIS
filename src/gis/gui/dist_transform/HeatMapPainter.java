@@ -23,6 +23,8 @@ public class HeatMapPainter implements ImagePainter {
     this.combiner = Objects.requireNonNull(combiner);
   }
 
+  private static final double MAX_PIXELS = 50.0;
+
   @Override
   public void paint(final Graphics2D gfx, final ViewInfo info, final ProgressListener prog) {
     final List<GeoMarker> markers = query.getResult();
@@ -33,24 +35,22 @@ public class HeatMapPainter implements ImagePainter {
       shapes.add(marker.convert(info));
     }
     Graphics2D g = gfx;
-    for(int raster = 100; raster > 0; raster = raster / 2 + 1) {
+    for(int raster = 100; raster > 0; raster /= 2) {
       final Point2D pos = new Point2D.Double();
       for(int y = 0; y < info.getHeight(); y += raster) {
         if(!prog.stillAlive()) return;
         for(int x = 0; x < info.getWidth(); x += raster) {
-          pos.setLocation(x, y);
-          double m = Double.POSITIVE_INFINITY;
+          pos.setLocation(x + raster / 2, y + raster / 2);
+          double m = 0;
           for(final Shape s : shapes) {
             final double tm = GeomUtil.distance(pos, s.getBounds2D(), GeomUtil.EPS);
-            if(tm >= Combiner.MAX_DIST) {
+            if(tm >= MAX_PIXELS) {
               continue;
             }
             final double pxls = GeomUtil.distance(pos, s, GeomUtil.EPS);
-            if(pxls < m) {
-              m = pxls;
-            }
+            m += Math.max(MAX_PIXELS - pxls, 0);
           }
-          g.setColor(new Color(combiner.distanceToColor(m), true));
+          g.setColor(new Color(combiner.distanceToColor(m / 2.0), true));
           g.fillRect(x, y, raster, raster);
         }
       }

@@ -329,15 +329,6 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
 
       @Override
       public void run() {
-        try {
-          synchronized(this) {
-            wait(100);
-          }
-        } catch(final InterruptedException e) {
-          Thread.currentThread().interrupt();
-          return;
-        }
-        if(!stillAlive()) return;
         final Insets insets = getInsets();
         final Dimension dim = getSize();
         final int width = Math.max(dim.width - insets.left - insets.right, 1);
@@ -420,6 +411,16 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
         };
         if(!stillAlive()) return;
         lastLoadInfo = info;
+        // wait before calcing
+        try {
+          synchronized(this) {
+            wait(50);
+          }
+        } catch(final InterruptedException e) {
+          Thread.currentThread().interrupt();
+          return;
+        }
+        if(!stillAlive()) return;
         final Loader parent = this;
         imagePainter.paint(g, info, new ProgressListener() {
 
