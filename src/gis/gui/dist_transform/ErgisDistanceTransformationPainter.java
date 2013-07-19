@@ -49,7 +49,7 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
   }
 
   @Override
-  public void paint(final Graphics2D g, final ViewInfo info) {
+  public void paint(final Graphics2D g, final ViewInfo info, final ProgressListener prog) {
     final List<GeoMarker> markers = query.getResult();
     if(markers.isEmpty()) return;
     final Rectangle2D vpLatLon = info.getLatLonViewPort();
@@ -68,6 +68,7 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
 
     imgG.setColor(Color.WHITE);
     for(final GeoMarker m : markers) {
+      if(!prog.stillAlive()) return;
       final Rectangle2D mLatLonBBox = m.getLatLonBBox();
       if(!vpLatLon.intersects(mLatLonBBox)) {
         outer.add(m);
@@ -90,6 +91,7 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
 
     // initialize distances
     for(int y = 0; y < h; ++y) {
+      if(!prog.stillAlive()) return;
       for(int x = 0; x < w; ++x) {
         final int index = y * w + x;
         if((img.getRGB(x, y) & 255) == 255) {
@@ -147,6 +149,7 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
     // from top left to bottom right
     for(int y = 1; y < h; ++y) {
       for(int x = 1; x < w - 1; ++x) {// omit rightmost pixel
+        if(!prog.stillAlive()) return;
         final int index = y * w + x;
         if(dist[index] != 0) {
           final Point tlt = targets[index - w - 1];
@@ -240,6 +243,7 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
     }
     // from bottom right to top left
     for(int y = h - 2; y >= 0; --y) {
+      if(!prog.stillAlive()) return;
       for(int x = w - 2; x >= 1; --x) {// omit leftmost pixel
         final int index = y * w + x;
         if(dist[index] != 0) {
@@ -312,6 +316,7 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
     // ////// again old code
     // convert distances to pixel color in image
     for(int y = 0; y < h; ++y) {
+      if(!prog.stillAlive()) return;
       for(int x = 0; x < w; ++x) {
         img.setRGB(x, y, combiner.distanceToColor(dist[y * w + x]));
       }

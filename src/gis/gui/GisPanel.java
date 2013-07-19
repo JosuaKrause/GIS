@@ -4,6 +4,7 @@ import gis.data.DedicatedLoader;
 import gis.data.DedicatedLoader.Loader;
 import gis.data.datatypes.GeoMarker;
 import gis.data.db.Query;
+import gis.gui.dist_transform.ProgressListener;
 import gis.gui.dist_transform.ViewInfo;
 import gis.gui.overlay.AbstractOverlayComponent;
 import gis.gui.overlay.DistanceThresholdSelector;
@@ -316,6 +317,8 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
     final ImagePainter imagePainter = this.imagePainter;
     imageLoader.load(new Loader() {
 
+      BufferedImage currentImage = null;
+
       @Override
       public void run() {
         try {
@@ -331,9 +334,9 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
         final Dimension dim = getSize();
         final int width = Math.max(dim.width - insets.left - insets.right, 1);
         final int height = Math.max(dim.height - insets.top - insets.bottom, 1);
-        final BufferedImage image = new BufferedImage(
+        currentImage = new BufferedImage(
             width, height, BufferedImage.TYPE_4BYTE_ABGR);
-        final Graphics2D g = image.createGraphics();
+        final Graphics2D g = currentImage.createGraphics();
         final Point center = new Point(getCenter());
         final double mpp = getMeterPerPixel();
         final int marginX = 0;// 100;
@@ -407,10 +410,27 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
           }
 
         };
-        imagePainter.paint(g, info);
+        final Loader parent = this;
+        imagePainter.paint(g, info, new ProgressListener() {
+
+          @Override
+          public boolean stillAlive() {
+            return parent.stillAlive();
+          }
+
+          @Override
+          public Graphics2D commitProgress(final Graphics old) {
+            if(!stillAlive()) return (Graphics2D) old;
+            old.dispose();
+            setImage(currentImage, info);
+            currentImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            return (Graphics2D) currentImage.getGraphics();
+          }
+
+        });
         g.dispose();
         stillAlive();
-        setImage(image, info);
+        setImage(currentImage, info);
       }
 
     });

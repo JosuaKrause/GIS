@@ -17,7 +17,7 @@ public class DedicatedLoader {
       this.loader = loader;
     }
 
-    protected boolean stillAlive() {
+    public boolean stillAlive() {
       if(Thread.currentThread().isInterrupted()) return false;
       return loader.cur == this;
     }
