@@ -425,7 +425,7 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
 
           @Override
           public boolean stillAlive() {
-            return parent.stillAlive();
+            return parent.stillAlive() && imagePainter == getImagePainter();
           }
 
           @Override
