@@ -10,20 +10,14 @@ import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public class HeatMapPainter implements ImagePainter {
+import javax.swing.JCheckBox;
 
-  private final Query query;
+public class HeatMapPainter extends ImagePainter {
 
-  private final Combiner combiner;
-
-  public HeatMapPainter(final Query query, final Combiner combiner) {
-    this.query = Objects.requireNonNull(query);
-    this.combiner = Objects.requireNonNull(combiner);
+  public HeatMapPainter(final Query query, final Combiner combiner, final JCheckBox box) {
+    super(query, combiner, box);
   }
-
-  private static final double MAX_PIXELS = 50.0;
 
   @Override
   public void paint(final Graphics2D gfx, final ViewInfo info, final ProgressListener prog) {
@@ -44,13 +38,13 @@ public class HeatMapPainter implements ImagePainter {
           double m = 0;
           for(final Shape s : shapes) {
             final double tm = GeomUtil.distance(pos, s.getBounds2D(), GeomUtil.EPS);
-            if(tm >= MAX_PIXELS) {
+            if(tm >= combiner.maxDistance()) {
               continue;
             }
             final double pxls = GeomUtil.distance(pos, s, GeomUtil.EPS);
-            m += Math.max(MAX_PIXELS - pxls, 0);
+            m += Math.max(combiner.maxDistance() - pxls, 0);
           }
-          g.setColor(new Color(combiner.distanceToColor(m / 2.0), true));
+          g.setColor(new Color(combiner.distanceToColor(m), true));
           g.fillRect(x, y, raster, raster);
         }
       }

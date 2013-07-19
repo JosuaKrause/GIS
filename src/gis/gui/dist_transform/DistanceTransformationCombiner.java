@@ -28,12 +28,15 @@ public class DistanceTransformationCombiner implements Combiner {
 
   @Override
   public int distanceToColor(final double distance) {
-    if(distance >= THRESHOLDS[4]) return COLORS[5];
-    if(distance >= THRESHOLDS[3]) return COLORS[4];
-    if(distance >= THRESHOLDS[2]) return COLORS[3];
-    if(distance >= THRESHOLDS[1]) return COLORS[2];
-    if(distance >= THRESHOLDS[0]) return COLORS[1];
+    for(int i = THRESHOLDS.length - 1; i >= 0; --i) {
+      if(distance >= THRESHOLDS[i]) return COLORS[i + 1];
+    }
     return COLORS[0];
+  }
+
+  @Override
+  public double maxDistance() {
+    return THRESHOLDS[THRESHOLDS.length - 1];
   }
 
 }

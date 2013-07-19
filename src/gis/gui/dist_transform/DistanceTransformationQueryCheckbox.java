@@ -7,8 +7,6 @@ import gis.gui.GisPanel;
 import gis.gui.ImagePainter;
 import gis.gui.QueryCheckBox;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 public class DistanceTransformationQueryCheckbox extends QueryCheckBox {
@@ -24,27 +22,13 @@ public class DistanceTransformationQueryCheckbox extends QueryCheckBox {
 
       @Override
       protected void finishLoading(final List<GeoMarker> ms) {
-        // nothing here, yet
+        // nothing here
       }
 
     });
-    // imagePainter = new DistanceTransformationPainter(gisPanel,
-    // getQuery());//TODO
     imagePainter = new ErgisDistanceTransformationPainter(getQuery(),
-        new DistanceTransformationCombiner());// TODO
-    addActionListener(new ActionListener() {
-
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        if(isSelected()) {
-          gisPanel.setImagePainter(imagePainter);
-        } else {
-          gisPanel.setImagePainter(null);
-        }
-      }
-
-    });
-
+        new DistanceTransformationCombiner(), this);
+    addActionListener(imagePainter.createActionListener(gisPanel));
   }
 
   @Override
