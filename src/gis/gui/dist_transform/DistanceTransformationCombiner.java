@@ -39,7 +39,19 @@ public class DistanceTransformationCombiner implements Combiner {
   @Override
   public Color intensityToColor(final double intensity) {
     final int i = (int) (intensity * COLORS.length);
-    return new Color(COLORS[i], true);
+    final int cInt = COLORS[i];
+    final int a = (cInt >> 24) & 255;
+    final float alpha = a / 255.0f;
+    int r = (cInt >> 16) & 255;
+    int g = (cInt >> 8) & 255;
+    int b = cInt & 255;
+    final float invAlpha = 1 - alpha;
+    r = Math.round(invAlpha * 255 + alpha * r);
+    g = Math.round(invAlpha * 255 + alpha * g);
+    b = Math.round(invAlpha * 255 + alpha * b);
+
+    final int color = (255 << 24) | (r << 16) | (g << 8) | b;
+    return new Color(color, true);
   }
 
   @Override
