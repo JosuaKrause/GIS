@@ -11,9 +11,9 @@ public class TestColorMappingFrame extends JFrame {
 
   private static final long serialVersionUID = 1134514145861266874L;
 
-  private final IColorMapping colorMapping;
+  private final ColorMapping colorMapping;
 
-  public TestColorMappingFrame(final IColorMapping colorMapping) {
+  public TestColorMappingFrame(final ColorMapping colorMapping) {
     super();
     this.colorMapping = colorMapping;
     this.setSize(800, 50);
@@ -47,7 +47,7 @@ public class TestColorMappingFrame extends JFrame {
   }
 
   public static void main(final String[] args) {
-    final IColorMapping mapping = new ColorMap(new IntervalIntensityMapping(0, 0, 1, 1),
+    final ColorMapping mapping = new ColorMap(new IntervalIntensityMapping(0, 0, 1, 1),
         new Color[] {
             new Color(248, 16, 0), new Color(252, 252, 0), Color.WHITE},
         new double[] { 0, 0.5, 1});

@@ -7,7 +7,7 @@ import java.awt.Color;
  * 
  * @author Andreas Ergenzinger <andreas.ergenzinger@gmx.de>
  */
-public interface IColorMapping {
+public interface ColorMapping {
 
   /**
    * Returns the color mapped to a specific value.

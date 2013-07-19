@@ -1,8 +1,10 @@
 package gis.gui.dist_transform;
 
+import gis.gui.color_map.ColorMapping;
+
 import java.awt.Color;
 
-public interface Combiner {
+public interface Combiner extends ColorMapping {
 
   int distanceToColor(double distance);
 
@@ -17,7 +19,12 @@ public interface Combiner {
       // i = Math.max(i, 0);
       i = 255 - i;
       // ARGB
-      return ((255 - i) << 24) | (i << 16) | (i << 8) | i;
+      return (((255 - i) * 3 / 4) << 24) | (i << 16) | (i << 8) | i;
+    }
+
+    @Override
+    public Color getColor(final double value) {
+      return new Color(distanceToColor(value), true);
     }
 
   };
@@ -32,6 +39,11 @@ public interface Combiner {
       i = 255 - i;
       // ARGB
       return (Color.HSBtoRGB(0, 1, i / 255f) & 0x00ffffff) | (i << 24);
+    }
+
+    @Override
+    public Color getColor(final double value) {
+      return new Color(distanceToColor(value), true);
     }
 
   };

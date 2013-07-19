@@ -78,6 +78,28 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
       }
     }
 
+    // initialize border
+    // for(int y = 0; y < h; ++y) {
+    // final int index = y * w + x;
+    // if((img.getRGB(x, y) & 255) == 255) {
+    // dist[index] = 0;
+    // targets[index] = new Point(x, y);
+    // } else {
+    // dist[index] = Double.POSITIVE_INFINITY;
+    // targets[index] = null;
+    // }
+    // }
+    // for(int x = 0; x < w; ++x) {
+    // final int index = y * w + x;
+    // if((img.getRGB(x, y) & 255) == 255) {
+    // dist[index] = 0;
+    // targets[index] = new Point(x, y);
+    // } else {
+    // dist[index] = Double.POSITIVE_INFINITY;
+    // targets[index] = null;
+    // }
+    // }
+
     // initialize top row
     int targetHalfCoordinate = -1;
     for(int x = 0; x < w; ++x) {

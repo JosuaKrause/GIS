@@ -2,7 +2,7 @@ package gis.gui.color_map;
 
 import java.awt.Color;
 
-public abstract class AbstractColorMapping implements IColorMapping {
+public abstract class AbstractColorMapping implements ColorMapping {
 
   protected final IntensityMapping intensityMapping;
   protected final Color[] colors;
