@@ -17,7 +17,7 @@ public class DedicatedLoader {
       this.loader = loader;
     }
 
-    protected boolean stillAlive() {
+    public boolean stillAlive() {
       if(Thread.currentThread().isInterrupted()) return false;
       return loader.cur == this;
     }
@@ -33,6 +33,10 @@ public class DedicatedLoader {
     }
     cur = l;
     LOADER.execute(l);
+  }
+
+  public static void shutdown() {
+    LOADER.shutdownNow();
   }
 
 }

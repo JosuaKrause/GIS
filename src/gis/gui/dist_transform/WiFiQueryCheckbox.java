@@ -31,7 +31,7 @@ public class WiFiQueryCheckbox extends QueryCheckBox {
           }
 
         });
-    imagePainter = new ErgisDistanceTransformationPainter(getQuery(), Combiner.HOTS);
+    imagePainter = new HeatMapPainter(getQuery(), Combiner.HOTS);
     addActionListener(new ActionListener() {
 
       @Override

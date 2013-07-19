@@ -4,6 +4,7 @@ import gis.data.DedicatedLoader;
 import gis.data.DedicatedLoader.Loader;
 import gis.data.datatypes.GeoMarker;
 import gis.data.db.Query;
+import gis.gui.dist_transform.ProgressListener;
 import gis.gui.dist_transform.ViewInfo;
 import gis.gui.overlay.AbstractOverlayComponent;
 import gis.gui.overlay.DistanceThresholdSelector;
@@ -49,6 +50,7 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
   private ImagePainter imagePainter;
   private BufferedImage image;
   private ViewInfo info;
+  protected ViewInfo lastLoadInfo;
 
   private final List<Overlay> overlayComponents = new ArrayList<>();
   private DistanceThresholdSelector distanceThresholdSelector;
@@ -282,7 +284,11 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
 
   private void paintImage(final Graphics2D g) {
     if(image == null) return;
-    if(info.getZoom() != getZoom()) {
+    if(lastLoadInfo == null) {
+      requestImageUpdate();
+      return;
+    }
+    if(lastLoadInfo.getZoom() != getZoom()) {
       image = null;
       requestImageUpdate();
       return;
@@ -295,7 +301,10 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
     final int dy = ic.y - c.y;
     g.translate(dx, dy);
     g.drawImage(image, 0, 0, null);
-    if(dx != 0 || dy != 0) {
+    final Point lc = lastLoadInfo.getCenter();
+    final int ldx = lc.x - c.x;
+    final int ldy = lc.y - c.y;
+    if(ldx != 0 || ldy != 0) {
       requestImageUpdate();
     }
   }
@@ -316,24 +325,17 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
     final ImagePainter imagePainter = this.imagePainter;
     imageLoader.load(new Loader() {
 
+      BufferedImage currentImage = null;
+
       @Override
       public void run() {
-        try {
-          synchronized(this) {
-            wait(100);
-          }
-        } catch(final InterruptedException e) {
-          Thread.currentThread().interrupt();
-          return;
-        }
-        if(!stillAlive()) return;
         final Insets insets = getInsets();
         final Dimension dim = getSize();
         final int width = Math.max(dim.width - insets.left - insets.right, 1);
         final int height = Math.max(dim.height - insets.top - insets.bottom, 1);
-        final BufferedImage image = new BufferedImage(
+        currentImage = new BufferedImage(
             width, height, BufferedImage.TYPE_4BYTE_ABGR);
-        final Graphics2D g = image.createGraphics();
+        final Graphics2D g = currentImage.createGraphics();
         final Point center = new Point(getCenter());
         final double mpp = getMeterPerPixel();
         final int marginX = 0;// 100;
@@ -407,10 +409,39 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
           }
 
         };
-        imagePainter.paint(g, info);
+        if(!stillAlive()) return;
+        lastLoadInfo = info;
+        // wait before calcing
+        try {
+          synchronized(this) {
+            wait(50);
+          }
+        } catch(final InterruptedException e) {
+          Thread.currentThread().interrupt();
+          return;
+        }
+        if(!stillAlive()) return;
+        final Loader parent = this;
+        imagePainter.paint(g, info, new ProgressListener() {
+
+          @Override
+          public boolean stillAlive() {
+            return parent.stillAlive();
+          }
+
+          @Override
+          public Graphics2D commitProgress(final Graphics old) {
+            if(!stillAlive()) return (Graphics2D) old;
+            old.dispose();
+            setImage(currentImage, info);
+            currentImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            return (Graphics2D) currentImage.getGraphics();
+          }
+
+        });
         g.dispose();
-        stillAlive();
-        setImage(image, info);
+        if(!stillAlive()) return;
+        setImage(currentImage, info);
       }
 
     });

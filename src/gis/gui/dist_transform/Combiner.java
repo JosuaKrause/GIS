@@ -32,7 +32,7 @@ public interface Combiner extends ColorMapping {
     @Override
     public int distanceToColor(final double distance) {
       final int t = (int) Math.round(255 * Math.min(distance, MAX_DIST) / MAX_DIST);
-      final int i = 255 - Math.min(t, 255);
+      final int i = Math.min(t, 255);
       // ARGB
       return (Color.HSBtoRGB(0, 1, i / 255f) & 0x00ffffff) | (i << 24);
     }

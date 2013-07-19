@@ -1,5 +1,7 @@
 package gis.gui;
 
+import gis.data.DedicatedLoader;
+
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -67,6 +69,7 @@ public class GisFrame extends JFrame {
   @Override
   public void dispose() {
     InfoFrame.getInstance().dispose();
+    DedicatedLoader.shutdown();
     super.dispose();
   }
 
