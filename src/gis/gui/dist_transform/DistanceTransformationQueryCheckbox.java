@@ -27,7 +27,7 @@ public class DistanceTransformationQueryCheckbox extends QueryCheckBox {
 
     });
     imagePainter = new ErgisDistanceTransformationPainter(getQuery(),
-        new DistanceTransformationCombiner(), this);
+        DistanceTransformationCombiner.DISTANCE, this);
     addActionListener(imagePainter.createActionListener(gisPanel));
   }
 
