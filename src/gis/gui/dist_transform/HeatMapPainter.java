@@ -10,17 +10,13 @@ import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public class HeatMapPainter implements ImagePainter {
+import javax.swing.JCheckBox;
 
-  private final Query query;
+public class HeatMapPainter extends ImagePainter {
 
-  private final Combiner combiner;
-
-  public HeatMapPainter(final Query query, final Combiner combiner) {
-    this.query = Objects.requireNonNull(query);
-    this.combiner = Objects.requireNonNull(combiner);
+  public HeatMapPainter(final Query query, final Combiner combiner, final JCheckBox box) {
+    super(query, combiner, box);
   }
 
   @Override

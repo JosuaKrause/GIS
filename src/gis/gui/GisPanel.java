@@ -524,6 +524,10 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
     repaint();
   }
 
+  public ImagePainter getImagePainter() {
+    return imagePainter;
+  }
+
   @Override
   public Point2D convert(final Coordinate c) {
     return getMapPosition(c, false);

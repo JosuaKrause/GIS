@@ -7,8 +7,6 @@ import gis.gui.GisPanel;
 import gis.gui.ImagePainter;
 import gis.gui.QueryCheckBox;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 public class WiFiQueryCheckbox extends QueryCheckBox {
@@ -31,16 +29,8 @@ public class WiFiQueryCheckbox extends QueryCheckBox {
           }
 
         });
-    imagePainter = new HeatMapPainter(getQuery(), Combiner.HOTS);
-    addActionListener(new ActionListener() {
-
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        gisPanel.setImagePainter(isSelected() ? imagePainter : null);
-      }
-
-    });
-
+    imagePainter = new HeatMapPainter(getQuery(), Combiner.HOTS, this);
+    addActionListener(imagePainter.createActionListener(gisPanel));
   }
 
   @Override

@@ -13,19 +13,16 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
+import javax.swing.JCheckBox;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
-public class ErgisDistanceTransformationPainter implements ImagePainter {
+public class ErgisDistanceTransformationPainter extends ImagePainter {
 
-  private final Query query;
-
-  private final Combiner combiner;
-
-  public ErgisDistanceTransformationPainter(final Query query, final Combiner combiner) {
-    this.query = Objects.requireNonNull(query);
-    this.combiner = Objects.requireNonNull(combiner);
+  public ErgisDistanceTransformationPainter(final Query q, final Combiner c,
+      final JCheckBox b) {
+    super(q, c, b);
   }
 
   private Point findNearest(final List<GeoMarker> outer,
