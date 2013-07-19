@@ -29,7 +29,8 @@ public class WiFiQueryCheckbox extends QueryCheckBox {
           }
 
         });
-    imagePainter = new HeatMapPainter(getQuery(), Combiner.HOTS, this);
+    imagePainter = new HeatMapPainter(getQuery(), DistanceTransformationCombiner.HOTS,
+        this);
     addActionListener(imagePainter.createActionListener(gisPanel));
   }
 
