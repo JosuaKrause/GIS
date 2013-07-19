@@ -28,14 +28,14 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
     this.combiner = Objects.requireNonNull(combiner);
   }
 
-  private static Point findNearest(final List<GeoMarker> outer,
+  private Point findNearest(final List<GeoMarker> outer,
       final Point pos, final ViewInfo info, final double mpp) {
     Point best = null;
     double bestDist = Double.POSITIVE_INFINITY;
     for(final GeoMarker gm : outer) {
       final Shape s = gm.convert(info);
       final Point2D bbx = GeomUtil.closestPointWithin(pos, s.getBounds2D(), GeomUtil.EPS);
-      if(distFromTarget(pos.x, pos.y, bbx, mpp) > Combiner.MAX_DIST) {
+      if(distFromTarget(pos.x, pos.y, bbx, mpp) > combiner.maxDistance()) {
         continue;
       }
       final Point2D p = GeomUtil.closestPointWithin(pos, s, GeomUtil.EPS);
@@ -70,8 +70,10 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
     for(final GeoMarker m : markers) {
       if(!prog.stillAlive()) return;
       final Rectangle2D mLatLonBBox = m.getLatLonBBox();
-      if(!vpLatLon.intersects(mLatLonBBox)) {
+      if(!vpLatLon.contains(mLatLonBBox)) {
         outer.add(m);
+      }
+      if(!vpLatLon.intersects(mLatLonBBox)) {
         continue;
       }
       // set polygon pixels as target pixels
@@ -340,7 +342,7 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
     }
   }
 
-  private static void fillBorderY(final ViewInfo info, final int w, final int h,
+  private void fillBorderY(final ViewInfo info, final int w, final int h,
       final double mpp, final double[] dist, final Point[] targets,
       final List<GeoMarker> outer, final int x) {
     for(int y = 0; y < h; ++y) {
@@ -354,7 +356,7 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
     }
   }
 
-  private static void fillBorderX(final ViewInfo info, final int w,
+  private void fillBorderX(final ViewInfo info, final int w,
       final double mpp, final double[] dist, final Point[] targets,
       final List<GeoMarker> outer, final int y) {
     for(int x = 0; x < w; ++x) {

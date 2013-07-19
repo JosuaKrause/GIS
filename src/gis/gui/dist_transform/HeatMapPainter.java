@@ -23,8 +23,6 @@ public class HeatMapPainter implements ImagePainter {
     this.combiner = Objects.requireNonNull(combiner);
   }
 
-  private static final double MAX_PIXELS = 50.0;
-
   @Override
   public void paint(final Graphics2D gfx, final ViewInfo info, final ProgressListener prog) {
     final List<GeoMarker> markers = query.getResult();
@@ -44,13 +42,13 @@ public class HeatMapPainter implements ImagePainter {
           double m = 0;
           for(final Shape s : shapes) {
             final double tm = GeomUtil.distance(pos, s.getBounds2D(), GeomUtil.EPS);
-            if(tm >= MAX_PIXELS) {
+            if(tm >= combiner.maxDistance()) {
               continue;
             }
             final double pxls = GeomUtil.distance(pos, s, GeomUtil.EPS);
-            m += Math.max(MAX_PIXELS - pxls, 0);
+            m += Math.max(combiner.maxDistance() - pxls, 0);
           }
-          g.setColor(new Color(combiner.distanceToColor(m / 2.0), true));
+          g.setColor(new Color(combiner.distanceToColor(m), true));
           g.fillRect(x, y, raster, raster);
         }
       }

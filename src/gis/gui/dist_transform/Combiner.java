@@ -8,6 +8,8 @@ public interface Combiner extends ColorMapping {
 
   int distanceToColor(double distance);
 
+  double maxDistance();
+
   static double MAX_DIST = 100;
 
   static Combiner DISTANCE = new Combiner() {
@@ -25,6 +27,11 @@ public interface Combiner extends ColorMapping {
       return new Color(distanceToColor(value), true);
     }
 
+    @Override
+    public double maxDistance() {
+      return MAX_DIST;
+    }
+
   };
 
   static Combiner HOTS = new Combiner() {
@@ -40,6 +47,11 @@ public interface Combiner extends ColorMapping {
     @Override
     public Color getColor(final double value) {
       return new Color(distanceToColor(value), true);
+    }
+
+    @Override
+    public double maxDistance() {
+      return MAX_DIST;
     }
 
   };

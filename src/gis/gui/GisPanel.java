@@ -69,6 +69,8 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
       @Override
       public void componentResized(final ComponentEvent e) {
         alignOverlayComponents();
+        setImage(null, null);
+        requestImageUpdate();
       }
 
     });
@@ -78,10 +80,12 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
 
       @Override
       public void actionPerformed(final ActionEvent e) {
+        setImage(null, null);
         requestImageUpdate();
       }
 
     });
+    grabFocus();
   }
 
   public void requestImageUpdate() {
