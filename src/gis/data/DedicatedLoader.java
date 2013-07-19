@@ -35,4 +35,8 @@ public class DedicatedLoader {
     LOADER.execute(l);
   }
 
+  public static void shutdown() {
+    LOADER.shutdownNow();
+  }
+
 }
