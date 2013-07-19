@@ -40,6 +40,7 @@ public class ColorMap extends AbstractColorMapping {
     return colorMapOverlayComponent;
   }
 
+  @Override
   public String formatValue(final double value) {
     return "" + value;
   }
