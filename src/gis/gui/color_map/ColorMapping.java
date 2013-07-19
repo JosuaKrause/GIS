@@ -15,6 +15,14 @@ public interface ColorMapping {
    * @param value the input value
    * @return mapped color
    */
-  Color getColor(double value);
+  public Color getColor(double value);
+
+  public Color intensityToColor(double max);
+
+  public double getMax();
+
+  public double getMin();
+
+  public String formatValue(double value);
 
 }

@@ -31,7 +31,7 @@ public class WiFiQueryCheckbox extends QueryCheckBox {
           }
 
         });
-    imagePainter = new HeatMapPainter(getQuery(), Combiner.HOTS);
+    imagePainter = new HeatMapPainter(getQuery(), new DistanceTransformationCombiner());// TODO
     addActionListener(new ActionListener() {
 
       @Override

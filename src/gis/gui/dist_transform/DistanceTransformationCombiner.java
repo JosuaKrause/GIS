@@ -4,8 +4,8 @@ import java.awt.Color;
 
 public class DistanceTransformationCombiner implements Combiner {
 
-  private static final int[] COLORS = new int[6];// ARGB
-  private static final double[] THRESHOLDS = new double[5];
+  static final int[] COLORS = new int[6];// ARGB
+  static final double[] THRESHOLDS = new double[5];
   static {
     THRESHOLDS[0] = 100;
     THRESHOLDS[1] = 200;
@@ -34,6 +34,27 @@ public class DistanceTransformationCombiner implements Combiner {
     if(distance >= THRESHOLDS[1]) return COLORS[2];
     if(distance >= THRESHOLDS[0]) return COLORS[1];
     return COLORS[0];
+  }
+
+  @Override
+  public Color intensityToColor(final double intensity) {
+    final int i = (int) (intensity * COLORS.length);
+    return new Color(COLORS[i], true);
+  }
+
+  @Override
+  public double getMax() {
+    return THRESHOLDS[4];
+  }
+
+  @Override
+  public double getMin() {
+    return THRESHOLDS[0];
+  }
+
+  @Override
+  public String formatValue(final double value) {
+    return value + "m";
   }
 
 }

@@ -15,10 +15,10 @@ public class ColorMapOverlayComponent extends AbstractOverlayComponent {
   private static final int BOTTOM = 5;
   private static final int HEIGHT = 100 + BOTTOM;
 
-  private final ColorMap colorMap;
+  private final ColorMapping colorMap;
 
   public ColorMapOverlayComponent(final GisPanel gisPanel,
-      final int horizontalAlignmentWeight, final ColorMap colorMap) {
+      final int horizontalAlignmentWeight, final ColorMapping colorMap) {
     super(gisPanel, new Dimension(WIDTH, HEIGHT), horizontalAlignmentWeight);
     this.colorMap = colorMap;
   }

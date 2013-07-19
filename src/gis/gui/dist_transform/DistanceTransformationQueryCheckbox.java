@@ -6,6 +6,7 @@ import gis.data.db.Query;
 import gis.gui.GisPanel;
 import gis.gui.ImagePainter;
 import gis.gui.QueryCheckBox;
+import gis.gui.color_map.ColorMapOverlayComponent;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,6 +17,8 @@ public class DistanceTransformationQueryCheckbox extends QueryCheckBox {
   private static final long serialVersionUID = -8643774480736311524L;
 
   final ImagePainter imagePainter;
+  private final Combiner distanceTransfoCombiner = new DistanceTransformationCombiner();
+  private final ColorMapOverlayComponent colorMapOverlayComponent;
 
   public DistanceTransformationQueryCheckbox(final GisPanel gisPanel) {
     super(gisPanel, new Query(
@@ -28,10 +31,13 @@ public class DistanceTransformationQueryCheckbox extends QueryCheckBox {
       }
 
     });
+    colorMapOverlayComponent = new ColorMapOverlayComponent(gisPanel, 1,
+        distanceTransfoCombiner);
+    gisPanel.registerOverlayComponent(colorMapOverlayComponent);
     // imagePainter = new DistanceTransformationPainter(gisPanel,
     // getQuery());//TODO
     imagePainter = new ErgisDistanceTransformationPainter(getQuery(),
-        new DistanceTransformationCombiner());// TODO
+        distanceTransfoCombiner);// TODO
     addActionListener(new ActionListener() {
 
       @Override
@@ -49,7 +55,8 @@ public class DistanceTransformationQueryCheckbox extends QueryCheckBox {
 
   @Override
   public void onAction(final GisPanel gisPanel) {
-    // nothing to do
+
+    colorMapOverlayComponent.setVisible(isSelected());
   }
 
 }
