@@ -11,6 +11,7 @@ import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,6 +26,26 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
   public ErgisDistanceTransformationPainter(final Query query, final Combiner combiner) {
     this.query = Objects.requireNonNull(query);
     this.combiner = Objects.requireNonNull(combiner);
+  }
+
+  private static Point findNearest(final List<GeoMarker> outer,
+      final Point pos, final ViewInfo info, final double mpp) {
+    Point best = null;
+    double bestDist = Double.POSITIVE_INFINITY;
+    for(final GeoMarker gm : outer) {
+      final Shape s = gm.convert(info);
+      final Point2D bbx = GeomUtil.closestPointWithin(pos, s.getBounds2D(), GeomUtil.EPS);
+      if(distFromTarget(pos.x, pos.y, bbx, mpp) > Combiner.MAX_DIST) {
+        continue;
+      }
+      final Point2D p = GeomUtil.closestPointWithin(pos, s, GeomUtil.EPS);
+      final double d = distFromTarget(pos.x, pos.y, p, mpp);
+      if(d < bestDist) {
+        best = new Point((int) p.getX(), (int) p.getY());
+        bestDist = d;
+      }
+    }
+    return best;
   }
 
   @Override
@@ -43,10 +64,13 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
     final double[] dist = new double[w * h];
     final Point[] targets = new Point[w * h];
 
+    final List<GeoMarker> outer = new ArrayList<>();
+
     imgG.setColor(Color.WHITE);
     for(final GeoMarker m : markers) {
       final Rectangle2D mLatLonBBox = m.getLatLonBBox();
       if(!vpLatLon.intersects(mLatLonBBox)) {
+        outer.add(m);
         continue;
       }
       // set polygon pixels as target pixels
@@ -79,26 +103,10 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
     }
 
     // initialize border
-    // for(int y = 0; y < h; ++y) {
-    // final int index = y * w + x;
-    // if((img.getRGB(x, y) & 255) == 255) {
-    // dist[index] = 0;
-    // targets[index] = new Point(x, y);
-    // } else {
-    // dist[index] = Double.POSITIVE_INFINITY;
-    // targets[index] = null;
-    // }
-    // }
-    // for(int x = 0; x < w; ++x) {
-    // final int index = y * w + x;
-    // if((img.getRGB(x, y) & 255) == 255) {
-    // dist[index] = 0;
-    // targets[index] = new Point(x, y);
-    // } else {
-    // dist[index] = Double.POSITIVE_INFINITY;
-    // targets[index] = null;
-    // }
-    // }
+    fillBorderY(info, w, h, mpp, dist, targets, outer, 0);
+    fillBorderY(info, w, h, mpp, dist, targets, outer, w - 1);
+    fillBorderX(info, w, mpp, dist, targets, outer, 0);
+    fillBorderX(info, w, mpp, dist, targets, outer, h - 1);
 
     // initialize top row
     int targetHalfCoordinate = -1;
@@ -210,7 +218,7 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
         final int index = (h - 1) * w + x;
         final Point rnTarget = targets[index + 1];
         if(dist[index + 1] < Double.POSITIVE_INFINITY) {
-          final double rnTargetDist = euclidian(x, h - 1, rnTarget.x, rnTarget.y, mpp);
+          final double rnTargetDist = distFromTarget(x, h - 1, rnTarget, mpp);
           if(rnTargetDist < dist[index]) {
             dist[index] = rnTargetDist;
             targets[index] = rnTarget;
@@ -222,7 +230,7 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
         final int index = (y + 1) * w - 1;
         final Point bnTarget = targets[index + w];
         if(dist[index + w] < Double.POSITIVE_INFINITY) {
-          final double bnTargetDist = euclidian(w - 1, y, bnTarget.x, bnTarget.y, mpp);
+          final double bnTargetDist = distFromTarget(w - 1, y, bnTarget, mpp);
           if(bnTargetDist < dist[index]) {
             dist[index] = bnTargetDist;
             targets[index] = bnTarget;
@@ -327,21 +335,40 @@ public class ErgisDistanceTransformationPainter implements ImagePainter {
     }
   }
 
+  private static void fillBorderY(final ViewInfo info, final int w, final int h,
+      final double mpp, final double[] dist, final Point[] targets,
+      final List<GeoMarker> outer, final int x) {
+    for(int y = 0; y < h; ++y) {
+      final int index = y * w + x;
+      if(targets[index] != null) {
+        continue;
+      }
+      final Point near = findNearest(outer, new Point(x, y), info, mpp);
+      dist[index] = distFromTarget(x, y, near, mpp);
+      targets[index] = near;
+    }
+  }
+
+  private static void fillBorderX(final ViewInfo info, final int w,
+      final double mpp, final double[] dist, final Point[] targets,
+      final List<GeoMarker> outer, final int y) {
+    for(int x = 0; x < w; ++x) {
+      final int index = y * w + x;
+      if(targets[index] != null) {
+        continue;
+      }
+      final Point near = findNearest(outer, new Point(x, y), info, mpp);
+      dist[index] = distFromTarget(x, y, near, mpp);
+      targets[index] = near;
+    }
+  }
+
   private static final boolean DEBUG = false;
 
   private static double distFromTarget(final int x, final int y,
-      final Point target, final double metersPerPixel) {
+      final Point2D target, final double metersPerPixel) {
     if(target == null) return Double.POSITIVE_INFINITY;
-    return euclidian(target.x, target.y, x, y, metersPerPixel);
-  }
-
-  private static final double euclidian(final int x1, final int y1, final int x2,
-      final int y2, final double metersPerPixel) {
-    final double dx = x1 - x2;
-    final double xx = dx * dx;
-    final double dy = y1 - y2;
-    final double yy = dy * dy;
-    return Math.sqrt(xx + yy) * metersPerPixel;
+    return target.distance(x, y) * metersPerPixel;
   }
 
 }

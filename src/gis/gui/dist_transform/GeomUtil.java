@@ -11,6 +11,8 @@ public final class GeomUtil {
     throw new AssertionError();
   }
 
+  public static final double EPS = 1e-3;
+
   public static Point2D closestPoint(final Point2D p, final Line2D l) {
     final double lx = l.getX1();
     final double dx = l.getX2() - lx;

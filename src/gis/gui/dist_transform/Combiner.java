@@ -14,10 +14,8 @@ public interface Combiner extends ColorMapping {
 
     @Override
     public int distanceToColor(final double distance) {
-      int i = (int) Math.round(255 * distance / MAX_DIST);
-      i = Math.min(i, 255);
-      // i = Math.max(i, 0);
-      i = 255 - i;
+      final int t = (int) Math.round(255 * Math.min(distance, MAX_DIST) / MAX_DIST);
+      final int i = 255 - Math.min(t, 255);
       // ARGB
       return (((255 - i) * 3 / 4) << 24) | (i << 16) | (i << 8) | i;
     }
@@ -33,10 +31,8 @@ public interface Combiner extends ColorMapping {
 
     @Override
     public int distanceToColor(final double distance) {
-      int i = (int) Math.round(255 * distance / MAX_DIST);
-      i = Math.min(i, 255);
-      // i = Math.max(i, 0);
-      i = 255 - i;
+      final int t = (int) Math.round(255 * Math.min(distance, MAX_DIST) / MAX_DIST);
+      final int i = 255 - Math.min(t, 255);
       // ARGB
       return (Color.HSBtoRGB(0, 1, i / 255f) & 0x00ffffff) | (i << 24);
     }
