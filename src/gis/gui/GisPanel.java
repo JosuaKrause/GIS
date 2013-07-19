@@ -50,6 +50,7 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
   private ImagePainter imagePainter;
   private BufferedImage image;
   private ViewInfo info;
+  protected ViewInfo lastLoadInfo;
 
   private final List<Overlay> overlayComponents = new ArrayList<>();
   private DistanceThresholdSelector distanceThresholdSelector;
@@ -283,7 +284,11 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
 
   private void paintImage(final Graphics2D g) {
     if(image == null) return;
-    if(info.getZoom() != getZoom()) {
+    if(lastLoadInfo == null) {
+      requestImageUpdate();
+      return;
+    }
+    if(lastLoadInfo.getZoom() != getZoom()) {
       image = null;
       requestImageUpdate();
       return;
@@ -296,7 +301,10 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
     final int dy = ic.y - c.y;
     g.translate(dx, dy);
     g.drawImage(image, 0, 0, null);
-    if(dx != 0 || dy != 0) {
+    final Point lc = lastLoadInfo.getCenter();
+    final int ldx = lc.x - c.x;
+    final int ldy = lc.y - c.y;
+    if(ldx != 0 || ldy != 0) {
       requestImageUpdate();
     }
   }
@@ -410,6 +418,8 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
           }
 
         };
+        if(!stillAlive()) return;
+        lastLoadInfo = info;
         final Loader parent = this;
         imagePainter.paint(g, info, new ProgressListener() {
 
@@ -429,7 +439,7 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
 
         });
         g.dispose();
-        stillAlive();
+        if(!stillAlive()) return;
         setImage(currentImage, info);
       }
 
