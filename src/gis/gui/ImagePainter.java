@@ -1,7 +1,7 @@
 package gis.gui;
 
 import gis.data.db.Query;
-import gis.gui.dist_transform.Combiner;
+import gis.gui.dist_transform.DistanceColorMapping;
 import gis.gui.dist_transform.ProgressListener;
 import gis.gui.dist_transform.ViewInfo;
 
@@ -16,11 +16,11 @@ public abstract class ImagePainter {
 
   protected final Query query;
 
-  protected final Combiner combiner;
+  protected final DistanceColorMapping combiner;
 
   private final JCheckBox box;
 
-  public ImagePainter(final Query query, final Combiner combiner, final JCheckBox box) {
+  public ImagePainter(final Query query, final DistanceColorMapping combiner, final JCheckBox box) {
     this.box = Objects.requireNonNull(box);
     this.query = Objects.requireNonNull(query);
     this.combiner = Objects.requireNonNull(combiner);

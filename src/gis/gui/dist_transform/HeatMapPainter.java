@@ -15,7 +15,7 @@ import javax.swing.JCheckBox;
 
 public class HeatMapPainter extends ImagePainter {
 
-  public HeatMapPainter(final Query query, final Combiner combiner, final JCheckBox box) {
+  public HeatMapPainter(final Query query, final DistanceColorMapping combiner, final JCheckBox box) {
     super(query, combiner, box);
   }
 

@@ -21,7 +21,8 @@ public abstract class AbstractColorMapping implements ColorMapping {
     return intensityToColor(intensity);
   }
 
-  protected abstract Color intensityToColor(double intensity);
+  @Override
+  public abstract Color intensityToColor(double intensity);
 
   public static Color linearInterpolation(final Color a, final Color b,
       final double aRatio) {
@@ -38,10 +39,12 @@ public abstract class AbstractColorMapping implements ColorMapping {
     }
   }
 
+  @Override
   public double getMax() {
     return intensityMapping.getMax();
   }
 
+  @Override
   public double getMin() {
     return intensityMapping.getMin();
   }

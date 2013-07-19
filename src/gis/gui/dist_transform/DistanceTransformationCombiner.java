@@ -3,10 +3,10 @@ package gis.gui.dist_transform;
 import java.awt.Color;
 import java.util.Objects;
 
-public class DistanceTransformationCombiner implements Combiner {
+public class DistanceTransformationCombiner implements DistanceColorMapping {
 
-  private static final int[] COLORS = new int[6];// ARGB
-  private static final double[] THRESHOLDS = new double[5];
+  static final int[] COLORS = new int[6];// ARGB
+  static final double[] THRESHOLDS = new double[5];
   static {
     THRESHOLDS[0] = 100;
     THRESHOLDS[1] = 200;
@@ -22,10 +22,10 @@ public class DistanceTransformationCombiner implements Combiner {
     COLORS[5] = (192 << 24) | (67 << 16) | (169 << 8) | 40; // 192
   }
 
-  public static final Combiner DISTANCE = new DistanceTransformationCombiner(
+  public static final DistanceColorMapping DISTANCE = new DistanceTransformationCombiner(
       COLORS, THRESHOLDS);
 
-  public static final Combiner HOTS = new DistanceTransformationCombiner(
+  public static final DistanceColorMapping HOTS = new DistanceTransformationCombiner(
       new int[] {
           0x002b8cbe | (162 << 24),
 
@@ -70,6 +70,27 @@ public class DistanceTransformationCombiner implements Combiner {
   @Override
   public double maxDistance() {
     return thresholds[thresholds.length - 1];
+  }
+
+  @Override
+  public Color intensityToColor(final double intensity) {
+    final int i = (int) (intensity * COLORS.length);
+    return new Color(colors[i], true);
+  }
+
+  @Override
+  public double getMax() {
+    return thresholds[4];
+  }
+
+  @Override
+  public double getMin() {
+    return thresholds[0];
+  }
+
+  @Override
+  public String formatValue(final double value) {
+    return value + "m";
   }
 
 }

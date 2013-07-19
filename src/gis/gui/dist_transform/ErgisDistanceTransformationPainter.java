@@ -20,7 +20,7 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
 
 public class ErgisDistanceTransformationPainter extends ImagePainter {
 
-  public ErgisDistanceTransformationPainter(final Query q, final Combiner c,
+  public ErgisDistanceTransformationPainter(final Query q, final DistanceColorMapping c,
       final JCheckBox b) {
     super(q, c, b);
   }
