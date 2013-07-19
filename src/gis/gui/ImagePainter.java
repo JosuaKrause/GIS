@@ -37,6 +37,7 @@ public abstract class ImagePainter {
 
       @Override
       public void actionPerformed(final ActionEvent e) {
+        gisPanel.grabFocus();
         final ImagePainter old = gisPanel.getImagePainter();
         if(getCheckBox().isSelected()) {
           if(old != null) {

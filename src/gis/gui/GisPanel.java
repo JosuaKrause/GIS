@@ -407,11 +407,6 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
             return new Coordinate(lat, lon);
           }
 
-          @Override
-          public void drawImage(final Graphics2D g, final BufferedImage img) {
-            g.drawImage(img, 0, 0, null);
-          }
-
         };
         if(!stillAlive()) return;
         lastLoadInfo = info;
@@ -531,11 +526,6 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
   @Override
   public Point2D convert(final Coordinate c) {
     return getMapPosition(c, false);
-  }
-
-  @Override
-  public void drawImage(final Graphics2D g, final BufferedImage img) {
-    g.drawImage(img, 0, 0, null);
   }
 
 }

@@ -321,7 +321,7 @@ public class ErgisDistanceTransformationPainter extends ImagePainter {
       }
     }
 
-    info.drawImage(g, img);
+    g.drawImage(img, 0, 0, null);
     img.flush();
 
     if(DEBUG) {
