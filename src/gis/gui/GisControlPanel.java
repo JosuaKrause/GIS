@@ -2,6 +2,8 @@ package gis.gui;
 
 import gis.data.datatypes.GeoMarker;
 import gis.data.datatypes.Table;
+import gis.data.db.BrandenburgQuery;
+import gis.data.db.BrandenburgTorQuery;
 import gis.data.db.Query;
 import gis.gui.dist_transform.DistanceTransformationQueryCheckbox;
 import gis.gui.dist_transform.WiFiQueryCheckbox;
@@ -41,8 +43,8 @@ public class GisControlPanel extends JPanel {
     selectionManager.setSelector(smoc);
     gisPanel.registerOverlayComponent(smoc);
     smoc.setVisible(true);
-    // addQuery(new BrandenburgQuery(1000, "Brandenburger"));
-    // addQuery(new BrandenburgTorQuery("Tor"));
+    addQuery(new BrandenburgQuery(1000, "Brandenburger"));
+    addQuery(new BrandenburgTorQuery("Tor"));
     add(new WiFiQueryCheckbox(gisPanel));
     add(new FlickrChloroplethQueryCheckbox(gisPanel));
     addTableSelectionCheckBox(gisPanel, Table.FLICKR, "All Flickr Photos");
@@ -67,6 +69,7 @@ public class GisControlPanel extends JPanel {
     // "All Points of Interest");
     // addTableSelectionCheckBox(gisPanel, Table.BUILDINGS, "All Buildings");
     add(new DistanceTransformationQueryCheckbox(gisPanel));
+    add(new PubCrawlQueryCheckbox(gisPanel));
     setSize(getMinimumSize());
     addForeignListeners(gisPanel);
   }
