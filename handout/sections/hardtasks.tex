@@ -34,15 +34,12 @@ Flickr photos in a district (\figref{flickr}).
         per district to the area of the district.}
 		\label{fig:commercial}
 \end{figure}
-An overlay (\figref{museum}) shows proximity to the nearest museum mapped as color.
+An overlay (\figref{museum}) shows distances to the nearest museum mapped as color.
 We modified the standard scan-line approach of calculating the distance field to
-increase accuracy while maintaining computation time. This is done by storing
-the nearest museum in every pixel and computing the distance after the standard
-algorithm has finished. This gives a smoother result. By searching for the nearest
-museum in all border pixels of the result image before the algorithm, museums that
-are not within the view-port can be taken into account, which is not possible with
-the standard algorithm.
-
+increase accuracy and reduce visual artifacts while maintaining computation time.
+This is done by storing a reference to the closest target pixel for each visited
+pixel and calculating exact distances to them. For more accurate
+results, we expanded the area covered by algorithms beyond the view-port.
 \begin{figure}[b]
         \centering
 		\includegraphics[width=0.4\linewidth]{imgs/museum}
@@ -53,7 +50,7 @@ the standard algorithm.
 \end{figure}
 \begin{figure*}[t]
 		\centering
-		\begin{subfigure}[b]{0.25\textwidth}
+		\begin{subfigure}[b]{0.22\textwidth}
                 \centering
                 \includegraphics[width=\textwidth]{imgs/flickr}
                 \caption{A choropleth map showing the relative amount of flickr photos tagged
@@ -61,7 +58,7 @@ the standard algorithm.
                 \label{fig:flickr}
         \end{subfigure}
         \hspace*{0.02\textwidth}
-        \begin{subfigure}[b]{0.25\textwidth}
+        \begin{subfigure}[b]{0.22\textwidth}
 				\centering
 				\includegraphics[width=\textwidth]{imgs/rel}
 				\caption{A selection of two districts showing the message that
@@ -69,7 +66,7 @@ the standard algorithm.
 				\label{fig:rel}
 		\end{subfigure}
 		\hspace*{0.02\textwidth}
-        \begin{subfigure}[b]{0.25\textwidth}
+        \begin{subfigure}[b]{0.22\textwidth}
                 \centering
                 \includegraphics[width=\textwidth]{imgs/parks}
                 \caption{Blue points are parks near water. Beige points represent parks further
