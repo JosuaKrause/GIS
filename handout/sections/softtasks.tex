@@ -1,12 +1,17 @@
 \section*{Soft Tasks}
-\subsection*{Correlation Analysis}
-
-To investigate correlations in the OSM dataset, we programmed a combined visualization called ``Pub Crawl'', which shows the average minimum inter-pub distance and the average minimum pub to ATM distance within each administrative area (with more than one pub and at least one ATM). The dimensions were mapped to hue and saturation, respectively, allowing us to visualize them both via polygon color. The two measures don't seem to be strongly correlated, but the visualization might be useful for anyone planning to go bar-hopping in the capital.
+\subsection*{Pub Crawl}
+To investigate correlations in the OSM dataset, we programmed a combined visualization
+called "Pub Crawl", which shows the average minimum inter-pub distance and the average
+minimum pub to ATM distance within each administrative area
+(with more than one pub and at least one ATM). The dimensions were mapped to hue
+and saturation, respectively, allowing us to visualize them both via polygon color (\figref{crawl}).
+The two measures do not seem to be strongly correlated, but the visualization might
+be useful for anyone planning to go bar-hopping in the capital.
 
 \begin{figure}
 \centering
 \includegraphics[width=0.9\linewidth]{imgs/crawl}
-\caption{\todo{}}
+\caption{"Pub Crawl" showing inter-pub distances and and the average minimum pub to ATM distance.}
 \label{fig:crawl}
 \end{figure}
 
@@ -47,7 +52,14 @@ The white spot to the right is the area around Simon-Dach-Str.}
 \label{fig:heat}
 \end{figure}
 
-Based on our visualization of the hotspot data, we hypothesized that the hotspot locations are unevenly distributed, with a greater density near the city center. To investigate this further, we computed a distribution of the hotspots w.r.t. their distance from the centroid of Berlin and compared it to the distribution that would result from a uniform hotspot density all over Berlin. Both distributions are visualized as step functions in Fig.~\ref{fig:wifi_distributions}. Although this simple approach does not permit conclusions regarding the significance of the apparent differences, it does provide support for our hypothesis.
+Based on our visualization of the hotspot data, we hypothesized that the hotspot locations
+are unevenly distributed, with a greater density near the city center.
+To investigate this further, we computed a distribution of the hotspots w.r.t. their
+distance from the centroid of Berlin and compared it to the distribution that would
+result from a uniform hotspot density all over Berlin. Both distributions are visualized
+as step functions in \figref{wifi_distributions}. Although this simple approach does
+not permit conclusions regarding the significance of the apparent differences,
+it does provide support for our hypothesis.
 
 \begin{figure}[tbp]
 	\centering
