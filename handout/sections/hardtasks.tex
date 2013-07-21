@@ -1,17 +1,16 @@
 \section*{Hard Tasks}
-As basic functionality, our tool allows to show certain objects attributed with
-geographic position information, like buildings, parks, waters, districts in, and
-photos taken of Berlin.
+Our tool allows to show certain objects attributed with
+geographic positions, like buildings, parks, waters, districts, and
+photos taken in Berlin.
 The user can click on each pair of those objects to get information about
-relationships between those.
-The tool takes the type of object into account and displays according
-to feasibility the minimal distance between the objects, whether they lie
+relationships between them.
+The tool takes the type of object into account and displays, according
+to feasibility, the minimal distance between the objects, whether they lie
 inside of each other, and how the objects intersect following the 9-cut model.
 
-The photos we are using were fetched from the website Flickr tagged
-as Brandenburg gate.
+The photos from the website Flickr are all tagged as Brandenburg gate.
 Therefore, we show them as points with a size proportional to
-the distance of the place they were shot to this landmark.
+the distance to the landmark.
 Hovering over a photo displays the picture next to the mouse
 as seen in \figref{brandenburg}.
 
@@ -28,16 +27,14 @@ Choropleth maps show the ratio of the areas of commercial buildings to their sur
 district (\figref{commercial}) and the relative amount of
 Flickr photos in a district (\figref{flickr}).
 \figref{parks} shows parks and whether they are near water.
-
 \begin{figure}
         \centering
-		\includegraphics[width=0.8\linewidth]{imgs/commercial}
+		\includegraphics[width=0.6\linewidth]{imgs/commercial}
         \caption{A choropleth map showing the ratio of the area of commercial buildings
         per district to the area of the district.}
 		\label{fig:commercial}
 \end{figure}
-
-An overlay (\figref{museum}) shows distances to the nearest museum mapped as color.
+An overlay (\figref{museum}) shows proximity to the nearest museum mapped as color.
 We modified the standard scan-line approach of calculating the distance field to
 increase accuracy while maintaining computation time. This is done by storing
 the nearest museum in every pixel and computing the distance after the standard
@@ -46,9 +43,9 @@ museum in all border pixels of the result image before the algorithm, museums th
 are not within the view-port can be taken into account, which is not possible with
 the standard algorithm.
 
-\begin{figure}
+\begin{figure}[b]
         \centering
-		\includegraphics[width=0.5\linewidth]{imgs/museum}
+		\includegraphics[width=0.4\linewidth]{imgs/museum}
         \caption{Showing distances to nearby museums encoded as color. White regions
         are near to a museum and green areas are further away than $500m$ to the
         nearest museum.}
@@ -56,7 +53,7 @@ the standard algorithm.
 \end{figure}
 \begin{figure*}[t]
 		\centering
-		\begin{subfigure}[b]{0.3\textwidth}
+		\begin{subfigure}[b]{0.25\textwidth}
                 \centering
                 \includegraphics[width=\textwidth]{imgs/flickr}
                 \caption{A choropleth map showing the relative amount of flickr photos tagged
@@ -64,7 +61,7 @@ the standard algorithm.
                 \label{fig:flickr}
         \end{subfigure}
         \hspace*{0.02\textwidth}
-        \begin{subfigure}[b]{0.3\textwidth}
+        \begin{subfigure}[b]{0.25\textwidth}
 				\centering
 				\includegraphics[width=\textwidth]{imgs/rel}
 				\caption{A selection of two districts showing the message that
@@ -72,7 +69,7 @@ the standard algorithm.
 				\label{fig:rel}
 		\end{subfigure}
 		\hspace*{0.02\textwidth}
-        \begin{subfigure}[b]{0.3\textwidth}
+        \begin{subfigure}[b]{0.25\textwidth}
                 \centering
                 \includegraphics[width=\textwidth]{imgs/parks}
                 \caption{Blue points are parks near water. Beige points represent parks further
