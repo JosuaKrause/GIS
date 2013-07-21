@@ -23,7 +23,7 @@ public class DistanceTransformationCombiner implements DistanceColorMapping {
   }
 
   public static final DistanceColorMapping DISTANCE = new DistanceTransformationCombiner(
-      COLORS, THRESHOLDS);
+      COLORS, THRESHOLDS, 500, "m", false);
 
   public static final DistanceColorMapping HOTS = new DistanceTransformationCombiner(
       new int[] {
@@ -39,17 +39,24 @@ public class DistanceTransformationCombiner implements DistanceColorMapping {
 
           0x00ffffff | (192 << 24),
       }, new double[] {
-          50.0 / 16.0,
-          50.0 / 8.0,
-          50.0 / 4.0,
-          50.0 / 2.0,
-          50.0
-      });
+          30.0 / 4.0,
+          30.0 / 2.0,
+          30.0,
+          30.0 * 2.0,
+          30.0 * 4.0
+      }, 30.0, "px", true);
 
   private final int[] colors;
   private final double[] thresholds;
+  private final double max;
+  private final String unit;
+  private final boolean interpolate;
 
-  private DistanceTransformationCombiner(final int[] colors, final double[] thresholds) {
+  private DistanceTransformationCombiner(final int[] colors, final double[] thresholds,
+      final double max, final String unit, final boolean interpolate) {
+    this.max = max;
+    this.unit = unit;
+    this.interpolate = interpolate;
     this.colors = Objects.requireNonNull(colors);
     this.thresholds = Objects.requireNonNull(thresholds);
   }
@@ -62,35 +69,62 @@ public class DistanceTransformationCombiner implements DistanceColorMapping {
   @Override
   public int distanceToColor(final double distance) {
     for(int i = thresholds.length - 1; i >= 0; --i) {
-      if(distance >= thresholds[i]) return colors[i + 1];
+      if(distance >= thresholds[i]) {
+        if(!interpolate || i >= thresholds.length - 1) return colors[i + 1];
+        final double start = thresholds[i];
+        final double end = thresholds[i + 1];
+        final Color r = interpolate(new Color(colors[i], true),
+            new Color(colors[i + 1], true),
+            (distance - start) / (end - start));
+        return r.getRGB();
+      }
     }
     return colors[0];
   }
 
   @Override
   public double maxDistance() {
-    return thresholds[thresholds.length - 1];
+    return max;
   }
 
   @Override
   public Color intensityToColor(final double intensity) {
-    final int i = (int) (intensity * COLORS.length);
-    return new Color(colors[i], true);
+    return new Color(distanceToColor(intensity * getMax()), true);
   }
 
   @Override
   public double getMax() {
-    return thresholds[4];
+    return thresholds[thresholds.length - 1];
   }
 
   @Override
   public double getMin() {
-    return thresholds[0];
+    return 0;
   }
 
   @Override
   public String formatValue(final double value) {
-    return value + "m";
+    return value + unit;
+  }
+
+  /**
+   * Interpolates between two colors.
+   * 
+   * @param from The color to interpolate from.
+   * @param to The color to interpolate to.
+   * @param t The interpolation value from <code>0</code> to <code>1</code>.
+   * @return The interpolated color.
+   */
+  public static Color interpolate(final Color from, final Color to, final double t) {
+    final float[] fromRGBA = new float[4];
+    final float[] toRGBA = new float[4];
+    from.getRGBComponents(fromRGBA);
+    to.getRGBComponents(toRGBA);
+    final double r = fromRGBA[0] * (1 - t) + toRGBA[0] * t;
+    final double g = fromRGBA[1] * (1 - t) + toRGBA[1] * t;
+    final double b = fromRGBA[2] * (1 - t) + toRGBA[2] * t;
+    final double a = fromRGBA[3] * (1 - t) + toRGBA[3] * t;
+    return new Color((float) r, (float) g, (float) b, (float) a);
   }
 
 }
