@@ -39,6 +39,8 @@ public abstract class Query {
   /** The value column if any. */
   private final String valueCol;
 
+  private String valueCol2 = null;
+
   private final boolean paintMarkers;
 
   /**
@@ -64,6 +66,12 @@ public abstract class Query {
   public Query(final String query, final Table table, final String name,
       final String valueCol) {
     this(query, table, name, valueCol, true);
+  }
+
+  public Query(final String query, final Table table, final String name,
+      final String valueCol, final String valueCol2) {
+    this(query, table, name, valueCol, true);
+    this.valueCol2 = valueCol2;
   }
 
   public String uniqueHash() {
@@ -173,6 +181,7 @@ public abstract class Query {
       final List<String> ids = new ArrayList<>();
       final List<String> infos = new ArrayList<>();
       final List<Double> flavour = new ArrayList<>();
+      final List<Double> flavour2 = new ArrayList<>();
       try (Statement s = conn.createStatement(); ResultSet r = s.executeQuery(query)) {
         while(r.next()) {
           ids.add(r.getString(table.idColumnName));
@@ -181,6 +190,10 @@ public abstract class Query {
           if(valueCol != null) {
             final Double d = r.getDouble(valueCol);
             flavour.add(d != null ? d : 0.0);
+          }
+          if(valueCol2 != null) {
+            final Double d = r.getDouble(valueCol2);
+            flavour2.add(d != null ? d : 0.0);
           }
         }
       }
@@ -191,6 +204,9 @@ public abstract class Query {
             info == null ? "" + ids.get(i) : info);
         if(valueCol != null) {
           m.setQueryValue(flavour.get(i));
+        }
+        if(valueCol2 != null) {
+          m.setQueryValue2(flavour2.get(i));
         }
         markers.add(m);
       }

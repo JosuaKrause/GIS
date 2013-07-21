@@ -36,6 +36,9 @@ public abstract class GeoMarker implements Serializable {
   private float alphaNotSelected = 0.45f;
 
   private double queryValue = Double.NaN;
+
+  private double queryValue2 = Double.NaN;
+
   /**
    * The color of the used for drawing the geo markers outline. If this variable
    * is <code>null</code>, then no outline will be drawn.
@@ -216,6 +219,14 @@ public abstract class GeoMarker implements Serializable {
 
   public void setOutlineColor(final Color outlineColor) {
     this.outlineColor = outlineColor;
+  }
+
+  public double getQueryValue2() {
+    return queryValue2;
+  }
+
+  public void setQueryValue2(final double queryValue2) {
+    this.queryValue2 = queryValue2;
   }
 
 }
