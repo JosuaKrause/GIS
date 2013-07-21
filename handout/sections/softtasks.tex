@@ -1,0 +1,28 @@
+\section{Soft Tasks}
+\subsection{Correlation Analysis}
+
+TODO
+
+\subsection{Open Wi-Fi}
+
+As additional dataset we use data of open and free Wi-Fi hotspots in
+the area of Berlin.
+The data is displayed as heatmap.
+
+The dataset originally consistet only of plain-text street addresses
+of buildings with open Wi-Fi hotspots. We converted the
+address data into building polygons via the Google Maps
+API and the buildings from the OSM dataset.
+
+The heatmap is computed in a mesh of
+arbitrary size. Each cell is computed by adding
+the nearest distances of all buildings with a Wi-Fi
+hotspot together.
+Since this is computationally expensive ($\mathcal{O}(whn)$ where $w$ and $h$
+are the width and height of the mesh respectively and $n$ is the total number of lines
+defining all buildings with Wi-Fi)
+we start with a loose mesh and refine it up to one pixel per cell while the
+user is inactive.
+
+- points of interest
+- correlation tourists/buisnessmen?
