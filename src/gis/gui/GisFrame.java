@@ -34,7 +34,7 @@ public class GisFrame extends JFrame {
   /** Creates the GIS frame. */
   private GisFrame() {
     // initialize
-    super("GIS Viewer");
+    super("BeGIS Viewer");
     gisPanel = new GisPanel();
     final GisControlPanel gisControlPanel = new GisControlPanel(gisPanel);
 

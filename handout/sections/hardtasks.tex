@@ -1,7 +1,4 @@
 \section*{Hard Tasks}
-
-\subsection*{Landmark Relations}
-
 As basic functionality, our tool allows to show certain objects attributed with
 geographic position information, like buildings, parks, waters, districts in, and
 photos taken of Berlin.
@@ -27,6 +24,11 @@ A hovered photo shows the actual picture.}
 \label{fig:brandenburg}
 \end{figure}
 
+Choropleth maps show the ratio of the areas of commercial buildings to their surrounding
+district (\figref{commercial}) and the relative amount of
+Flickr photos in a district (\figref{flickr}).
+\figref{parks} shows parks and whether they are near water.
+
 \begin{figure}
         \centering
 		\includegraphics[width=0.8\linewidth]{imgs/commercial}
@@ -35,14 +37,23 @@ A hovered photo shows the actual picture.}
 		\label{fig:commercial}
 \end{figure}
 
-\subsection*{Visual Analysis}
+An overlay (\figref{museum}) shows distances to the nearest museum mapped as color.
+We modified the standard scan-line approach of calculating the distance field to
+increase accuracy while maintaining computation time. This is done by storing
+the nearest museum in every pixel and computing the distance after the standard
+algorithm has finished. This gives a smoother result. By searching for the nearest
+museum in all border pixels of the result image before the algorithm, museums that
+are not within the view-port can be taken into account, which is not possible with
+the standard algorithm.
 
-\todo{}
-
-+
-
-\todo{distance transformation explained}
-
+\begin{figure}
+        \centering
+		\includegraphics[width=0.5\linewidth]{imgs/museum}
+        \caption{Showing distances to nearby museums encoded as color. White regions
+        are near to a museum and green areas are further away than $500m$ to the
+        nearest museum.}
+		\label{fig:museum}
+\end{figure}
 \begin{figure*}[t]
 		\centering
 		\begin{subfigure}[b]{0.3\textwidth}
