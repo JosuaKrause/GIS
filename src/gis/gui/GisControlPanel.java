@@ -46,7 +46,7 @@ public class GisControlPanel extends JPanel {
     addQuery(new BrandenburgQuery(1000, "Brandenburger"));
     addQuery(new BrandenburgTorQuery("Tor"));
     add(new WiFiQueryCheckbox(gisPanel));
-    add(new FlickrChloroplethQueryCheckbox(gisPanel));
+    add(new FlickrChoroplethQueryCheckbox(gisPanel));
     addTableSelectionCheckBox(gisPanel, Table.FLICKR, "All Flickr Photos");
     add(new CommercialRatioQueryCheckbox(gisPanel));
     addQuery(new Query(

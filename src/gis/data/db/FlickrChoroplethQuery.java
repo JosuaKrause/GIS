@@ -8,7 +8,7 @@ import gis.gui.color_map.IntervalIntensityMapping;
 import java.awt.Color;
 import java.util.List;
 
-public class FlickrChloroplethQuery extends Query {
+public class FlickrChoroplethQuery extends Query {
 
   private static final String query() {
     final Table t = Table.BERLIN_ADMINISTRATIVE;
@@ -38,7 +38,7 @@ public class FlickrChloroplethQuery extends Query {
         "on a." + tid + " = b." + tid;
   }
 
-  public FlickrChloroplethQuery(final String name) {
+  public FlickrChoroplethQuery(final String name) {
     super(queryWNulls(), Table.BERLIN_ADMINISTRATIVE, name, "num");
   }
 

@@ -1,22 +1,22 @@
 package gis.gui;
 
-import gis.data.db.FlickrChloroplethQuery;
+import gis.data.db.FlickrChoroplethQuery;
 import gis.gui.color_map.ColorMap;
 import gis.gui.overlay.Overlay;
 
 import java.util.Objects;
 
-public class FlickrChloroplethQueryCheckbox extends QueryCheckBox {
+public class FlickrChoroplethQueryCheckbox extends QueryCheckBox {
 
   private static final long serialVersionUID = -6635608292308665608L;
-  private final FlickrChloroplethQuery q;
+  private final FlickrChoroplethQuery q;
 
-  public FlickrChloroplethQueryCheckbox(final GisPanel gisPanel) {
-    this(gisPanel, new FlickrChloroplethQuery("Flickr Ratio"));
+  public FlickrChoroplethQueryCheckbox(final GisPanel gisPanel) {
+    this(gisPanel, new FlickrChoroplethQuery("Flickr Ratio"));
   }
 
-  public FlickrChloroplethQueryCheckbox(
-      final GisPanel gisPanel, final FlickrChloroplethQuery q) {
+  public FlickrChoroplethQueryCheckbox(
+      final GisPanel gisPanel, final FlickrChoroplethQuery q) {
     super(Objects.requireNonNull(gisPanel), q);
     this.q = q;
   }
