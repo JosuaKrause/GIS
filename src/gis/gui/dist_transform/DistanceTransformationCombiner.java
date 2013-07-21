@@ -89,7 +89,19 @@ public class DistanceTransformationCombiner implements DistanceColorMapping {
 
   @Override
   public Color intensityToColor(final double intensity) {
-    return new Color(distanceToColor(intensity * getMax()), true);
+    final int cInt = distanceToColor(intensity * getMax());
+    final int a = (cInt >> 24) & 255;
+    final float alpha = a / 255.0f;
+    int r = (cInt >> 16) & 255;
+    int g = (cInt >> 8) & 255;
+    int b = cInt & 255;
+    final float invAlpha = 1 - alpha;
+    r = Math.round(invAlpha * 255 + alpha * r);
+    g = Math.round(invAlpha * 255 + alpha * g);
+    b = Math.round(invAlpha * 255 + alpha * b);
+
+    final int color = (255 << 24) | (r << 16) | (g << 8) | b;
+    return new Color(color, false);
   }
 
   @Override
