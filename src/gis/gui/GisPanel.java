@@ -1,5 +1,6 @@
 package gis.gui;
 
+import gis.Screenshot;
 import gis.data.DedicatedLoader;
 import gis.data.DedicatedLoader.Loader;
 import gis.data.datatypes.GeoMarker;
@@ -82,6 +83,21 @@ public class GisPanel extends JMapViewer implements ResetableTileListener, ViewI
       public void actionPerformed(final ActionEvent e) {
         setImage(null, null);
         requestImageUpdate();
+      }
+
+    });
+    addAction(KeyEvent.VK_P, new AbstractAction() {
+
+      private static final long serialVersionUID = 285395964021013544L;
+
+      @Override
+      public void actionPerformed(final ActionEvent a) {
+        try {
+          final File file = Screenshot.savePNG(new File("pics"), "img", GisPanel.this);
+          System.out.println("screenshot: " + file);
+        } catch(final IOException e) {
+          e.printStackTrace();
+        }
       }
 
     });
