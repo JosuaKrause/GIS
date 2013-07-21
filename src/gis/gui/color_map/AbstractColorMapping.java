@@ -2,7 +2,7 @@ package gis.gui.color_map;
 
 import java.awt.Color;
 
-public abstract class AbstractColorMapping implements IColorMapping {
+public abstract class AbstractColorMapping implements ColorMapping {
 
   protected final IntensityMapping intensityMapping;
   protected final Color[] colors;
@@ -21,7 +21,8 @@ public abstract class AbstractColorMapping implements IColorMapping {
     return intensityToColor(intensity);
   }
 
-  protected abstract Color intensityToColor(double intensity);
+  @Override
+  public abstract Color intensityToColor(double intensity);
 
   public static Color linearInterpolation(final Color a, final Color b,
       final double aRatio) {
@@ -38,10 +39,12 @@ public abstract class AbstractColorMapping implements IColorMapping {
     }
   }
 
+  @Override
   public double getMax() {
     return intensityMapping.getMax();
   }
 
+  @Override
   public double getMin() {
     return intensityMapping.getMin();
   }

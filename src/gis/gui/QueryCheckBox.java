@@ -13,6 +13,7 @@ import javax.swing.JCheckBox;
 public abstract class QueryCheckBox extends JCheckBox {
 
   private static final long serialVersionUID = 8146119965206278027L;
+  private final Query q;
 
   public static final QueryCheckBox createTableQuery(
       final GisPanel panel, final Table table, final String name) {
@@ -43,6 +44,7 @@ public abstract class QueryCheckBox extends JCheckBox {
 
   public QueryCheckBox(final GisPanel gisPanel, final Query q) {
     super(q.getName());
+    this.q = q;
     addActionListener(new ActionListener() {
 
       @Override
@@ -57,6 +59,10 @@ public abstract class QueryCheckBox extends JCheckBox {
       }
 
     });
+  }
+
+  public Query getQuery() {
+    return q;
   }
 
   public abstract void onAction(GisPanel gisPanel);
